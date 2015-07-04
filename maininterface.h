@@ -2,6 +2,7 @@
 #define MAININTERFACE_H
 
 #include <QtWidgets>
+#include "newevent.h"
 
 class MainInterface: public QWidget
 {
@@ -10,6 +11,8 @@ public:
     MainInterface(QWidget *parent = 0);
 private slots:
     void settings();
+    void closeset();
+    void newevent();
 private:
     QMenuBar *bar;
     QAction *mm[2];
@@ -36,6 +39,8 @@ private:
     QVBoxLayout *box2lay;
     QVBoxLayout *setlay;
     QHBoxLayout *btnlay;
+    //
+    NewEvent *e;
 };
 
 #endif // MAININTERFACE_H

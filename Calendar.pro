@@ -13,7 +13,9 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp \
-    maininterface.cpp
+    maininterface.cpp \
+    newevent.cpp
 
 HEADERS  += \
-    maininterface.h
+    maininterface.h \
+    newevent.h

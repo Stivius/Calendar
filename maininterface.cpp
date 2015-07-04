@@ -2,26 +2,30 @@
 
 MainInterface::MainInterface(QWidget *parent):QWidget(parent)
 {
-    table = new QTableWidget(10,4);
-    table->horizontalHeader()->setSectionResizeMode( 0, QHeaderView::Stretch );
-    table->horizontalHeader()->setSectionResizeMode( 1, QHeaderView::Stretch );
-    table->horizontalHeader()->setSectionResizeMode( 2, QHeaderView::Stretch );
-    table->horizontalHeader()->setSectionResizeMode( 3, QHeaderView::Stretch );
+    table = new QTableWidget(0,5);
+    table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    table->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+    table->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
+    table->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Stretch);
     table->setHorizontalHeaderItem(0, new QTableWidgetItem("Дата"));
     table->setHorizontalHeaderItem(1, new QTableWidgetItem("Событие"));
-    table->setHorizontalHeaderItem(2, new QTableWidgetItem("Место"));
-    table->setHorizontalHeaderItem(3, new QTableWidgetItem("Источник"));
+    table->setHorizontalHeaderItem(2, new QTableWidgetItem("Изображения"));
+    table->setHorizontalHeaderItem(3, new QTableWidgetItem("Место"));
+    table->setHorizontalHeaderItem(4, new QTableWidgetItem("Источник"));
     bar = new QMenuBar;
     mm[0] = new QAction("Настройка", 0);
     connect(mm[0],SIGNAL(triggered()),SLOT(settings()));
     mm[1] = new QAction("Справка", 0);
     menu = new QMenu("Даты");
     mm2[0] = new QAction("Новое событие", 0);
+    connect(mm2[0],SIGNAL(triggered()),SLOT(newevent()));
     mm2[1] = new QAction("Импорт из файла", 0);
     mm2[2] = new QAction("Экспорт в файл", 0);
     mm2[3] = new QAction("Тематика", 0);
     mm2[4] = new QAction("Места", 0);
     mm2[5] = new QAction("Выход", 0);
+    connect(mm2[5],SIGNAL(triggered()),SLOT(close()));
     for(int i = 0; i != 6; i++)
     {
         menu->addAction(mm2[i]);
@@ -80,6 +84,7 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     slider = new QSlider(Qt::Horizontal);
     btn[0] = new QPushButton("Ок");
     btn[1] = new QPushButton("Отмена");
+    connect(btn[1],SIGNAL(clicked()),SLOT(closeset()));
     lbl[0] = new QLabel("Папка для хранения фотографий");
     lbl[1] = new QLabel("Качество сжатия в JPEG");
     box2 = new QGroupBox("При запуске");
@@ -105,4 +110,15 @@ void MainInterface::settings()
 {
     wgt->setWindowModality(Qt::ApplicationModal);
     wgt->show();
+}
+
+void MainInterface::closeset()
+{
+    wgt->close();
+}
+
+void MainInterface::newevent()
+{
+    e = new NewEvent;
+    e->show();
 }
