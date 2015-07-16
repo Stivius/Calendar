@@ -6,7 +6,7 @@
 
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets sql
 
 TARGET = Calendar
 TEMPLATE = app
@@ -14,8 +14,10 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     maininterface.cpp \
-    newevent.cpp
+    newevent.cpp \
+    eventsmodel.cpp
 
 HEADERS  += \
     maininterface.h \
-    newevent.h
+    newevent.h \
+    eventsmodel.h

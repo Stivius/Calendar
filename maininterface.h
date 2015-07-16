@@ -2,18 +2,48 @@
 #define MAININTERFACE_H
 
 #include <QtWidgets>
-#include "newevent.h"
+#include "eventsmodel.h"
 
 class MainInterface: public QWidget
 {
     Q_OBJECT
 public:
+    friend class NewEvent;
     MainInterface(QWidget *parent = 0);
+    void set(int,QString,int,QString,QString,QString);
+    void up(int,QString,int,QString,QString,QString);
 private slots:
     void settings();
     void closeset();
     void newevent();
+    void edititem(QTableWidgetItem*);
+    void del();
+    void menushow(const QPoint&);
+    void fbig();
+    void fsmall();
+    void themes();
+    void places();
+    void card();
+    void indetail();
+signals:
+    void senditem(QTableWidgetItem*);
 private:
+    //
+    QLineEdit *line;
+    QTextEdit *tedit;
+    QLabel *label[5];
+    QComboBox *combobox[3];
+    QVBoxLayout *lay[5];
+    QHBoxLayout *hlay[2];
+    QVBoxLayout *vlay;
+    QGroupBox *group;
+    //
+    QMenu *contextmenu;
+    QAction *cmm[3];
+    int showlist;
+    bool eventFilter(QObject*, QEvent*);
+    QListWidget *list;
+    QHBoxLayout *laylist;
     QMenuBar *bar;
     QAction *mm[2];
     QAction *mm2[6];
@@ -40,7 +70,7 @@ private:
     QVBoxLayout *setlay;
     QHBoxLayout *btnlay;
     //
-    NewEvent *e;
+    EventsModel *db;
 };
 
 #endif // MAININTERFACE_H

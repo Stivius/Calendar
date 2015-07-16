@@ -2,13 +2,38 @@
 #define NEWEVENT_H
 
 #include <QtWidgets>
+#include "eventsmodel.h"
+#include "maininterface.h"
 
 class NewEvent: public QWidget
 {
     Q_OBJECT
 public:
-    NewEvent(QWidget *parent = 0);
+    NewEvent(EventsModel *model = 0, MainInterface *in = 0, QTableWidgetItem *it = 0,  QWidget *parent = 0);
+private slots:
+    void save();
+    void upload();
+    void uploadphoto();
+    void removephoto();
+    void next();
+    void prev();
 private:
+    QVector<QPixmap> uploadedtemp;
+    QVector<QString> uploaded;
+    QVector<QString> removed;
+    QString img;
+    int now;
+    int num;
+    int cimg;
+    QVector<QPixmap> vec;
+    QTreeView *view;
+    QDirModel *dir;
+    QPushButton *ok;
+    QVBoxLayout *lay;
+    QWidget *wgt;
+    int edit;
+    QString sdesc2;
+    QTableWidgetItem *item;
     QSpinBox *day;
     QComboBox *month;
     QSpinBox *year;
@@ -24,6 +49,9 @@ private:
     QVBoxLayout *vlay[6];
     QHBoxLayout *hlay[6];
     QVBoxLayout *mlayout;
+    QPushButton *btn2[2];
+    EventsModel *db;
+    MainInterface *inter;
 };
 
 #endif // NEWEVENT_H
