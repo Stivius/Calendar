@@ -6,6 +6,7 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     db = new EventsModel;
     table = new QTableWidget(0,5);
     connect(this,SIGNAL(senditem(QTableWidgetItem*)),SLOT(edititem(QTableWidgetItem*)));
+    connect(table,SIGNAL(itemClicked(QTableWidgetItem*)),SLOT(changedetails(QTableWidgetItem*)));
     table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
     table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
@@ -103,23 +104,28 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     vlay = new QVBoxLayout;
     group = new QGroupBox("Событие");
     label[0] = new QLabel("Дата");
-    combobox[0] = new QComboBox;
+    date = new QLineEdit;
+    date->setReadOnly(true);
     lay[0]->addWidget(label[0]);
-    lay[0]->addWidget(combobox[0]);
+    lay[0]->addWidget(date);
     label[1] = new QLabel("Тематика");
-    combobox[1] = new QComboBox;
+    theme = new QLineEdit;
+    theme->setReadOnly(true);
     lay[1]->addWidget(label[1]);
-    lay[1]->addWidget(combobox[1]);
+    lay[1]->addWidget(theme);
     label[2] = new QLabel("Место");
-    combobox[2] = new QComboBox;
+    place = new QLineEdit;
+    place->setReadOnly(true);
     lay[2]->addWidget(label[2]);
-    lay[2]->addWidget(combobox[2]);
+    lay[2]->addWidget(place);
     label[3] = new QLabel("Дополнительно");
     line = new QLineEdit;
+    line->setReadOnly(true);
     lay[3]->addWidget(label[3]);
     lay[3]->addWidget(line);
     label[4] = new QLabel("Подробное описание");
     tedit = new QTextEdit;
+    tedit->setReadOnly(true);
     lay[4]->addWidget(label[4]);
     lay[4]->addWidget(tedit);
     hlay[0]->addLayout(lay[0]);
@@ -203,22 +209,96 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     setLayout(mlayout);
 }
 
+void MainInterface::changedetails(QTableWidgetItem *item)
+{
+    if(!group->isHidden())
+    {
+        if(item != 0)
+        {
+            db->getdata();
+            line->setText(db->extra[item->row()]);
+            tedit->setText(db->ldesc[item->row()]);
+            int n;
+            if(db->month[item->row()] == "Январь")
+                n = 1;
+            else if(db->month[item->row()] == "Февраль")
+                n = 2;
+            else if(db->month[item->row()] == "Март")
+                n = 3;
+            else if(db->month[item->row()] == "Апрель")
+                n = 4;
+            else if(db->month[item->row()] == "Май")
+                n = 5;
+            else if(db->month[item->row()] == "Июнь")
+                n = 6;
+            else if(db->month[item->row()] == "Июль")
+                n = 7;
+            else if(db->month[item->row()] == "Август")
+                n = 8;
+            else if(db->month[item->row()] == "Сентябрь")
+                n = 9;
+            else if(db->month[item->row()] == "Октябрь")
+                n = 10;
+            else if(db->month[item->row()] == "Ноябрь")
+                n = 11;
+            else if(db->month[item->row()] == "Декабрь")
+                n = 12;
+            QString str(QString::number(db->day[item->row()]) + "." + QString::number(n) + "." + QString::number(db->year[item->row()]));
+            date->setText(str);
+            theme->setText(db->theme[item->row()]);
+            place->setText(db->place[item->row()]);
+        }
+    }
+}
+
 void MainInterface::indetail()
 {
     if(group->isHidden())
     {
         if(table->currentItem() != 0)
         {
+            db->getdata();
             line->setText(db->extra[table->currentRow()]);
             tedit->setText(db->ldesc[table->currentRow()]);
-            combobox[0]->addItem("");
-            combobox[1]->addItem("");
-            combobox[2]->addItem("");
+            int n;
+            if(db->month[table->currentRow()] == "Январь")
+                n = 1;
+            else if(db->month[table->currentRow()] == "Февраль")
+                n = 2;
+            else if(db->month[table->currentRow()] == "Март")
+                n = 3;
+            else if(db->month[table->currentRow()] == "Апрель")
+                n = 4;
+            else if(db->month[table->currentRow()] == "Май")
+                n = 5;
+            else if(db->month[table->currentRow()] == "Июнь")
+                n = 6;
+            else if(db->month[table->currentRow()] == "Июль")
+                n = 7;
+            else if(db->month[table->currentRow()] == "Август")
+                n = 8;
+            else if(db->month[table->currentRow()] == "Сентябрь")
+                n = 9;
+            else if(db->month[table->currentRow()] == "Октябрь")
+                n = 10;
+            else if(db->month[table->currentRow()] == "Ноябрь")
+                n = 11;
+            else if(db->month[table->currentRow()] == "Декабрь")
+                n = 12;
+            QString str(QString::number(db->day[table->currentRow()]) + "." + QString::number(n) + "." + QString::number(db->year[table->currentRow()]));
+            date->setText(str);
+            theme->setText(db->theme[table->currentRow()]);
+            place->setText(db->place[table->currentRow()]);
         }
         group->show();
     }
     else
     {
+        line->setText("");
+        tedit->setText("");
+        date->setText("");
+        theme->setText("");
+        place->setText("");
         group->hide();
     }
 }
@@ -229,7 +309,6 @@ void MainInterface::themes()
     {
         showlist = 1;
         list->clear();
-        list->addItem("");
         for(int i = 0; i != db->count(); i++)
         {
             list->addItem(db->theme[i]);
@@ -253,7 +332,6 @@ void MainInterface::places()
     {
         showlist = 2;
         list->clear();
-        list->addItem("");
         for(int i = 0; i != db->count(); i++)
         {
             list->addItem(db->place[i]);

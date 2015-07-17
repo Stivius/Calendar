@@ -17,6 +17,7 @@ private slots:
     void closeset();
     void newevent();
     void edititem(QTableWidgetItem*);
+    void changedetails(QTableWidgetItem*);
     void del();
     void menushow(const QPoint&);
     void fbig();
@@ -32,7 +33,9 @@ private:
     QLineEdit *line;
     QTextEdit *tedit;
     QLabel *label[5];
-    QComboBox *combobox[3];
+    QLineEdit *date;
+    QLineEdit *theme;
+    QLineEdit *place;
     QVBoxLayout *lay[5];
     QHBoxLayout *hlay[2];
     QVBoxLayout *vlay;

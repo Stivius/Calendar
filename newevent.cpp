@@ -51,7 +51,6 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
     vlay[0]->addLayout(hlay[0]);
     lbl[2] = new QLabel("Тематика");
     theme = new QComboBox;
-    theme->addItem("");
     for(int i = 0; i != db->count(); i++)
     {
         theme->addItem(db->theme[i]);
@@ -73,7 +72,6 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
     //
     lbl[5] = new QLabel("Место события");
     place = new QComboBox;
-    place->addItem("");
     for(int i = 0; i != db->count(); i++)
     {
         place->addItem(db->place[i]);
@@ -81,7 +79,6 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
     place->setEditable(true);
     lbl[6] = new QLabel("Источник");
     source = new QComboBox;
-    source->addItem("");
     for(int i = 0; i != db->count(); i++)
     {
         source->addItem(db->source[i]);
@@ -176,11 +173,11 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
         day->setValue(db->day[item->row()]);
         month->setCurrentIndex(n-1);
         year->setValue(db->year[item->row()]);
-        theme->addItem(db->theme[item->row()]);
+        theme->setCurrentIndex(item->row());
         sdesc->setText(db->sdesc[item->row()]);
         ldesc->setText(db->ldesc[item->row()]);
-        place->addItem(db->place[item->row()]);
-        source->addItem(db->source[item->row()]);
+        place->setCurrentIndex(item->row());
+        source->setCurrentIndex(item->row());
         extra->setText(db->extra[item->row()]);
         sdesc2 = db->sdesc[item->row()];
     }
