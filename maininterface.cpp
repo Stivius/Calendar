@@ -1,5 +1,6 @@
 #include "maininterface.h"
 #include "newevent.h"
+#include <QtPrintSupport/QPrinter>
 
 MainInterface::MainInterface(QWidget *parent):QWidget(parent)
 {
@@ -28,6 +29,7 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     connect(mm2[0],SIGNAL(triggered()),SLOT(newevent()));
     mm2[1] = new QAction("Импорт из файла", 0);
     mm2[2] = new QAction("Экспорт в файл", 0);
+    connect(mm2[2],SIGNAL(triggered()),SLOT(exporttable()));
     mm2[3] = new QAction("Тематика", 0);
     mm2[3]->setCheckable(true);
     connect(mm2[3],SIGNAL(triggered()),SLOT(themes()));
@@ -301,6 +303,47 @@ void MainInterface::indetail()
         place->setText("");
         group->hide();
     }
+}
+
+void MainInterface::exporttable()
+{
+    QFile file("export.htm");
+    if(file.exists())
+    {
+        file.remove();
+    }
+    file.open(QIODevice::ReadWrite);
+    QString str;
+    str += "<table border='1' align='center'>"
+           "<caption>Table from Calendar (by stivius)</caption>"
+           "<tr>"
+           "<th>Image</th>"
+           "<th>Date</th>"
+           "<th>Event</th>"
+           "</tr>";
+    for(int i = 0; i != table->rowCount(); i++)
+    {
+        QString strF =
+               "<tr>"
+               "<td>%1</td>"
+               "<td>%2</td>"
+               "<td>%3</td>"
+               "</tr>";
+        str += strF.arg("test").arg(table->item(i,0)->text()).arg(table->item(i,1)->text());
+    }
+    str += "</table>";
+    QTextStream stream(&file);
+    stream << str;
+    QPrinter printer(QPrinter::PrinterResolution);
+    printer.setPageSize(QPrinter::A4);
+    printer.setOutputFormat(QPrinter::PdfFormat);
+    printer.setOutputFileName(QApplication::applicationDirPath() + "/export.pdf");
+    QTextDocument *doc = new QTextDocument;
+    doc->setHtml(str);
+    doc->print(&printer);
+    QDesktopServices process;
+    process.openUrl(QUrl::fromLocalFile(QApplication::applicationDirPath() + "/export.pdf"));
+    process.openUrl(QUrl::fromLocalFile(QApplication::applicationDirPath() + "/export.htm"));
 }
 
 void MainInterface::themes()

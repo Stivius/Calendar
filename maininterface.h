@@ -26,6 +26,7 @@ private slots:
     void places();
     void card();
     void indetail();
+    void exporttable();
 signals:
     void senditem(QTableWidgetItem*);
 private:
