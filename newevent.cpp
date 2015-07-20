@@ -203,7 +203,8 @@ void NewEvent::removephoto()
         if(now <= db->images[inter->table->currentRow()].size()-1)
         {
             img.remove(db->images[inter->table->currentRow()][now] + "\n");
-            removed.push_back(db->images[inter->table->currentRow()][now]);
+            removed.push_back(db->path + "/" + db->images[inter->table->currentRow()][now]);
+            db->images[inter->table->currentRow()].remove(now);
         }
         else
         {
@@ -220,7 +221,8 @@ void NewEvent::removephoto()
         if(now <= db->images[inter->table->currentRow()].size()-1)
         {
             img.remove(db->images[inter->table->currentRow()][now] + "\n");
-            removed.push_back(db->images[inter->table->currentRow()][now]);
+            removed.push_back(db->path + "/" + db->images[inter->table->currentRow()][now]);
+            db->images[inter->table->currentRow()].remove(now);
         }
         else
         {
@@ -238,7 +240,8 @@ void NewEvent::removephoto()
         if(now <= db->images[inter->table->currentRow()].size()-1)
         {
             img.remove(db->images[inter->table->currentRow()][now] + "\n");
-            removed.push_back(db->images[inter->table->currentRow()][now]);
+            removed.push_back(db->path + "/" + db->images[inter->table->currentRow()][now]);
+            db->images[inter->table->currentRow()].remove(now);
         }
         else
         {
@@ -288,13 +291,14 @@ void NewEvent::upload()
         int n;
         for(int i = 0; i != 100; i++)
         {
-            QString str("image" + QString::number(i) + ".png");
+            QString str(db->path + "/" + "image" + QString::number(i) + ".png");
+            QString str2("image" + QString::number(i) + ".png");
             if(!file.exists(str))
             {
                 int c = 0;
                 for(int j = 0; j != uploaded.size(); j++)
                 {
-                    if(str == uploaded[j])
+                    if(str2 == uploaded[j])
                     {
                         c++;
                     }

@@ -16,6 +16,7 @@ public:
     void getdata();
     void upsettings(QString, int, int);
     void getsettings();
+    int getimages(int);
     void del(int,QString);
     int count();
     int imgcount();

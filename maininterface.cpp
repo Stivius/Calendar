@@ -678,6 +678,9 @@ void MainInterface::card(QTableWidgetItem *item)
 void MainInterface::settings()
 {
     //wgt->setWindowModality(Qt::ApplicationModal);
+    db->getsettings();
+    slider->setValue(db->quality);
+    edit2->setText(db->path);
     wgt->show();
 }
 

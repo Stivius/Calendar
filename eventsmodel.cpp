@@ -35,6 +35,7 @@ EventsModel::EventsModel()
     img = 0;
 }
 
+// новое событие
 void EventsModel::save(int day, QString month, int year, QString theme, QString sdesc, QString ldesc, QString place, QString source, QString extra, QString img)
 {
     QString string = "INSERT INTO events (day,month,year,theme,sdesc,ldesc,place,source,extra,images) VALUES ('%1','%2','%3','%4','%5','%6','%7','%8','%9','%10')";
@@ -42,6 +43,7 @@ void EventsModel::save(int day, QString month, int year, QString theme, QString 
     db.exec(query);
 }
 
+// обновить событие
 void EventsModel::update(int day, QString month, int year, QString theme, QString sdesc, QString ldesc, QString place, QString source, QString extra, QString img, QString sdesc2)
 {
     QString string = "UPDATE events SET day='%1',month='%2',year='%3',theme='%4',sdesc='%5',ldesc='%6',place='%7',source='%8',extra='%9',images='%10' WHERE sdesc='%11'";
@@ -49,6 +51,7 @@ void EventsModel::update(int day, QString month, int year, QString theme, QStrin
     db.exec(query);
 }
 
+// обновить настройки
 void EventsModel::upsettings(QString path, int quality, int show)
 {
     QString string = "UPDATE settings SET path='%1',quality='%2',show='%3'";
@@ -56,19 +59,22 @@ void EventsModel::upsettings(QString path, int quality, int show)
     db.exec(query);
 }
 
+// удалить событие
 void EventsModel::del(int row, QString str)
 {
-    // сделать SELECT, на основе SELECT'a заполнить удалить
+    getsettings();
+    int n = getimages(row);
     QFile file;
-    for(int i = 0; i != images[row].size(); i++)
+    for(int i = 0; i != n; i++)
     {
-        file.remove(images[row][i]);
+        file.remove(path + "/" + images[row][i]);
     }
     QString string = "DELETE FROM events WHERE sdesc='%1'";
     QString query = string.arg(str);
     db.exec(query);
 }
 
+// получить настройки
 void EventsModel::getsettings()
 {
     query = new QSqlQuery(db);
@@ -82,6 +88,30 @@ void EventsModel::getsettings()
     }
 }
 
+// получить изображения
+int EventsModel::getimages(int row)
+{
+    query = new QSqlQuery(db);
+    query->exec("SELECT * FROM events");
+    rec = query->record();
+    int temp = 0;
+    while(query->next())
+    {
+        QString str = query->value(rec.indexOf("images")).toString();
+        int count = str.count(QChar('\n'));
+        for(int i = 0; i != count; i++)
+        {
+            int n = str.indexOf(QChar('\n'));
+            QString str2 = str.mid(0,n);
+            str.remove(0,n+1);
+            images[temp].push_back(str2);
+        }
+        temp++;
+    }
+    return images[row].size();
+}
+
+// получить все данные
 void EventsModel::getdata()
 {
     query = new QSqlQuery(db);
@@ -127,11 +157,13 @@ void EventsModel::getdata()
     }
 }
 
+// кол-во событий
 int EventsModel::count()
 {
     return size;
 }
 
+// кол-во изображений
 int EventsModel::imgcount()
 {
     return img;
