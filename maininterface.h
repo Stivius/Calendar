@@ -25,11 +25,43 @@ private slots:
     void themes();
     void places();
     void card();
+    void card(QTableWidgetItem*);
     void indetail();
     void exporttable();
+    void submitexport();
+    void choosepath();
+    void setpath();
+    void importtable();
+    void exceltemplate();
+    void submitimport();
+    void upsettings();
 signals:
     void senditem(QTableWidgetItem*);
 private:
+    //
+    QWidget *wgtpath;
+    QVBoxLayout *laypath;
+    QTreeView *viewpath;
+    QPushButton *okpath;
+    QDirModel *dirpath;
+    //
+    QWidget *exportwgt;
+    QGroupBox *gr;
+    QVBoxLayout *layv[2];
+    QHBoxLayout *layh;
+    QLineEdit *path;
+    QPushButton *choose;
+    QPushButton *submit;
+    QRadioButton *rad[2];
+    QFileDialog *dialog;
+    //
+    QWidget *importwgt;
+    QGroupBox *importgroup;
+    QRadioButton *textfile;
+    QRadioButton *xlsxfile;
+    QVBoxLayout *importlayout[2];
+    QPushButton *excel;
+    QPushButton *importbtn;
     //
     QLineEdit *line;
     QTextEdit *tedit;
@@ -73,6 +105,8 @@ private:
     QVBoxLayout *box2lay;
     QVBoxLayout *setlay;
     QHBoxLayout *btnlay;
+    QHBoxLayout *pathlay;
+    QPushButton *choosep;
     //
     EventsModel *db;
 };

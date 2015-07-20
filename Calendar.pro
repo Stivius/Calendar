@@ -11,6 +11,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets sql printsupport
 TARGET = Calendar
 TEMPLATE = app
 
+include(QtXlsx/src/xlsx/qtxlsx.pri)
 
 SOURCES += main.cpp \
     maininterface.cpp \

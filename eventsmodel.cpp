@@ -1,4 +1,5 @@
 #include "eventsmodel.h"
+#include <QApplication>
 
 EventsModel::EventsModel()
 {
@@ -21,6 +22,15 @@ EventsModel::EventsModel()
             "extra VARCHAR(500),"
             "images VARCHAR(500)"
             ");");
+    db.exec("CREATE TABLE settings"
+            "("
+            "path VARCHAR(500),"
+            "quality INTEGER,"
+            "show INTEGER"
+            ");");
+    QString string = "INSERT INTO settings (path,quality,show) VALUES ('%1','%2','%3')";
+    QString query = string.arg(QApplication::applicationDirPath() + "/images").arg(50).arg(1);
+    db.exec(query);
     size = 0;
     img = 0;
 }
@@ -39,6 +49,13 @@ void EventsModel::update(int day, QString month, int year, QString theme, QStrin
     db.exec(query);
 }
 
+void EventsModel::upsettings(QString path, int quality, int show)
+{
+    QString string = "UPDATE settings SET path='%1',quality='%2',show='%3'";
+    QString query = string.arg(path).arg(quality).arg(show);
+    db.exec(query);
+}
+
 void EventsModel::del(int row, QString str)
 {
     // сделать SELECT, на основе SELECT'a заполнить удалить
@@ -50,6 +67,19 @@ void EventsModel::del(int row, QString str)
     QString string = "DELETE FROM events WHERE sdesc='%1'";
     QString query = string.arg(str);
     db.exec(query);
+}
+
+void EventsModel::getsettings()
+{
+    query = new QSqlQuery(db);
+    query->exec("SELECT * FROM settings");
+    rec = query->record();
+    while(query->next())
+    {
+        path = query->value(rec.indexOf("path")).toString();
+        quality = query->value(rec.indexOf("quality")).toInt();
+        show = query->value(rec.indexOf("show")).toInt();
+    }
 }
 
 void EventsModel::getdata()

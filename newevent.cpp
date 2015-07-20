@@ -4,6 +4,7 @@
 NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, QWidget *parent):QWidget(parent)
 {
     db = model;
+    db->getsettings();
     db->getdata();
     inter = in;
     item = it;
@@ -134,7 +135,7 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
     {
         for(int i = 0; i != db->images[inter->table->currentRow()].size(); i++)
         {
-            pix->load(db->images[inter->table->currentRow()][i]);
+            pix->load(db->path + "/" + db->images[inter->table->currentRow()][i]);
             vec.push_back(pix->scaled(150,150,Qt::KeepAspectRatio));
             QString str = db->images[inter->table->currentRow()][i] + "\n";
             img += str;
@@ -330,7 +331,7 @@ void NewEvent::save()
     }
     for(int i = 0; i != uploaded.size(); i++)
     {
-        uploadedtemp[i].save(uploaded[i]);
+        uploadedtemp[i].save(db->path + "/" + uploaded[i], "PNG", db->quality);
     }
     for(int i = 0; i != removed.size(); i++)
     {

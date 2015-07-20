@@ -1,13 +1,18 @@
 #include "maininterface.h"
 #include "newevent.h"
-#include <QtPrintSupport/QPrinter>
+#include "xlsxdocument.h"
+#include <QtPrintSupport>
 
 MainInterface::MainInterface(QWidget *parent):QWidget(parent)
 {
     db = new EventsModel;
+    QDir dir;
+    dir.mkdir("images");
+    dir.mkdir("temporary");
     table = new QTableWidget(0,5);
     connect(this,SIGNAL(senditem(QTableWidgetItem*)),SLOT(edititem(QTableWidgetItem*)));
     connect(table,SIGNAL(itemClicked(QTableWidgetItem*)),SLOT(changedetails(QTableWidgetItem*)));
+    connect(table,SIGNAL(itemDoubleClicked(QTableWidgetItem*)),SLOT(card(QTableWidgetItem*)));
     table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
     table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
@@ -28,6 +33,7 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     mm2[0] = new QAction("Новое событие", 0);
     connect(mm2[0],SIGNAL(triggered()),SLOT(newevent()));
     mm2[1] = new QAction("Импорт из файла", 0);
+    connect(mm2[1],SIGNAL(triggered()),SLOT(importtable()));
     mm2[2] = new QAction("Экспорт в файл", 0);
     connect(mm2[2],SIGNAL(triggered()),SLOT(exporttable()));
     mm2[3] = new QAction("Тематика", 0);
@@ -97,6 +103,48 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     laylist->addWidget(list);
     laylist->addWidget(table);
     //
+    exportwgt = new QWidget;
+    gr = new QGroupBox("Тип экспорта");
+    rad[0] = new QRadioButton("На печать");
+    rad[1] = new QRadioButton("Формат веб-браузера");
+    rad[1]->setChecked(true);
+    layv[0] = new QVBoxLayout;
+    layv[1] = new QVBoxLayout;
+    layh = new QHBoxLayout;
+    path = new QLineEdit(QApplication::applicationDirPath());
+    choose = new QPushButton("Выбрать");
+    connect(choose, SIGNAL(clicked()), SLOT(choosepath()));
+    submit = new QPushButton("Экспорт");
+    connect(submit, SIGNAL(clicked()), SLOT(submitexport()));
+    layh->addWidget(path);
+    layh->addWidget(choose);
+    layv[0]->addWidget(rad[0]);
+    layv[0]->addWidget(rad[1]);
+    gr->setLayout(layv[0]);
+    layv[1]->addLayout(layh);
+    layv[1]->addWidget(gr);
+    layv[1]->addWidget(submit);
+    exportwgt->setLayout(layv[1]);
+    //
+    importwgt = new QWidget;
+    importgroup = new QGroupBox("Тип импорта");
+    textfile = new QRadioButton("Из текстового файла");
+    xlsxfile = new QRadioButton("Из таблицы Excel");
+    xlsxfile->setChecked(true);
+    importlayout[0] = new QVBoxLayout;
+    importlayout[1] = new QVBoxLayout;
+    excel = new QPushButton("Загрузить шаблон таблицы Excel");
+    connect(excel, SIGNAL(clicked()), SLOT(exceltemplate()));
+    importbtn = new QPushButton("Импорт");
+    connect(importbtn, SIGNAL(clicked()), SLOT(submitimport()));
+    importlayout[0]->addWidget(textfile);
+    importlayout[0]->addWidget(xlsxfile);
+    importgroup->setLayout(importlayout[0]);
+    importlayout[1]->addWidget(importgroup);
+    importlayout[1]->addWidget(excel);
+    importlayout[1]->addWidget(importbtn);
+    importwgt->setLayout(importlayout[1]);
+    //
     for(int i = 0; i != 5; i++)
     {
         lay[i] = new QVBoxLayout;
@@ -149,15 +197,23 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     box2lay = new QVBoxLayout;
     setlay = new QVBoxLayout;
     btnlay = new QHBoxLayout;
+    pathlay = new QHBoxLayout;
+    choosep = new QPushButton("Выбрать");
+    connect(choosep,SIGNAL(clicked()),SLOT(choosepath()));
     edit2 = new QLineEdit;
+    pathlay->addWidget(edit2);
+    pathlay->addWidget(choosep);
     slider = new QSlider(Qt::Horizontal);
+    slider->setRange(0,100);
     btn[0] = new QPushButton("Ок");
+    connect(btn[0],SIGNAL(clicked()),SLOT(upsettings()));
     btn[1] = new QPushButton("Отмена");
     connect(btn[1],SIGNAL(clicked()),SLOT(closeset()));
     lbl[0] = new QLabel("Папка для хранения фотографий");
     lbl[1] = new QLabel("Качество сжатия в JPEG");
     box2 = new QGroupBox("При запуске");
     radio[0] = new QRadioButton("показать все даты");
+    radio[0]->setChecked(true);
     radio[1] = new QRadioButton("юбилейные на сегодня");
     box2lay->addWidget(radio[0]);
     box2lay->addWidget(radio[1]);
@@ -165,7 +221,7 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     btnlay->addWidget(btn[0]);
     btnlay->addWidget(btn[1]);
     setlay->addWidget(lbl[0]);
-    setlay->addWidget(edit2);
+    setlay->addLayout(pathlay);
     setlay->addWidget(lbl[1]);
     setlay->addWidget(slider);
     setlay->addWidget(box2);
@@ -253,6 +309,21 @@ void MainInterface::changedetails(QTableWidgetItem *item)
     }
 }
 
+void MainInterface::upsettings()
+{
+    int flag;
+    if(textfile->isChecked())
+    {
+        flag = 1;
+    }
+    else
+    {
+        flag = 0;
+    }
+    db->upsettings(edit2->text(), slider->value(), flag);
+    wgt->hide();
+}
+
 void MainInterface::indetail()
 {
     if(group->isHidden())
@@ -305,45 +376,198 @@ void MainInterface::indetail()
     }
 }
 
-void MainInterface::exporttable()
+void MainInterface::setpath()
 {
-    QFile file("export.htm");
-    if(file.exists())
+    // модифицировать
+    QString p = dirpath->filePath(viewpath->selectionModel()->currentIndex());
+    path->setText(p);
+    if(!importwgt->isHidden())
     {
-        file.remove();
+        if(p.indexOf(".txt") != -1)
+        {
+            QFile file(p);
+            file.open(QIODevice::ReadWrite);
+            QTextStream stream(&file);
+            while(!stream.atEnd())
+            {
+
+                QString str = stream.readLine();
+                qDebug() << str;
+                /*QRegularExpression re("([0-9]{1,2})\s([0-9]{1,2})|(апрель)\s([0-9]{2,4})");
+                QRegularExpressionMatch match = re.match(str);
+                if(match.hasMatch())
+                {
+                    qDebug() << str;
+                }
+                else
+                {
+                    qDebug() << "Не совпадает";
+                }*/
+            }
+            importwgt->hide();
+        }
     }
-    file.open(QIODevice::ReadWrite);
+    else if(!wgt->isHidden())
+    {
+        db->path = p;
+    }
+    wgtpath->hide();
+}
+
+void MainInterface::choosepath()
+{
+    wgtpath = new QWidget;
+    laypath = new QVBoxLayout;
+    viewpath = new QTreeView;
+    okpath = new QPushButton("Ok");
+    connect(okpath,SIGNAL(clicked()),SLOT(setpath()));
+    dirpath = new QDirModel;
+    dirpath->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
+    viewpath->setModel(dirpath);
+    viewpath->hideColumn(1);
+    viewpath->hideColumn(2);
+    viewpath->hideColumn(3);
+    laypath->addWidget(viewpath);
+    laypath->addWidget(okpath);
+    wgtpath->setLayout(laypath);
+    wgtpath->show();
+}
+
+void MainInterface::submitexport()
+{
+    db->getdata();
+    QTextCodec::setCodecForLocale(QTextCodec::codecForName(("windows-1251")));
     QString str;
-    str += "<table border='1' align='center'>"
-           "<caption>Table from Calendar (by stivius)</caption>"
+    str += "<html>"
+           "<meta http-equiv='Content-Type' content='text/html; charset=windows-1251' />"
+           "<table border='1' align='center'>"
+           "<caption>Таблица из календаря (by stivius)</caption>"
            "<tr>"
-           "<th>Image</th>"
-           "<th>Date</th>"
-           "<th>Event</th>"
+           "<th>Изображение</th>"
+           "<th>Дата</th>"
+           "<th>Событие</th>"
            "</tr>";
     for(int i = 0; i != table->rowCount(); i++)
     {
         QString strF =
                "<tr>"
-               "<td>%1</td>"
+               "<td><img src='%1'></td>"
                "<td>%2</td>"
                "<td>%3</td>"
                "</tr>";
-        str += strF.arg("test").arg(table->item(i,0)->text()).arg(table->item(i,1)->text());
+        if(db->images[i].size() > 0)
+        {
+            QPixmap pix(QApplication::applicationDirPath() + "/" + db->images[i][db->images[i].size()-1]);
+            pix = pix.scaled(150,150,Qt::KeepAspectRatio);
+            pix.save(QApplication::applicationDirPath() + "/temporary/temporary" + QString::number(i) + ".png");
+        }
+        str += strF.arg(QApplication::applicationDirPath() + "/temporary/temporary" + QString::number(i) + ".png").arg(table->item(i,0)->text()).arg(table->item(i,1)->text());
     }
-    str += "</table>";
-    QTextStream stream(&file);
-    stream << str;
-    QPrinter printer(QPrinter::PrinterResolution);
-    printer.setPageSize(QPrinter::A4);
-    printer.setOutputFormat(QPrinter::PdfFormat);
-    printer.setOutputFileName(QApplication::applicationDirPath() + "/export.pdf");
-    QTextDocument *doc = new QTextDocument;
-    doc->setHtml(str);
-    doc->print(&printer);
+    str += "</table>"
+           "</html>";
     QDesktopServices process;
-    process.openUrl(QUrl::fromLocalFile(QApplication::applicationDirPath() + "/export.pdf"));
-    process.openUrl(QUrl::fromLocalFile(QApplication::applicationDirPath() + "/export.htm"));
+    if(rad[1]->isChecked())
+    {
+        QFile file(path->text() + "/export.htm");
+        if(file.exists())
+        {
+            file.remove();
+        }
+        file.open(QIODevice::ReadWrite);
+        QTextStream stream(&file);
+        stream << str;
+        process.openUrl(QUrl::fromLocalFile(path->text() + "/export.htm"));
+    }
+    else
+    {
+        QPrinter printer(QPrinter::PrinterResolution);
+        printer.setPageSize(QPrinter::A4);
+        printer.setOutputFormat(QPrinter::PdfFormat);
+        printer.setOutputFileName(path->text() + "/export.pdf");
+        QTextDocument *doc = new QTextDocument;
+        doc->setHtml(str);
+        doc->print(&printer);
+        process.openUrl(QUrl::fromLocalFile(path->text() + "/export.pdf"));
+    }
+    exportwgt->hide();
+}
+
+void MainInterface::exporttable()
+{
+    exportwgt->show();
+}
+
+void MainInterface::exceltemplate()
+{
+    QXlsx::Document xlsx("Import.xlsx");
+    xlsx.write("A1","Дата");
+    xlsx.write("B1","Событие");
+    xlsx.save();
+    QDesktopServices process;
+    process.openUrl(QUrl::fromLocalFile(QApplication::applicationDirPath()+ "/Import.xlsx"));
+}
+
+void MainInterface::submitimport()
+{
+    // модифицировать
+    QXlsx::Document xlsx("Import.xlsx");
+    if(textfile->isChecked())
+    {
+        wgtpath = new QWidget;
+        laypath = new QVBoxLayout;
+        viewpath = new QTreeView;
+        okpath = new QPushButton("Ok");
+        connect(okpath,SIGNAL(clicked()),SLOT(setpath()));
+        dirpath = new QDirModel;
+        dirpath->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
+        viewpath->setModel(dirpath);
+        viewpath->hideColumn(1);
+        viewpath->hideColumn(2);
+        viewpath->hideColumn(3);
+        laypath->addWidget(viewpath);
+        laypath->addWidget(okpath);
+        wgtpath->setLayout(laypath);
+        wgtpath->show();
+    }
+    else
+    {
+        bool loop = true;
+        int num = 2;
+        while(loop)
+        {
+            QString date = xlsx.read("A" + QString::number(num)).toString();
+            if(date != "")
+            {
+                QRegularExpression re("^([0-9]{1,2})\\.([0-9]{1,2})\\.([0-9]{2,4})$");
+                QRegularExpressionMatch match = re.match(date);
+                if(match.hasMatch())
+                {
+                    QString event = xlsx.read("B" + QString::number(num)).toString();
+                    table->insertRow(table->rowCount());
+                    table->setItem(table->rowCount()-1, 0, new QTableWidgetItem(date));
+                    table->setItem(table->rowCount()-1, 1, new QTableWidgetItem(event));
+                    //db->update(day,month,year,"",event,"","","","","",id); через captured
+                }
+                else
+                {
+                    qDebug() << "Неверный формат даты";
+                }
+            }
+            else
+            {
+                loop = false;
+            }
+            num++;
+        }
+        QFile file("Import.xlsx");
+        file.remove();
+        importwgt->hide();
+    }
+}
+
+void MainInterface::importtable()
+{
+    importwgt->show();
 }
 
 void MainInterface::themes()
@@ -445,9 +669,15 @@ void MainInterface::card()
     emit senditem(table->currentItem());
 }
 
+void MainInterface::card(QTableWidgetItem *item)
+{
+    NewEvent *e = new NewEvent(db,this,item);
+    e->show();
+}
+
 void MainInterface::settings()
 {
-    wgt->setWindowModality(Qt::ApplicationModal);
+    //wgt->setWindowModality(Qt::ApplicationModal);
     wgt->show();
 }
 
@@ -470,8 +700,11 @@ void MainInterface::newevent()
 
 void MainInterface::edititem(QTableWidgetItem *item)
 {
-    NewEvent *e = new NewEvent(db,this, item);
-    e->show();
+    if(item != 0)
+    {
+        NewEvent *e = new NewEvent(db,this, item);
+        e->show();
+    }
 }
 
 void MainInterface::set(int day, QString month, int year,QString sdesc, QString place, QString source)

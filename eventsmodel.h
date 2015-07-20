@@ -14,10 +14,15 @@ public:
     void save(int,QString,int,QString,QString,QString,QString,QString,QString,QString);
     void update(int,QString,int,QString,QString,QString,QString,QString,QString,QString,QString);
     void getdata();
+    void upsettings(QString, int, int);
+    void getsettings();
     void del(int,QString);
     int count();
     int imgcount();
 private:
+    int quality;
+    int show;
+    QString path;
     int img;
     QSqlDatabase db;
     QSqlQuery *query;
