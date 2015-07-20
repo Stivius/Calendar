@@ -15,7 +15,7 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
         vlay[i] = new QVBoxLayout;
         hlay[i] = new QHBoxLayout;
     }
-    //
+    // выбор пути для фотографий
     wgt = new QWidget;
     lay = new QVBoxLayout;
     view = new QTreeView;
@@ -30,7 +30,8 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
     lay->addWidget(view);
     lay->addWidget(ok);
     wgt->setLayout(lay);
-    //
+    // ----------------------
+    // дата и тематика
     lbl[0] = new QLabel("Дата события");
     day = new QSpinBox;
     day->setRange(1,31); //
@@ -61,7 +62,8 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
     vlay[1]->addWidget(theme);
     hlay[1]->addLayout(vlay[0]);
     hlay[1]->addLayout(vlay[1]);
-    //
+    // ----------------------
+    // краткое и полное описание
     lbl[3] = new QLabel("Краткое описание события");
     sdesc = new QLineEdit;
     lbl[4] = new QLabel("Полное описание события");
@@ -70,7 +72,8 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
     vlay[2]->addWidget(sdesc);
     vlay[2]->addWidget(lbl[4]);
     vlay[2]->addWidget(ldesc);
-    //
+    // ----------------------
+    // место для доп. полей
     lbl[5] = new QLabel("Место события");
     place = new QComboBox;
     for(int i = 0; i != db->count(); i++)
@@ -93,7 +96,8 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
     vlay[3]->addWidget(source);
     vlay[3]->addWidget(lbl[7]);
     vlay[3]->addWidget(extra);
-    //
+    // ----------------------
+    // место для изображений
     lbl[8] = new QLabel("Фотография");
     lbl[9] = new QLabel;
     pix = new QPixmap(150,150);
@@ -119,17 +123,18 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
     hlay[3]->addWidget(lbl[9]);
     vlay[5]->addWidget(lbl[8]);
     vlay[5]->addLayout(hlay[3]);
-    //
+    // ----------------------
     hlay[4]->addLayout(vlay[3]);
     hlay[4]->addLayout(vlay[5]);
-    //
+    // закрытие окна
     btn2[0] = new QPushButton("Ок");
     connect(btn2[0],SIGNAL(clicked()),SLOT(save()));
     btn2[1] = new QPushButton("Отмена");
     connect(btn2[1],SIGNAL(clicked()),SLOT(close()));
     hlay[5]->addWidget(btn2[0]);
     hlay[5]->addWidget(btn2[1]);
-    //
+    // ----------------------
+    // редактирование события
     cimg = db->imgcount();
     if(item != 0)
     {
@@ -146,31 +151,7 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
             lbl[9]->setPixmap(vec[now]);
         }
         cimg = db->imgcount();
-        int n;
-        if(db->month[item->row()] == "Январь")
-            n = 1;
-        else if(db->month[item->row()] == "Февраль")
-            n = 2;
-        else if(db->month[item->row()] == "Март")
-            n = 3;
-        else if(db->month[item->row()] == "Апрель")
-            n = 4;
-        else if(db->month[item->row()] == "Май")
-            n = 5;
-        else if(db->month[item->row()] == "Июнь")
-            n = 6;
-        else if(db->month[item->row()] == "Июль")
-            n = 7;
-        else if(db->month[item->row()] == "Август")
-            n = 8;
-        else if(db->month[item->row()] == "Сентябрь")
-            n = 9;
-        else if(db->month[item->row()] == "Октябрь")
-            n = 10;
-        else if(db->month[item->row()] == "Ноябрь")
-            n = 11;
-        else if(db->month[item->row()] == "Декабрь")
-            n = 12;
+        int n = db->getmonth(item->row());
         day->setValue(db->day[item->row()]);
         month->setCurrentIndex(n-1);
         year->setValue(db->year[item->row()]);
@@ -182,7 +163,7 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
         extra->setText(db->extra[item->row()]);
         sdesc2 = db->sdesc[item->row()];
     }
-    //
+    // ----------------------
     mlayout->addLayout(hlay[1]);
     mlayout->addLayout(vlay[2]);
     mlayout->addLayout(hlay[4]);
@@ -195,12 +176,13 @@ void NewEvent::uploadphoto()
     wgt->show();
 }
 
+// удаление фотографий
 void NewEvent::removephoto()
 {
     if(now >= 0 && now < vec.size()-1)
     {
         vec.remove(now);
-        if(now <= db->images[inter->table->currentRow()].size()-1)
+        if(now <= db->images[inter->table->currentRow()].size()-1) // с начала или с середины
         {
             img.remove(db->images[inter->table->currentRow()][now] + "\n");
             removed.push_back(db->path + "/" + db->images[inter->table->currentRow()][now]);
@@ -215,7 +197,7 @@ void NewEvent::removephoto()
         }
         lbl[9]->setPixmap(vec[now]);
     }
-    else if(now == vec.size()-1 && vec.size() > 1)
+    else if(now == vec.size()-1 && vec.size() > 1) // с конца
     {
         vec.remove(now);
         if(now <= db->images[inter->table->currentRow()].size()-1)
@@ -234,7 +216,7 @@ void NewEvent::removephoto()
         now--;
         lbl[9]->setPixmap(vec[now]);
     }
-    else if(vec.size() == 1)
+    else if(vec.size() == 1) // только одно фото
     {
         vec.remove(now);
         if(now <= db->images[inter->table->currentRow()].size()-1)
@@ -256,6 +238,7 @@ void NewEvent::removephoto()
     }
 }
 
+// листаем фото вперед
 void NewEvent::next()
 {
     if(now < vec.size()-1)
@@ -265,6 +248,7 @@ void NewEvent::next()
     }
 }
 
+// листаем фото назад
 void NewEvent::prev()
 {
     if(now > 0)
@@ -274,10 +258,11 @@ void NewEvent::prev()
     }
 }
 
+// загружаем фото
 void NewEvent::upload()
 {
     QString str = dir->fileName(view->selectionModel()->currentIndex());
-    if(str.indexOf(".png") == -1 && str.indexOf(".jpg") == -1)
+    if(str.indexOf(".png") == -1 && str.indexOf(".jpg") == -1 && str.indexOf(".jpeg") == -1) // только .PNG или .JPG/.JPEG
     {
         qDebug() << "Not found";
     }
@@ -289,7 +274,7 @@ void NewEvent::upload()
         now = vec.size()-1;
         QFile file;
         int n;
-        for(int i = 0; i != 100; i++)
+        for(int i = 0; i != 100; i++) // вычисляем порядковый номер изоображения
         {
             QString str(db->path + "/" + "image" + QString::number(i) + ".png");
             QString str2("image" + QString::number(i) + ".png");
@@ -312,8 +297,10 @@ void NewEvent::upload()
         }
         QString str("image" + QString::number(n) + ".png");
         n++;
+        // временные векторы с изображениями
         uploaded.push_back(str);
         uploadedtemp.push_back(*pix);
+        // ----------------------
         QString strF(str + "\n");
         img += strF;
         wgt->hide();
@@ -323,21 +310,21 @@ void NewEvent::upload()
 
 void NewEvent::save()
 {
-    if(item != 0)
+    if(item != 0) // обновление события
     {
         db->update(day->value(),month->currentText(),year->value(),theme->currentText(),sdesc->text(),ldesc->toPlainText(),place->currentText(),source->currentText(),extra->text(),img,sdesc2);
         inter->up(day->value(),month->currentText(),year->value(),sdesc->text(),place->currentText(),source->currentText());
     }
-    else
+    else // создание события
     {
         db->save(day->value(),month->currentText(),year->value(),theme->currentText(),sdesc->text(),ldesc->toPlainText(),place->currentText(),source->currentText(),extra->text(),img);
         inter->set(day->value(),month->currentText(),year->value(),sdesc->text(),place->currentText(),source->currentText());
     }
-    for(int i = 0; i != uploaded.size(); i++)
+    for(int i = 0; i != uploaded.size(); i++) // сохранение изображений в указанной папке
     {
         uploadedtemp[i].save(db->path + "/" + uploaded[i], "PNG", db->quality);
     }
-    for(int i = 0; i != removed.size(); i++)
+    for(int i = 0; i != removed.size(); i++) // удаление указанных изображений
     {
         QFile file(removed[i]);
         file.remove();

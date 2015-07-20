@@ -1,6 +1,7 @@
 #include "eventsmodel.h"
 #include <QApplication>
 
+// инициализация база данных
 EventsModel::EventsModel()
 {
     db = QSqlDatabase::addDatabase("QSQLITE", "connection");
@@ -109,6 +110,68 @@ int EventsModel::getimages(int row)
         temp++;
     }
     return images[row].size();
+}
+
+// узнаем месяц
+int EventsModel::getmonth(int i)
+{
+    int n;
+    if(month[i] == "Январь")
+        n = 1;
+    else if(month[i] == "Февраль")
+        n = 2;
+    else if(month[i] == "Март")
+        n = 3;
+    else if(month[i] == "Апрель")
+        n = 4;
+    else if(month[i] == "Май")
+        n = 5;
+    else if(month[i] == "Июнь")
+        n = 6;
+    else if(month[i] == "Июль")
+        n = 7;
+    else if(month[i] == "Август")
+        n = 8;
+    else if(month[i] == "Сентябрь")
+        n = 9;
+    else if(month[i] == "Октябрь")
+        n = 10;
+    else if(month[i] == "Ноябрь")
+        n = 11;
+    else if(month[i] == "Декабрь")
+        n = 12;
+    return n;
+}
+
+// узнаем месяц (перегруженная функция)
+int EventsModel::getmonth(QString str)
+{
+    int n;
+    if(str == "Январь")
+        n = 1;
+    else if(str == "Февраль")
+        n = 2;
+    else if(str == "Март")
+        n = 3;
+    else if(str == "Апрель")
+        n = 4;
+    else if(str == "Май")
+        n = 5;
+    else if(str == "Июнь")
+        n = 6;
+    else if(str == "Июль")
+        n = 7;
+    else if(str == "Август")
+        n = 8;
+    else if(str == "Сентябрь")
+        n = 9;
+    else if(str == "Октябрь")
+        n = 10;
+    else if(str == "Ноябрь")
+        n = 11;
+    else if(str == "Декабрь")
+        n = 12;
+    return n;
 }
 
 // получить все данные

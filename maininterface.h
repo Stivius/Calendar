@@ -38,23 +38,29 @@ private slots:
 signals:
     void senditem(QTableWidgetItem*);
 private:
+    bool eventFilter(QObject*, QEvent*);
+    EventsModel *db;
+    QVBoxLayout *mlayout;
+    QTableWidget *table;
     //
     QWidget *wgtpath;
     QVBoxLayout *laypath;
     QTreeView *viewpath;
     QPushButton *okpath;
     QDirModel *dirpath;
-    //
+    // экспорт
     QWidget *exportwgt;
-    QGroupBox *gr;
-    QVBoxLayout *layv[2];
-    QHBoxLayout *layh;
     QLineEdit *path;
     QPushButton *choose;
     QPushButton *submit;
-    QRadioButton *rad[2];
-    QFileDialog *dialog;
-    //
+    QGroupBox *texportbox;
+    QRadioButton *print;
+    QRadioButton *browser;
+    QVBoxLayout *texportlay;
+    QVBoxLayout *exportlay;
+    QHBoxLayout *exportpathlay;
+    // ----------------------
+    // импорт
     QWidget *importwgt;
     QGroupBox *importgroup;
     QRadioButton *textfile;
@@ -62,53 +68,82 @@ private:
     QVBoxLayout *importlayout[2];
     QPushButton *excel;
     QPushButton *importbtn;
-    //
-    QLineEdit *line;
-    QTextEdit *tedit;
-    QLabel *label[5];
+    // ----------------------
+    // подробное описание
     QLineEdit *date;
     QLineEdit *theme;
     QLineEdit *place;
-    QVBoxLayout *lay[5];
     QHBoxLayout *hlay[2];
     QVBoxLayout *vlay;
-    QGroupBox *group;
-    //
+    QVBoxLayout *datelay;
+    QVBoxLayout *themelay;
+    QVBoxLayout *placelay;
+    QVBoxLayout *extralay;
+    QVBoxLayout *ldesclay;
+    QGroupBox *eventgroup;
+    QLabel *datelbl;
+    QLabel *themelbl;
+    QLabel *placelbl;
+    QLabel *extralbl;
+    QLabel *ldesclbl;
+    QLineEdit *extra;
+    QTextEdit *ldesc;
+    // ----------------------
     QMenu *contextmenu;
     QAction *cmm[3];
     int showlist;
-    bool eventFilter(QObject*, QEvent*);
     QListWidget *list;
     QHBoxLayout *laylist;
+    // меню
     QMenuBar *bar;
-    QAction *mm[2];
-    QAction *mm2[6];
-    QAction *mm3[5];
     QMenu *menu;
     QMenu *menu2;
-    QGroupBox *box[2];
-    QHBoxLayout *boxlay[3];
-    QVBoxLayout *mlayout;
-    QComboBox *combo[3];
-    QLabel *combolbl[3];
-    QCheckBox *check[2];
-    QLineEdit *edit;
-    QTableWidget *table;
+    QAction *asettings;
+    QAction *areference;
+    QAction *anewevent;
+    QAction *aimport;
+    QAction *aexport;
+    QAction *athemes;
+    QAction *aplaces;
+    QAction *aexit;
+    QAction *abigfont;
+    QAction *asmallfont;
+    QAction *aanniversary;
+    QAction *aphotos;
+    QAction *aindetail;
+    // ----------------------
+    // поиск + фильтр
+    QGroupBox *search;
+    QGroupBox *datesearch;
+    QHBoxLayout *msearchlay;
+    QHBoxLayout *datesearchlay;
+    QHBoxLayout *searchlay;
+    QCheckBox *selected;
+    QCheckBox *anniversary;
+    QComboBox *day;
+    QComboBox *month;
+    QComboBox *year;
+    QLabel *daylbl;
+    QLabel *monthlbl;
+    QLabel *yearlbl;
+    QLineEdit *searchinput;
+    // ----------------------
     // settings
-    QWidget *wgt;
     QLabel *lbl[2];
-    QGroupBox *box2;
-    QRadioButton *radio[2];
-    QLineEdit *edit2;
-    QSlider *slider;
-    QPushButton *btn[2];
-    QVBoxLayout *box2lay;
     QVBoxLayout *setlay;
     QHBoxLayout *btnlay;
     QHBoxLayout *pathlay;
     QPushButton *choosep;
-    //
-    EventsModel *db;
+    QWidget *settingswgt;
+    QVBoxLayout *launchlay;
+    QLineEdit *settingspath;
+    QSlider *quality;
+    QPushButton *ok;
+    QPushButton *cancel;
+    QGroupBox *launchbox;
+    QRadioButton *alldates;
+    QRadioButton *anniversarytoday;
+    // ----------------------
 };
 
 #endif // MAININTERFACE_H

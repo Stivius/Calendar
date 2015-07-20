@@ -20,6 +20,8 @@ public:
     void del(int,QString);
     int count();
     int imgcount();
+    int getmonth(int);
+    int getmonth(QString);
 private:
     int quality;
     int show;
