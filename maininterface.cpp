@@ -34,6 +34,7 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     asettings = new QAction("Настройки", 0);
     connect(asettings,SIGNAL(triggered()),SLOT(settings()));
     areference = new QAction("Справка", 0);
+    connect(areference,SIGNAL(triggered()),SLOT(test()));
     menu = new QMenu("Даты");
     menu->installEventFilter(this);
     anewevent = new QAction("Новое событие", 0);
@@ -65,6 +66,9 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     connect(asmallfont,SIGNAL(triggered()),SLOT(fsmall()));
     aanniversary = new QAction("Юбилейные", 0);
     aphotos = new QAction("С фотографиями", 0);
+    aphotos->setCheckable(true);
+    checked = false;
+    connect(aphotos,SIGNAL(triggered()),SLOT(withphotos()));
     aindetail = new QAction("Показать подробнее", 0);
     connect(aindetail,SIGNAL(triggered()),SLOT(indetail()));
     menu2->addAction(abigfont);
@@ -262,6 +266,13 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     setLayout(mlayout);
 }
 
+void MainInterface::test()
+{
+    qDebug() << table->item(0,0);
+    table->removeRow(0);
+    qDebug() << table->item(0,0);
+}
+
 // изменить подробное описание
 void MainInterface::changedetails(QTableWidgetItem *item)
 {
@@ -295,6 +306,64 @@ void MainInterface::upsettings()
     }
     db->upsettings(settingspath->text(), quality->value(), flag);
     settingswgt->hide();
+}
+
+// с фотографиями
+void MainInterface::withphotos()
+{
+    QVector< QVector<QString> > tempimages;
+    for(int i = 0; i != 100; i++)
+    {
+        tempimages.push_back(db->images[i]);
+    }
+    if(checked == false)
+    {
+        int index = 0;
+        while(index != table->rowCount())
+        {
+            if(tempimages[index].size() == 0)
+            {
+                db->id.remove(index);
+                db->day.remove(index);
+                db->month.remove(index);
+                db->year.remove(index);
+                db->theme.remove(index);
+                db->sdesc.remove(index);
+                db->ldesc.remove(index);
+                db->place.remove(index);
+                db->source.remove(index);
+                db->extra.remove(index);
+                tempimages.remove(index);
+                table->removeRow(index);
+            }
+            else
+            {
+                index++;
+            }
+        }
+        checked = true;
+        aphotos->setChecked(true);
+    }
+    else
+    {
+        while(table->rowCount() > 0)
+        {
+            table->removeRow(0);
+        }
+        db->getdata();
+        for(int i = 0; i != db->count(); i++)
+        {
+
+            table->insertRow(i);
+            int n = db->getmonth(i);
+            table->setItem(i, 0, new QTableWidgetItem(QString::number(db->day[i]) + "." + QString::number(n) + "." + QString::number(db->year[i])));
+            table->setItem(i, 1, new QTableWidgetItem(db->sdesc[i]));
+            table->setItem(i, 3, new QTableWidgetItem(db->place[i]));
+            table->setItem(i, 4, new QTableWidgetItem(db->source[i]));
+        }
+        checked = false;
+        aphotos->setChecked(false);
+    }
 }
 
 // подробное описание
@@ -502,7 +571,7 @@ void MainInterface::submitimport()
                     table->insertRow(table->rowCount());
                     table->setItem(table->rowCount()-1, 0, new QTableWidgetItem(date));
                     table->setItem(table->rowCount()-1, 1, new QTableWidgetItem(event));
-                    //db->update(day,month,year,"",event,"","","","","",id); через captured
+                    //db->update(day,month,year,"",event,"","","","","",id);
                 }
                 else
                 {
@@ -655,7 +724,7 @@ void MainInterface::del()
 {
     if(table->currentItem() != 0)
     {
-        db->del(table->currentRow(),table->item(table->currentRow(),1)->text());
+        db->del(table->currentRow());
         table->removeRow(table->currentRow());
     }
 }

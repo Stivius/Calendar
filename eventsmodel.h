@@ -12,12 +12,12 @@ public:
     friend class MainInterface;
     EventsModel();
     void save(int,QString,int,QString,QString,QString,QString,QString,QString,QString);
-    void update(int,QString,int,QString,QString,QString,QString,QString,QString,QString,QString);
+    void update(int,QString,int,QString,QString,QString,QString,QString,QString,QString,int);
     void getdata();
     void upsettings(QString, int, int);
     void getsettings();
     int getimages(int);
-    void del(int,QString);
+    void del(int);
     int count();
     int imgcount();
     int getmonth(int);
@@ -30,6 +30,7 @@ private:
     QSqlDatabase db;
     QSqlQuery *query;
     QSqlRecord rec;
+    QVector<int> id;
     QVector<int> day;
     QVector<QString> month;
     QVector<int> year;

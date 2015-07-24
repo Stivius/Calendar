@@ -13,6 +13,7 @@ public:
     void set(int,QString,int,QString,QString,QString);
     void up(int,QString,int,QString,QString,QString);
 private slots:
+    void test();
     void settings();
     void closeset();
     void newevent();
@@ -35,9 +36,11 @@ private slots:
     void exceltemplate();
     void submitimport();
     void upsettings();
+    void withphotos();
 signals:
     void senditem(QTableWidgetItem*);
 private:
+    bool checked;
     bool eventFilter(QObject*, QEvent*);
     EventsModel *db;
     QVBoxLayout *mlayout;

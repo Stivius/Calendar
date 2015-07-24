@@ -312,7 +312,7 @@ void NewEvent::save()
 {
     if(item != 0) // обновление события
     {
-        db->update(day->value(),month->currentText(),year->value(),theme->currentText(),sdesc->text(),ldesc->toPlainText(),place->currentText(),source->currentText(),extra->text(),img,sdesc2);
+        db->update(day->value(),month->currentText(),year->value(),theme->currentText(),sdesc->text(),ldesc->toPlainText(),place->currentText(),source->currentText(),extra->text(),img,inter->table->currentRow());
         inter->up(day->value(),month->currentText(),year->value(),sdesc->text(),place->currentText(),source->currentText());
     }
     else // создание события

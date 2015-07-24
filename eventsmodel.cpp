@@ -9,7 +9,7 @@ EventsModel::EventsModel()
     db.setHostName("local");
     db.setUserName("user");
     db.setPassword("123");
-    qDebug() << db.open();
+    db.open();
     db.exec("CREATE TABLE events"
             "("
             "day INTEGER,"
@@ -45,10 +45,10 @@ void EventsModel::save(int day, QString month, int year, QString theme, QString 
 }
 
 // обновить событие
-void EventsModel::update(int day, QString month, int year, QString theme, QString sdesc, QString ldesc, QString place, QString source, QString extra, QString img, QString sdesc2)
+void EventsModel::update(int day, QString month, int year, QString theme, QString sdesc, QString ldesc, QString place, QString source, QString extra, QString img, int row)
 {
-    QString string = "UPDATE events SET day='%1',month='%2',year='%3',theme='%4',sdesc='%5',ldesc='%6',place='%7',source='%8',extra='%9',images='%10' WHERE sdesc='%11'";
-    QString query = string.arg(day).arg(month).arg(year).arg(theme).arg(sdesc).arg(ldesc).arg(place).arg(source).arg(extra).arg(img).arg(sdesc2);
+    QString string = "UPDATE events SET day='%1',month='%2',year='%3',theme='%4',sdesc='%5',ldesc='%6',place='%7',source='%8',extra='%9',images='%10' WHERE id='%11'";
+    QString query = string.arg(day).arg(month).arg(year).arg(theme).arg(sdesc).arg(ldesc).arg(place).arg(source).arg(extra).arg(img).arg(id[row]);
     db.exec(query);
 }
 
@@ -61,7 +61,7 @@ void EventsModel::upsettings(QString path, int quality, int show)
 }
 
 // удалить событие
-void EventsModel::del(int row, QString str)
+void EventsModel::del(int row)
 {
     getsettings();
     int n = getimages(row);
@@ -70,8 +70,9 @@ void EventsModel::del(int row, QString str)
     {
         file.remove(path + "/" + images[row][i]);
     }
-    QString string = "DELETE FROM events WHERE sdesc='%1'";
-    QString query = string.arg(str);
+    QString string = "DELETE FROM events WHERE id='%1'";
+    QString query = string.arg(id[row]);
+    id.remove(row);
     db.exec(query);
 }
 
@@ -95,6 +96,10 @@ int EventsModel::getimages(int row)
     query = new QSqlQuery(db);
     query->exec("SELECT * FROM events");
     rec = query->record();
+    for(int i = 0; i != 100; i++)
+    {
+        images[i].erase(images[i].begin(),images[i].end());
+    }
     int temp = 0;
     while(query->next())
     {
@@ -180,6 +185,7 @@ void EventsModel::getdata()
     query = new QSqlQuery(db);
     query->exec("SELECT * FROM events");
     rec = query->record();
+    id.erase(id.begin(),id.end());
     day.erase(day.begin(),day.end());
     month.erase(month.begin(),month.end());
     year.erase(year.begin(),year.end());
@@ -197,6 +203,7 @@ void EventsModel::getdata()
     img = 0;
     while(query->next())
     {
+        id.push_back(size);
         day.push_back(query->value(rec.indexOf("day")).toInt());
         month.push_back(query->value(rec.indexOf("month")).toString());
         year.push_back(query->value(rec.indexOf("year")).toInt());
