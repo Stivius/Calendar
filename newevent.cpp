@@ -1,7 +1,7 @@
 #include "newevent.h"
 #include "maininterface.h"
 
-NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, QWidget *parent):QWidget(parent)
+NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, int row, QWidget *parent):QWidget(parent)
 {
     db = model;
     db->getsettings();
@@ -9,6 +9,7 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
     inter = in;
     item = it;
     now = 0;
+    row_ = row;
     mlayout = new QVBoxLayout;
     for(int i = 0; i != 6; i++)
     {
@@ -43,7 +44,7 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
     month->setEditable(true);
     year = new QSpinBox;
     year->setRange(0,9999);
-    year->setValue(2015); //
+    year->setValue(2015);
     lbl[1] = new QLabel("г.");
     hlay[0]->addWidget(day);
     hlay[0]->addWidget(month);
@@ -53,10 +54,6 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
     vlay[0]->addLayout(hlay[0]);
     lbl[2] = new QLabel("Тематика");
     theme = new QComboBox;
-    for(int i = 0; i != db->count(); i++)
-    {
-        theme->addItem(db->theme[i]);
-    }
     theme->setEditable(true);
     vlay[1]->addWidget(lbl[2]);
     vlay[1]->addWidget(theme);
@@ -76,17 +73,9 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
     // место для доп. полей
     lbl[5] = new QLabel("Место события");
     place = new QComboBox;
-    for(int i = 0; i != db->count(); i++)
-    {
-        place->addItem(db->place[i]);
-    }
     place->setEditable(true);
     lbl[6] = new QLabel("Источник");
     source = new QComboBox;
-    for(int i = 0; i != db->count(); i++)
-    {
-        source->addItem(db->source[i]);
-    }
     source->setEditable(true);
     lbl[7] = new QLabel("Дополнительно");
     extra = new QLineEdit;
@@ -136,13 +125,68 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
     // ----------------------
     // редактирование события
     cimg = db->imgcount();
-    if(item != 0)
+    if(item != 0) // item заменить и передаватть currentrow + формировать id на основе row + column
     {
-        for(int i = 0; i != db->images[inter->table->currentRow()].size(); i++)
+        int idd;
+        if(!inter->isFilter())
         {
-            pix->load(db->path + "/" + db->images[inter->table->currentRow()][i]);
+            idd = db->id[inter->table->currentRow()];
+        }
+        else
+        {
+            idd = db->tempid[inter->table->currentRow()];
+        }
+        QList<QString> tlst,tlst2,tlst3;
+        for(int i = 0; i != db->count(); i++)
+        {
+            tlst.insert(tlst.end(),db->theme[db->id[i]]);
+            tlst2.insert(tlst2.end(),db->place[db->id[i]]);
+            tlst3.insert(tlst3.end(),db->source[db->id[i]]);
+        }
+        QSet<QString> set = tlst.toSet();
+        QSet<QString> set2 = tlst2.toSet();
+        QSet<QString> set3 = tlst3.toSet();
+        tlst = set.toList();
+        tlst2 = set2.toList();
+        tlst3 = set3.toList();
+        qSort(tlst);
+        qSort(tlst2);
+        qSort(tlst3);
+        int c = 0, ind, ind2, ind3;
+        QListIterator<QString> i(tlst);
+        while(i.hasNext())
+        {
+            QString str = i.next();
+            if(str == db->theme[idd])
+                ind = c;
+            theme->addItem(str);
+            c++;
+        }
+        c = 0;
+        QListIterator<QString> i2(tlst2);
+        while(i2.hasNext())
+        {
+            QString str = i2.next();
+            if(str == db->place[idd])
+                ind2 = c;
+            place->addItem(str);
+            c++;
+        }
+        c = 0;
+        QListIterator<QString> i3(tlst3);
+        while(i3.hasNext())
+        {
+            QString str = i3.next();
+            if(str == db->source[idd])
+                ind3 = c;
+            source->addItem(str);
+            c++;
+        }
+        for(int i = 0; i != db->images[idd].size(); i++)
+        {
+            pix->load(db->path + "/" + db->images[idd][i]);
             vec.push_back(pix->scaled(150,150,Qt::KeepAspectRatio));
-            QString str = db->images[inter->table->currentRow()][i] + "\n";
+            QString str = db->images[idd][i] + "\n";
             img += str;
         }
         if(vec.size() > 0)
@@ -151,17 +195,17 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
             lbl[9]->setPixmap(vec[now]);
         }
         cimg = db->imgcount();
-        int n = db->getmonth(item->row());
-        day->setValue(db->day[item->row()]);
+        int n = db->getmonth(idd);
+        day->setValue(db->day[idd]);
         month->setCurrentIndex(n-1);
-        year->setValue(db->year[item->row()]);
-        theme->setCurrentIndex(item->row());
-        sdesc->setText(db->sdesc[item->row()]);
-        ldesc->setText(db->ldesc[item->row()]);
-        place->setCurrentIndex(item->row());
-        source->setCurrentIndex(item->row());
-        extra->setText(db->extra[item->row()]);
-        sdesc2 = db->sdesc[item->row()];
+        year->setValue(db->year[idd]);
+        theme->setCurrentIndex(ind);
+        sdesc->setText(db->sdesc[idd]);
+        ldesc->setText(db->ldesc[idd]);
+        place->setCurrentIndex(ind2);
+        source->setCurrentIndex(ind3);
+        extra->setText(db->extra[idd]);
+        sdesc2 = db->sdesc[idd];
     }
     // ----------------------
     mlayout->addLayout(hlay[1]);
@@ -179,18 +223,27 @@ void NewEvent::uploadphoto()
 // удаление фотографий
 void NewEvent::removephoto()
 {
+    int idd;
+    if(!inter->isFilter())
+    {
+        idd = db->id[inter->table->currentRow()];
+    }
+    else
+    {
+        idd = db->tempid[inter->table->currentRow()];
+    }
     if(now >= 0 && now < vec.size()-1)
     {
         vec.remove(now);
-        if(now <= db->images[inter->table->currentRow()].size()-1) // с начала или с середины
+        if(now <= db->images[idd].size()-1) // с начала или с середины
         {
-            img.remove(db->images[inter->table->currentRow()][now] + "\n");
-            removed.push_back(db->path + "/" + db->images[inter->table->currentRow()][now]);
-            db->images[inter->table->currentRow()].remove(now);
+            img.remove(db->images[idd][now] + "\n");
+            removed.push_back(db->path + "/" + db->images[idd][now]);
+            db->images[idd].remove(now);
         }
         else
         {
-            int n = now-db->images[inter->table->currentRow()].size();
+            int n = now-db->images[idd].size();
             img.remove(uploaded[n] + "\n");
             uploadedtemp.remove(n);
             uploaded.remove(n);
@@ -200,15 +253,15 @@ void NewEvent::removephoto()
     else if(now == vec.size()-1 && vec.size() > 1) // с конца
     {
         vec.remove(now);
-        if(now <= db->images[inter->table->currentRow()].size()-1)
+        if(now <= db->images[idd].size()-1)
         {
-            img.remove(db->images[inter->table->currentRow()][now] + "\n");
-            removed.push_back(db->path + "/" + db->images[inter->table->currentRow()][now]);
-            db->images[inter->table->currentRow()].remove(now);
+            img.remove(db->images[idd][now] + "\n");
+            removed.push_back(db->path + "/" + db->images[idd][now]);
+            db->images[idd].remove(now);
         }
         else
         {
-            int n = now-db->images[inter->table->currentRow()].size();
+            int n = now-db->images[idd].size();
             img.remove(uploaded[n] + "\n");
             uploadedtemp.remove(n);
             uploaded.remove(n);
@@ -219,15 +272,15 @@ void NewEvent::removephoto()
     else if(vec.size() == 1) // только одно фото
     {
         vec.remove(now);
-        if(now <= db->images[inter->table->currentRow()].size()-1)
+        if(now <= db->images[idd].size()-1)
         {
-            img.remove(db->images[inter->table->currentRow()][now] + "\n");
-            removed.push_back(db->path + "/" + db->images[inter->table->currentRow()][now]);
-            db->images[inter->table->currentRow()].remove(now);
+            img.remove(db->images[idd][now] + "\n");
+            removed.push_back(db->path + "/" + db->images[idd][now]);
+            db->images[idd].remove(now);
         }
         else
         {
-            int n = now-db->images[inter->table->currentRow()].size();
+            int n = now-db->images[idd].size();
             img.remove(uploaded[n] + "\n");
             uploadedtemp.remove(n);
             uploaded.remove(n);
@@ -312,7 +365,16 @@ void NewEvent::save()
 {
     if(item != 0) // обновление события
     {
-        db->update(day->value(),month->currentText(),year->value(),theme->currentText(),sdesc->text(),ldesc->toPlainText(),place->currentText(),source->currentText(),extra->text(),img,inter->table->currentRow());
+        int id;
+        if(!inter->isFilter())
+        {
+            id = db->id[inter->table->currentRow()];
+        }
+        else
+        {
+            id = db->tempid[inter->table->currentRow()];
+        }
+        db->update(day->value(),month->currentText(),year->value(),theme->currentText(),sdesc->text(),ldesc->toPlainText(),place->currentText(),source->currentText(),extra->text(),img,id);
         inter->up(day->value(),month->currentText(),year->value(),sdesc->text(),place->currentText(),source->currentText());
     }
     else // создание события

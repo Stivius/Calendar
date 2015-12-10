@@ -12,8 +12,8 @@ public:
     MainInterface(QWidget *parent = 0);
     void set(int,QString,int,QString,QString,QString);
     void up(int,QString,int,QString,QString,QString);
+    bool isFilter();
 private slots:
-    void test();
     void settings();
     void closeset();
     void newevent();
@@ -36,11 +36,25 @@ private slots:
     void exceltemplate();
     void submitimport();
     void upsettings();
-    void withphotos();
+    void filterday(int);
+    void filtermonth(int);
+    void filteryear(int);
+    void filteranniver();
+    void filtertheme(int);
+    void filterplace(int);
+    void filterphotos();
+    void filtersearch(QString);
 signals:
     void senditem(QTableWidgetItem*);
 private:
-    bool checked;
+    int filter[7];
+    int fday;
+    QString fmonth;
+    int fyear;
+    int fanniver;
+    QString ftheme;
+    QString fplace;
+    void setfilter();
     bool eventFilter(QObject*, QEvent*);
     EventsModel *db;
     QVBoxLayout *mlayout;

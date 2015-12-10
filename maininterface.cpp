@@ -34,7 +34,7 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     asettings = new QAction("Настройки", 0);
     connect(asettings,SIGNAL(triggered()),SLOT(settings()));
     areference = new QAction("Справка", 0);
-    connect(areference,SIGNAL(triggered()),SLOT(test()));
+    //connect(areference,SIGNAL(triggered()),SLOT(test()));
     menu = new QMenu("Даты");
     menu->installEventFilter(this);
     anewevent = new QAction("Новое событие", 0);
@@ -65,10 +65,11 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     asmallfont = new QAction("Шрифт меньше", 0);
     connect(asmallfont,SIGNAL(triggered()),SLOT(fsmall()));
     aanniversary = new QAction("Юбилейные", 0);
+    aanniversary->setCheckable(true);
+    connect(aanniversary,SIGNAL(triggered()),SLOT(filteranniver()));
     aphotos = new QAction("С фотографиями", 0);
     aphotos->setCheckable(true);
-    checked = false;
-    connect(aphotos,SIGNAL(triggered()),SLOT(withphotos()));
+    connect(aphotos,SIGNAL(triggered()),SLOT(filterphotos()));
     aindetail = new QAction("Показать подробнее", 0);
     connect(aindetail,SIGNAL(triggered()),SLOT(indetail()));
     menu2->addAction(abigfont);
@@ -90,13 +91,36 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     searchlay = new QHBoxLayout;
     selected = new QCheckBox("В выбранном");
     anniversary = new QCheckBox("Юбилейные");
+    anniversary->setCheckable(true);
+    connect(anniversary,SIGNAL(clicked()),SLOT(filteranniver()));
     day = new QComboBox;
+    day->setEditable(true);
+    day->addItem("любой");
+    for(int i = 1; i <= 31; i++)
+    {
+        day->addItem(QString::number(i));
+    }
+    connect(day,SIGNAL(activated(int)),this,SLOT(filterday(int)));
     month = new QComboBox;
+    month->setEditable(true);
+    QStringList lst;
+    lst << "любой" << "Январь" << "Февраль" << "Март" << "Апрель" << "Май" << "Июнь" << "Июль"
+        << "Август" << "Сентябрь" << "Октябрь" << "Ноябрь" << "Декабрь";
+    month->addItems(lst); //
+    connect(month,SIGNAL(activated(int)),this,SLOT(filtermonth(int)));
     year = new QComboBox;
+    year->setEditable(true);
+    year->addItem("любой");
+    for(int i = 1; i <= 9999; i++)
+    {
+        year->addItem(QString::number(i));
+    }
+    connect(year,SIGNAL(activated(int)),this,SLOT(filteryear(int)));
     daylbl = new QLabel("День");
     monthlbl = new QLabel("Месяц");
     yearlbl = new QLabel("Год");
     searchinput = new QLineEdit;
+    connect(searchinput,SIGNAL(textEdited(QString)),this,SLOT(filtersearch(QString)));
     searchlay->addWidget(searchinput);
     searchlay->addWidget(selected);
     search->setLayout(searchlay);
@@ -106,16 +130,22 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     datesearchlay->addWidget(monthlbl);
     datesearchlay->addWidget(month);
     datesearchlay->addWidget(yearlbl);
-    datesearchlay->addWidget(month);
+    datesearchlay->addWidget(year);
     datesearch->setLayout(datesearchlay);
     msearchlay->addWidget(search);
     msearchlay->addWidget(datesearch);
     // ----------------------
     // фильтр тематики + места
     showlist = 0;
+    for(int i = 0; i != 7; i++)
+    {
+        filter[i] = 0;
+    }
     list = new QListWidget;
     list->setFixedWidth(150);
     list->hide();
+    connect(list,SIGNAL(currentRowChanged(int)),this,SLOT(filtertheme(int)));
+    connect(list,SIGNAL(currentRowChanged(int)),this,SLOT(filterplace(int)));
     laylist = new QHBoxLayout;
     laylist->addWidget(list);
     laylist->addWidget(table);
@@ -250,11 +280,11 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     for(int i = 0; i != db->count(); i++)
     {
         table->insertRow(i);
-        int n = db->getmonth(i);
-        table->setItem(i, 0, new QTableWidgetItem(QString::number(db->day[i]) + "." + QString::number(n) + "." + QString::number(db->year[i])));
-        table->setItem(i, 1, new QTableWidgetItem(db->sdesc[i]));
-        table->setItem(i, 3, new QTableWidgetItem(db->place[i]));
-        table->setItem(i, 4, new QTableWidgetItem(db->source[i]));
+        int n = db->getmonth(db->id[i]);
+        table->setItem(i, 0, new QTableWidgetItem(QString::number(db->day[db->id[i]]) + "." + QString::number(n) + "." + QString::number(db->year[db->id[i]])));
+        table->setItem(i, 1, new QTableWidgetItem(db->sdesc[db->id[i]]));
+        table->setItem(i, 3, new QTableWidgetItem(db->place[db->id[i]]));
+        table->setItem(i, 4, new QTableWidgetItem(db->source[db->id[i]]));
     }
     // ----------------------
     table->setContextMenuPolicy(Qt::CustomContextMenu); // контекстное меню
@@ -266,11 +296,357 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     setLayout(mlayout);
 }
 
-void MainInterface::test()
+void MainInterface::filterday(int index)
 {
-    qDebug() << table->item(0,0);
-    table->removeRow(0);
-    qDebug() << table->item(0,0);
+    if(index == 0)
+    {
+        filter[0] = 0;
+    }
+    else
+    {
+        filter[0] = 1;
+        fday = day->itemText(index).toInt();
+    }
+    setfilter();
+}
+
+void MainInterface::filtermonth(int index)
+{
+    if(index == 0)
+    {
+        filter[1] = 0;
+    }
+    else
+    {
+        filter[1] = 1;
+        fmonth = month->itemText(index);
+    }
+    setfilter();
+}
+
+void MainInterface::filteryear(int index)
+{
+    if(index == 0)
+    {
+        filter[2] = 0;
+    }
+    else
+    {
+        filter[2] = 1;
+        fyear = year->itemText(index).toInt();
+    }
+    setfilter();
+}
+
+void MainInterface::filteranniver()
+{
+    if(filter[3] == 1)
+    {
+        anniversary->setChecked(false);
+        aanniversary->setChecked(false);
+        filter[3] = 0;
+    }
+    else
+    {
+        anniversary->setChecked(true);
+        aanniversary->setChecked(true);
+        QDate time;
+        filter[3] = 1;
+        fanniver = time.currentDate().year();
+    }
+    setfilter();
+}
+
+void MainInterface::filtertheme(int index)
+{
+    if(showlist == 1)
+    {
+        if(index == 0)
+        {
+            filter[4] = 0;
+        }
+        else
+        {
+            filter[4] = 1;
+            if(index != -1)
+            {
+                ftheme = list->item(index)->text();
+            }
+        }
+        setfilter();
+    }
+}
+
+void MainInterface::filterplace(int index)
+{
+    if(showlist == 2)
+    {
+        if(index == 0)
+        {
+            filter[4] = 0;
+        }
+        else
+        {
+            filter[4] = 2;
+            if(index != -1)
+            {
+                fplace = list->item(index)->text();
+            }
+        }
+        setfilter();
+    }
+}
+
+// показать все темы
+void MainInterface::themes()
+{
+    QList<QString> lst;
+    if(list->isHidden() || showlist == 2)
+    {
+        showlist = 1;
+        list->clear();
+        list->addItem("любая");
+        list->setCurrentRow(0);
+        if(!isFilter())
+        {
+            for(int i = 0; i != db->count(); i++)
+            {
+                lst.insert(lst.end(),db->theme[db->id[i]]);
+            }
+        }
+        else
+        {
+            for(int i = 0; i != db->count(); i++)
+            {
+                lst.insert(lst.end(),db->theme[db->tempid[i]]);
+            }
+        }
+        QSet<QString> set = lst.toSet();
+        lst = set.toList();
+        qSort(lst);
+        QListIterator<QString> i(lst);
+        while(i.hasNext())
+        {
+            list->addItem(i.next());
+        }
+        athemes->setChecked(true);
+        aplaces->setChecked(false);
+        list->show();
+    }
+    else
+    {
+        showlist = 0;
+        athemes->setChecked(false);
+        list->hide();
+        filter[4] = 0;
+        setfilter();
+    }
+
+}
+
+// показать все места
+void MainInterface::places()
+{
+    QList<QString> lst;
+    if(list->isHidden() || showlist == 1)
+    {
+        showlist = 2;
+        list->clear();
+        list->addItem("любое");
+        list->setCurrentRow(0);
+        if(!isFilter())
+        {
+            for(int i = 0; i != db->count(); i++)
+            {
+                lst.insert(lst.end(),db->place[db->id[i]]);
+            }
+        }
+        else
+        {
+            for(int i = 0; i != db->count(); i++)
+            {
+                lst.insert(lst.end(),db->place[db->tempid[i]]);
+            }
+        }
+        QSet<QString> set = lst.toSet();
+        lst = set.toList();
+        qSort(lst);
+        QListIterator<QString> i(lst);
+        while(i.hasNext())
+        {
+            list->addItem(i.next());
+        }
+        athemes->setChecked(false);
+        aplaces->setChecked(true);
+        list->show();
+    }
+    else
+    {
+        showlist = 0;
+        aplaces->setChecked(false);
+        list->hide();
+        filter[4] = 0;
+        setfilter();
+    }
+}
+
+// с фотографиями
+void MainInterface::filterphotos()
+{
+    if(filter[5] == 1)
+    {
+        filter[5] = 0;
+        aphotos->setChecked(false);
+    }
+    else
+    {
+        filter[5] = 1;
+        aphotos->setChecked(true);
+    }
+    setfilter();
+}
+
+void MainInterface::filtersearch(QString str)
+{
+    if(str == "")
+    {
+        filter[6] = 0;
+    }
+    else
+    {
+        filter[6] = 1;
+    }
+    setfilter();
+}
+
+bool MainInterface::isFilter()
+{
+    for(int i = 0; i != 7; i++)
+    {
+        if(filter[i] == 1)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void MainInterface::setfilter()
+{
+    db->getdata();
+    db->tempid.erase(db->tempid.begin(),db->tempid.end());
+    while(table->rowCount() > 0)
+    {
+        table->removeRow(0);
+    }
+    bool allowed;
+    for(int i = 0, j = 0; i != db->count(); i++)
+    {
+        allowed = true;
+        if(filter[0] == 1)
+        {
+            if(db->day[db->id[i]] == fday)
+            {
+                allowed = true;
+            }
+            else
+            {
+                allowed = false;
+            }
+        }
+        if(filter[1] == 1 && allowed == true)
+        {
+            if(db->month[db->id[i]] == fmonth)
+            {
+                allowed = true;
+            }
+            else
+            {
+                allowed = false;
+            }
+        }
+        if(filter[2] == 1 && allowed == true)
+        {
+            if(db->year[db->id[i]] == fyear)
+            {
+                allowed = true;
+            }
+            else
+            {
+                allowed = false;
+            }
+        }
+        if(filter[3] == 1 && allowed == true)
+        {
+            int d = db->year[db->id[i]] - fanniver;
+            if(d%5 == 0 && d != 0)
+            {
+                allowed = true;
+            }
+            else
+            {
+                allowed = false;
+            }
+        }
+        if(filter[4] == 1 && allowed == true)
+        {
+            if(db->theme[db->id[i]] == ftheme)
+            {
+                allowed = true;
+            }
+            else
+            {
+                allowed = false;
+            }
+        }
+        if(filter[4] == 2 && allowed == true)
+        {
+            if(db->place[db->id[i]] == fplace)
+            {
+                allowed = true;
+            }
+            else
+            {
+                allowed = false;
+            }
+        }
+        if(filter[5] == 1 && allowed == true)
+        {
+            if(db->images[db->id[i]].size() > 0)
+            {
+                allowed = true;
+            }
+            else
+            {
+                allowed = false;
+            }
+        }
+        if(filter[6] == 1 && allowed == true)
+        {
+            QString str = searchinput->text();
+            QString src = db->sdesc[db->id[i]];
+            bool found = src.contains(str);
+            if(found)
+            {
+                allowed = true;
+            }
+            else
+            {
+                allowed = false;
+            }
+        }
+        if(allowed)
+        {
+            table->insertRow(j);
+            int n = db->getmonth(db->id[i]);
+            table->setItem(j, 0, new QTableWidgetItem(QString::number(db->day[db->id[i]]) + "." + QString::number(n) + "." + QString::number(db->year[db->id[i]])));
+            table->setItem(j, 1, new QTableWidgetItem(db->sdesc[db->id[i]]));
+            table->setItem(j, 3, new QTableWidgetItem(db->place[db->id[i]]));
+            table->setItem(j, 4, new QTableWidgetItem(db->source[db->id[i]]));
+            j++;
+            db->tempid.push_back(db->id[i]);
+        }
+    }
 }
 
 // изменить подробное описание
@@ -281,13 +657,22 @@ void MainInterface::changedetails(QTableWidgetItem *item)
         if(item != 0)
         {
             db->getdata();
-            extra->setText(db->extra[item->row()]);
-            ldesc->setText(db->ldesc[item->row()]);
-            int n = db->getmonth(item->row());
-            QString str(QString::number(db->day[item->row()]) + "." + QString::number(n) + "." + QString::number(db->year[item->row()]));
+            int id;
+            if(!isFilter())
+            {
+                id = db->id[table->currentRow()];
+            }
+            else
+            {
+                id = db->tempid[table->currentRow()];
+            }
+            extra->setText(db->extra[id]);
+            ldesc->setText(db->ldesc[id]);
+            int n = db->getmonth(id);
+            QString str(QString::number(db->day[id]) + "." + QString::number(n) + "." + QString::number(db->year[id]));
             date->setText(str);
-            theme->setText(db->theme[item->row()]);
-            place->setText(db->place[item->row()]);
+            theme->setText(db->theme[id]);
+            place->setText(db->place[id]);
         }
     }
 }
@@ -308,64 +693,6 @@ void MainInterface::upsettings()
     settingswgt->hide();
 }
 
-// с фотографиями
-void MainInterface::withphotos()
-{
-    QVector< QVector<QString> > tempimages;
-    for(int i = 0; i != 100; i++)
-    {
-        tempimages.push_back(db->images[i]);
-    }
-    if(checked == false)
-    {
-        int index = 0;
-        while(index != table->rowCount())
-        {
-            if(tempimages[index].size() == 0)
-            {
-                db->id.remove(index);
-                db->day.remove(index);
-                db->month.remove(index);
-                db->year.remove(index);
-                db->theme.remove(index);
-                db->sdesc.remove(index);
-                db->ldesc.remove(index);
-                db->place.remove(index);
-                db->source.remove(index);
-                db->extra.remove(index);
-                tempimages.remove(index);
-                table->removeRow(index);
-            }
-            else
-            {
-                index++;
-            }
-        }
-        checked = true;
-        aphotos->setChecked(true);
-    }
-    else
-    {
-        while(table->rowCount() > 0)
-        {
-            table->removeRow(0);
-        }
-        db->getdata();
-        for(int i = 0; i != db->count(); i++)
-        {
-
-            table->insertRow(i);
-            int n = db->getmonth(i);
-            table->setItem(i, 0, new QTableWidgetItem(QString::number(db->day[i]) + "." + QString::number(n) + "." + QString::number(db->year[i])));
-            table->setItem(i, 1, new QTableWidgetItem(db->sdesc[i]));
-            table->setItem(i, 3, new QTableWidgetItem(db->place[i]));
-            table->setItem(i, 4, new QTableWidgetItem(db->source[i]));
-        }
-        checked = false;
-        aphotos->setChecked(false);
-    }
-}
-
 // подробное описание
 void MainInterface::indetail()
 {
@@ -374,13 +701,22 @@ void MainInterface::indetail()
         if(table->currentItem() != 0)
         {
             db->getdata();
-            extra->setText(db->extra[table->currentRow()]);
-            ldesc->setText(db->ldesc[table->currentRow()]);
-            int n = db->getmonth(table->currentRow());
-            QString str(QString::number(db->day[table->currentRow()]) + "." + QString::number(n) + "." + QString::number(db->year[table->currentRow()]));
+            int id;
+            if(!isFilter())
+            {
+                id = db->id[table->currentRow()];
+            }
+            else
+            {
+                id = db->tempid[table->currentRow()];
+            }
+            extra->setText(db->extra[id]);
+            ldesc->setText(db->ldesc[id]);
+            int n = db->getmonth(id);
+            QString str(QString::number(db->day[id]) + "." + QString::number(n) + "." + QString::number(db->year[id]));
             date->setText(str);
-            theme->setText(db->theme[table->currentRow()]);
-            place->setText(db->place[table->currentRow()]);
+            theme->setText(db->theme[id]);
+            place->setText(db->place[id]);
         }
         eventgroup->show();
     }
@@ -410,7 +746,6 @@ void MainInterface::setpath()
             QTextStream stream(&file);
             while(!stream.atEnd())
             {
-
                 QString str = stream.readLine();
                 qDebug() << str;
                 /*QRegularExpression re("([0-9]{1,2})\s([0-9]{1,2})|(апрель)\s([0-9]{2,4})");
@@ -596,53 +931,6 @@ void MainInterface::importtable()
     importwgt->show();
 }
 
-// показать все темы
-void MainInterface::themes()
-{
-    if(list->isHidden() || showlist == 2)
-    {
-        showlist = 1;
-        list->clear();
-        for(int i = 0; i != db->count(); i++)
-        {
-            list->addItem(db->theme[i]);
-        }
-        athemes->setChecked(true);
-        aplaces->setChecked(false);
-        list->show();
-    }
-    else
-    {
-        showlist = 0;
-        athemes->setChecked(false);
-        list->hide();
-    }
-
-}
-
-// показать все места
-void MainInterface::places()
-{
-    if(list->isHidden() || showlist == 1)
-    {
-        showlist = 2;
-        list->clear();
-        for(int i = 0; i != db->count(); i++)
-        {
-            list->addItem(db->place[i]);
-        }
-        athemes->setChecked(false);
-        aplaces->setChecked(true);
-        list->show();
-    }
-    else
-    {
-        showlist = 0;
-        aplaces->setChecked(false);
-        list->hide();
-    }
-}
-
 // увеличить шрифт
 void MainInterface::fbig()
 {
@@ -705,7 +993,7 @@ void MainInterface::card()
 // событие (двойной клик)
 void MainInterface::card(QTableWidgetItem *item)
 {
-    NewEvent *e = new NewEvent(db,this,item);
+    NewEvent *e = new NewEvent(db,this,item,table->currentRow());
     e->show();
 }
 
@@ -724,7 +1012,16 @@ void MainInterface::del()
 {
     if(table->currentItem() != 0)
     {
-        db->del(table->currentRow());
+        int id;
+        if(!isFilter())
+        {
+            id = db->id[table->currentRow()];
+        }
+        else
+        {
+            id = db->tempid[table->currentRow()];
+        }
+        db->del(id);
         table->removeRow(table->currentRow());
     }
 }
@@ -747,7 +1044,7 @@ void MainInterface::edititem(QTableWidgetItem *item)
 {
     if(item != 0)
     {
-        NewEvent *e = new NewEvent(db,this, item);
+        NewEvent *e = new NewEvent(db,this, item, table->currentRow());
         e->show();
     }
 }
@@ -755,6 +1052,7 @@ void MainInterface::edititem(QTableWidgetItem *item)
 // вставить новое событие в таблицу
 void MainInterface::set(int day, QString month, int year,QString sdesc, QString place, QString source)
 {
+    db->getdata();
     table->insertRow(table->rowCount());
     int n = db->getmonth(month);
     table->setItem(table->rowCount()-1, 0, new QTableWidgetItem(QString::number(day) + "." + QString::number(n) + "." + QString::number(year)));

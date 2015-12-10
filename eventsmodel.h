@@ -16,7 +16,6 @@ public:
     void getdata();
     void upsettings(QString, int, int);
     void getsettings();
-    int getimages(int);
     void del(int);
     int count();
     int imgcount();
@@ -31,16 +30,17 @@ private:
     QSqlQuery *query;
     QSqlRecord rec;
     QVector<int> id;
-    QVector<int> day;
-    QVector<QString> month;
-    QVector<int> year;
-    QVector<QString> theme;
-    QVector<QString> sdesc;
-    QVector<QString> ldesc;
-    QVector<QString> place;
-    QVector<QString> source;
-    QVector<QString> extra;
-    QVector<QString> images[100];
+    QVector<int> tempid;
+    QMap<int,int> day;
+    QMap<int,QString> month;
+    QMap<int,int> year;
+    QMap<int,QString> theme;
+    QMap<int,QString> sdesc;
+    QMap<int,QString> ldesc;
+    QMap<int,QString> place;
+    QMap<int,QString> source;
+    QMap<int,QString> extra;
+    QMap<int,QVector<QString> > images;
     int size;
 };
 

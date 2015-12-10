@@ -9,7 +9,7 @@ class NewEvent: public QWidget
 {
     Q_OBJECT
 public:
-    NewEvent(EventsModel *model = 0, MainInterface *in = 0, QTableWidgetItem *it = 0,  QWidget *parent = 0);
+    NewEvent(EventsModel *model = 0, MainInterface *in = 0, QTableWidgetItem *it = 0, int row = 0,  QWidget *parent = 0);
 private slots:
     void save();
     void upload();
@@ -25,6 +25,7 @@ private:
     int now;
     int num;
     int cimg;
+    int row_;
     QVector<QPixmap> vec;
     QTreeView *view;
     QDirModel *dir;
