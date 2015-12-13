@@ -240,6 +240,7 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
     mlayout->addLayout(hlay[4]);
     mlayout->addLayout(hlay[5]);
     setLayout(mlayout);
+    this->setFixedSize(650,525);
 }
 
 void NewEvent::uploadphoto()

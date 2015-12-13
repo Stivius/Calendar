@@ -180,23 +180,14 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     // ----------------------
     // импорт
     importwgt = new QWidget;
-    importgroup = new QGroupBox("Тип импорта");
-    textfile = new QRadioButton("Из текстового файла");
-    xlsxfile = new QRadioButton("Из таблицы Excel");
-    xlsxfile->setChecked(true);
-    importlayout[0] = new QVBoxLayout;
-    importlayout[1] = new QVBoxLayout;
+    importlayout = new QVBoxLayout;
     excel = new QPushButton("Загрузить шаблон таблицы Excel");
     connect(excel, SIGNAL(clicked()), SLOT(exceltemplate()));
     importbtn = new QPushButton("Импорт");
     connect(importbtn, SIGNAL(clicked()), SLOT(submitimport()));
-    importlayout[0]->addWidget(textfile);
-    importlayout[0]->addWidget(xlsxfile);
-    importgroup->setLayout(importlayout[0]);
-    importlayout[1]->addWidget(importgroup);
-    importlayout[1]->addWidget(excel);
-    importlayout[1]->addWidget(importbtn);
-    importwgt->setLayout(importlayout[1]);
+    importlayout->addWidget(excel);
+    importlayout->addWidget(importbtn);
+    importwgt->setLayout(importlayout);
     // ----------------------
     // подробное описание
     datelay = new QVBoxLayout;
@@ -241,6 +232,7 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     hlay[1]->addLayout(vlay);
     hlay[1]->addLayout(ldesclay);
     eventgroup->setLayout(hlay[1]);
+    eventgroup->setFixedHeight(200);
     eventgroup->hide();
     // ----------------------
     // настройки
@@ -307,6 +299,7 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     mlayout->addLayout(laylist);
     mlayout->addWidget(eventgroup);
     setLayout(mlayout);
+    this->setFixedSize(1000,600);
 }
 
 void MainInterface::filterday(int index)
@@ -639,7 +632,9 @@ void MainInterface::setfilter()
         if(filter[6] == 1 && allowed == true)
         {
             QString str = searchinput->text();
+            str = str.toLower();
             QString src = db->sdesc[db->id[i]];
+            src = src.toLower();
             bool found = src.contains(str);
             if(found)
             {
@@ -802,6 +797,7 @@ void MainInterface::choosepath()
     laypath->addWidget(viewpath);
     laypath->addWidget(okpath);
     wgtpath->setLayout(laypath);
+    wgtpath->setWindowModality(Qt::ApplicationModal);
     wgtpath->show();
 }
 
@@ -868,6 +864,7 @@ void MainInterface::submitexport()
 // показ вииджета экспорт
 void MainInterface::exporttable()
 {
+    exportwgt->setWindowModality(Qt::ApplicationModal);
     exportwgt->show();
 }
 
@@ -878,72 +875,62 @@ void MainInterface::exceltemplate()
     xlsx.write("A1","Дата");
     xlsx.write("B1","Событие");
     xlsx.save();
-    QDesktopServices process;
-    process.openUrl(QUrl::fromLocalFile(QApplication::applicationDirPath()+ "/Import.xlsx"));
+    //QDesktopServices process;
+    //process.openUrl(QUrl::fromLocalFile(QApplication::applicationDirPath()+ "/Import.xlsx"));
 }
 
 // подтвердить импорт
 void MainInterface::submitimport()
 {
-    // модифицировать
     QXlsx::Document xlsx("Import.xlsx");
-    if(textfile->isChecked()) // текстовый файл
+    bool loop = true;
+    int num = 2;
+    while(loop)
     {
-        wgtpath = new QWidget;
-        laypath = new QVBoxLayout;
-        viewpath = new QTreeView;
-        okpath = new QPushButton("Ok");
-        connect(okpath,SIGNAL(clicked()),SLOT(setpath()));
-        dirpath = new QDirModel;
-        dirpath->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
-        viewpath->setModel(dirpath);
-        viewpath->hideColumn(1);
-        viewpath->hideColumn(2);
-        viewpath->hideColumn(3);
-        laypath->addWidget(viewpath);
-        laypath->addWidget(okpath);
-        wgtpath->setLayout(laypath);
-        wgtpath->show();
-    }
-    else // из Excel
-    {
-        bool loop = true;
-        int num = 2;
-        while(loop)
+        QString date = xlsx.read("A" + QString::number(num)).toString();
+        if(date != "")
         {
-            QString date = xlsx.read("A" + QString::number(num)).toString();
-            if(date != "")
+            QRegularExpression re("^([0-9]{2,4})\\-([0-9]{1,2})\\-([0-9]{1,2})$");
+            QRegularExpression re2("^([0-9]{1,2})\\.([0-9]{1,2})\\.([0-9]{1,4})$");
+            QRegularExpressionMatch match = re.match(date);
+            QRegularExpressionMatch match2 = re2.match(date);
+            if(match.hasMatch() || match2.hasMatch())
             {
-                QRegularExpression re("^([0-9]{1,2})\\.([0-9]{1,2})\\.([0-9]{2,4})$");
-                QRegularExpressionMatch match = re.match(date);
-                if(match.hasMatch())
-                {
-                    QString event = xlsx.read("B" + QString::number(num)).toString();
-                    table->insertRow(table->rowCount());
-                    table->setItem(table->rowCount()-1, 0, new QTableWidgetItem(date));
-                    table->setItem(table->rowCount()-1, 1, new QTableWidgetItem(event));
-                    //db->update(day,month,year,"",event,"","","","","",id);
-                }
-                else
-                {
-                    qDebug() << "Неверный формат даты";
-                }
+                int ind, year, month, day;
+                ind = date.indexOf('-');
+                year = date.mid(0,ind).toInt();
+                date.remove(0,ind+1);
+                ind = date.indexOf('-');
+                month = date.mid(0,ind).toInt();
+                date.remove(0,ind+1);
+                ind = date.indexOf('-');
+                day = date.mid(0,ind).toInt();
+                QString event = xlsx.read("B" + QString::number(num)).toString();
+                table->insertRow(table->rowCount());
+                table->setItem(table->rowCount()-1, 0, new QTableWidgetItem(QString::number(day) + '.' + QString::number(month) + '.' + QString::number(year)));
+                table->setItem(table->rowCount()-1, 1, new QTableWidgetItem(event));
+                //db->update(day,month,year,"",event,"","","","","",id);
             }
             else
             {
-                loop = false;
+                qDebug() << "Неверный формат даты";
             }
-            num++;
         }
-        QFile file("Import.xlsx");
-        file.remove();
-        importwgt->hide();
+        else
+        {
+            loop = false;
+        }
+        num++;
     }
+    QFile file("Import.xlsx");
+    file.remove();
+    importwgt->hide();
 }
 
 // виджет импорта
 void MainInterface::importtable()
 {
+    importwgt->setWindowModality(Qt::ApplicationModal);
     importwgt->show();
 }
 
@@ -1014,13 +1001,13 @@ void MainInterface::card()
 void MainInterface::card(QTableWidgetItem *item)
 {
     NewEvent *e = new NewEvent(db,this,item,table->currentRow());
+    e->setWindowModality(Qt::ApplicationModal);
     e->show();
 }
 
 // настройки
 void MainInterface::settings()
 {
-    //wgt->setWindowModality(Qt::ApplicationModal);
     db->getsettings();
     quality->setValue(db->quality);
     settingspath->setText(db->path);
@@ -1034,6 +1021,7 @@ void MainInterface::settings()
         alldates->setChecked(true);
         anniversarytoday->setChecked(false);
     }
+    settingswgt->setWindowModality(Qt::ApplicationModal);
     settingswgt->show();
 }
 
@@ -1066,6 +1054,7 @@ void MainInterface::closeset()
 void MainInterface::newevent()
 {
     NewEvent *e = new NewEvent(db,this);
+    e->setWindowModality(Qt::ApplicationModal);
     e->show();
 }
 
@@ -1075,6 +1064,7 @@ void MainInterface::edititem(QTableWidgetItem *item)
     if(item != 0)
     {
         NewEvent *e = new NewEvent(db,this, item, table->currentRow());
+        e->setWindowModality(Qt::ApplicationModal);
         e->show();
     }
 }

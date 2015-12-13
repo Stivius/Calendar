@@ -79,10 +79,7 @@ private:
     // ----------------------
     // импорт
     QWidget *importwgt;
-    QGroupBox *importgroup;
-    QRadioButton *textfile;
-    QRadioButton *xlsxfile;
-    QVBoxLayout *importlayout[2];
+    QVBoxLayout *importlayout;
     QPushButton *excel;
     QPushButton *importbtn;
     // ----------------------
