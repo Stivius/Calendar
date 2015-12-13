@@ -52,6 +52,12 @@ void EventsModel::save(int day, QString month, int year, QString theme, QString 
     db.exec(query);
 }
 
+void EventsModel::exec(QString query)
+{
+    db.exec(query);
+    qDebug() << db.lastError();
+}
+
 // обновить событие
 void EventsModel::update(int day, QString month, int year, QString theme, QString sdesc, QString ldesc, QString place, QString source, QString extra, QString img, int id)
 {
@@ -131,7 +137,41 @@ int EventsModel::getmonth(int i)
         n = 11;
     else if(month[i] == "Декабрь")
         n = 12;
+    else if(month[i] == "Неизвестно")
+        n = 0;
     return n;
+}
+
+QString EventsModel::getmonthname(int n)
+{
+    QString str;
+    if(n == 1)
+        str = "Январь";
+    else if(n == 2)
+        str = "Февраль";
+    else if(n == 3)
+        str = "Март";
+    else if(n == 4)
+        str = "Апрель";
+    else if(n == 5)
+        str = "Май";
+    else if(n == 6)
+        str = "Июнь";
+    else if(n == 7)
+        str = "Июль";
+    else if(n == 8)
+        str = "Август";
+    else if(n == 9)
+        str = "Сентябрь";
+    else if(n == 10)
+        str = "Октябрь";
+    else if(n == 11)
+        str = "Ноябрь";
+    else if(n == 12)
+        str = "Декабрь";
+    else if(n == 0)
+        str = "Неизвестно";
+    return str;
 }
 
 // узнаем месяц (перегруженная функция)
@@ -162,6 +202,8 @@ int EventsModel::getmonth(QString str)
         n = 11;
     else if(str == "Декабрь")
         n = 12;
+    else if(str == "Неизвестно")
+        n = 0;
     return n;
 }
 

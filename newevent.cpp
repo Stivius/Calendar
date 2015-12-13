@@ -35,9 +35,9 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
     // дата и тематика
     lbl[0] = new QLabel("Дата события");
     day = new QSpinBox;
-    day->setRange(1,31); //
+    day->setRange(0,31); //
     QStringList lst;
-    lst << "Январь" << "Февраль" << "Март" << "Апрель" << "Май" << "Июнь" << "Июль"
+    lst << "Незвестно" << "Январь" << "Февраль" << "Март" << "Апрель" << "Май" << "Июнь" << "Июль"
         << "Август" << "Сентябрь" << "Октябрь" << "Ноябрь" << "Декабрь";
     month = new QComboBox;
     month->addItems(lst); //

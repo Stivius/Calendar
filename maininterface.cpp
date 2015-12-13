@@ -871,20 +871,23 @@ void MainInterface::exporttable()
 // создание таблицы в Excel
 void MainInterface::exceltemplate()
 {
-    QXlsx::Document xlsx("Import.xlsx");
+    QXlsx::Document xlsx(QApplication::applicationDirPath()+ "/Import.xlsx");
     xlsx.write("A1","Дата");
     xlsx.write("B1","Событие");
     xlsx.save();
-    //QDesktopServices process;
-    //process.openUrl(QUrl::fromLocalFile(QApplication::applicationDirPath()+ "/Import.xlsx"));
+    QDesktopServices process;
+    qDebug() << QApplication::applicationDirPath();
+    QUrl url(QApplication::applicationDirPath()+ "/Import.xlsx");
+    process.openUrl(url);
 }
 
 // подтвердить импорт
 void MainInterface::submitimport()
 {
-    QXlsx::Document xlsx("Import.xlsx");
+    QXlsx::Document xlsx(QApplication::applicationDirPath()+ "/Import.xlsx");
     bool loop = true;
     int num = 2;
+    db->db.transaction();
     while(loop)
     {
         QString date = xlsx.read("A" + QString::number(num)).toString();
@@ -909,7 +912,9 @@ void MainInterface::submitimport()
                 table->insertRow(table->rowCount());
                 table->setItem(table->rowCount()-1, 0, new QTableWidgetItem(QString::number(day) + '.' + QString::number(month) + '.' + QString::number(year)));
                 table->setItem(table->rowCount()-1, 1, new QTableWidgetItem(event));
-                //db->update(day,month,year,"",event,"","","","","",id);
+                QString string = "INSERT INTO events (day,month,year,theme,sdesc,ldesc,place,source,extra,images) VALUES ('%1','%2','%3','%4','%5','%6','%7','%8','%9','%10')";
+                QString query = string.arg(day).arg(db->getmonthname(month)).arg(year).arg("").arg(event).arg("").arg("").arg("").arg("").arg("");
+                db->db.exec(query);
             }
             else
             {
@@ -922,7 +927,8 @@ void MainInterface::submitimport()
         }
         num++;
     }
-    QFile file("Import.xlsx");
+    db->db.commit();
+    QFile file(QApplication::applicationDirPath()+ "/Import.xlsx");
     file.remove();
     importwgt->hide();
 }
@@ -1028,6 +1034,7 @@ void MainInterface::settings()
 // удалить событие
 void MainInterface::del()
 {
+    db->getdata();
     if(table->currentItem() != 0)
     {
         int id;

@@ -22,6 +22,8 @@ public:
     int imgcount();
     int getmonth(int);
     int getmonth(QString);
+    QString getmonthname(int);
+    void exec(QString);
 private:
     int quality;
     QString path;
