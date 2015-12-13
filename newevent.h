@@ -17,10 +17,12 @@ private slots:
     void removephoto();
     void next();
     void prev();
+    void openfull();
 private:
     QVector<QPixmap> uploadedtemp;
     QVector<QString> uploaded;
     QVector<QString> removed;
+    QVector<QString> temppath;
     QString img;
     int now;
     int num;
@@ -45,8 +47,9 @@ private:
     QComboBox *source;
     QLineEdit *extra;
     QPushButton *btn[4];
+    QPushButton *fullphoto;
     QPixmap *pix;
-    QLabel *lbl[10];
+    QLabel *lbl[9];
     QVBoxLayout *vlay[6];
     QHBoxLayout *hlay[6];
     QVBoxLayout *mlayout;

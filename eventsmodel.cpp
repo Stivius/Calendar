@@ -29,11 +29,17 @@ EventsModel::EventsModel()
             "("
             "path VARCHAR(500),"
             "quality INTEGER,"
-            "show INTEGER"
+            "font INTEGER,"
+            "anniver INTEGER"
             ");");
-    QString string = "INSERT INTO settings (path,quality,show) VALUES ('%1','%2','%3')";
-    QString query = string.arg(QApplication::applicationDirPath() + "/images").arg(50).arg(1);
-    db.exec(query);
+    query = new QSqlQuery(db);
+    query->exec("SELECT * FROM settings");
+    if(!query->first())
+    {
+        QString string = "INSERT INTO settings (path,quality,font,anniver) VALUES ('%1','%2','%3','%4')";
+        QString query = string.arg(QApplication::applicationDirPath() + "/images").arg(50).arg(11).arg(0);
+        db.exec(query);
+    }
     size = 0;
     img = 0;
 }
@@ -54,11 +60,18 @@ void EventsModel::update(int day, QString month, int year, QString theme, QStrin
     db.exec(query);
 }
 
-// обновить настройки
-void EventsModel::upsettings(QString path, int quality, int show)
+void EventsModel::upfont(int font)
 {
-    QString string = "UPDATE settings SET path='%1',quality='%2',show='%3'";
-    QString query = string.arg(path).arg(quality).arg(show);
+    QString string = "UPDATE settings SET font='%1'";
+    QString query = string.arg(font);
+    db.exec(query);
+}
+
+// обновить настройки
+void EventsModel::upsettings(QString path, int quality, int anniver)
+{
+    QString string = "UPDATE settings SET path='%1',quality='%2',anniver='%3'";
+    QString query = string.arg(path).arg(quality).arg(anniver);
     db.exec(query);
 }
 
@@ -70,7 +83,7 @@ void EventsModel::del(int idd)
     {
         file.remove(path + "/" + images[idd][i]);
     }
-    QString string = "DELETE FROM events WHERE id='%1'";
+    QString string = "DELETE FROM events WHERE ID='%1'";
     QString query = string.arg(idd);
     db.exec(query);
 }
@@ -85,7 +98,8 @@ void EventsModel::getsettings()
     {
         path = query->value(rec.indexOf("path")).toString();
         quality = query->value(rec.indexOf("quality")).toInt();
-        show = query->value(rec.indexOf("show")).toInt();
+        anniver = query->value(rec.indexOf("anniver")).toInt();
+        font = query->value(rec.indexOf("font")).toInt();
     }
 }
 

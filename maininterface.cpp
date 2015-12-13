@@ -13,7 +13,11 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     dir.mkdir("temporary");
     // ----------------------
     // создание таблицы
+    db->getsettings();
     table = new QTableWidget(0,5);
+    QFont fnt(table->font());
+    fnt.setPointSize(db->font);
+    table->setFont(fnt);
     connect(this,SIGNAL(senditem(QTableWidgetItem*)),SLOT(edititem(QTableWidgetItem*)));
     connect(table,SIGNAL(itemClicked(QTableWidgetItem*)),SLOT(changedetails(QTableWidgetItem*)));
     connect(table,SIGNAL(itemDoubleClicked(QTableWidgetItem*)),SLOT(card(QTableWidgetItem*)));
@@ -286,6 +290,15 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
         table->setItem(i, 3, new QTableWidgetItem(db->place[db->id[i]]));
         table->setItem(i, 4, new QTableWidgetItem(db->source[db->id[i]]));
     }
+    if(db->anniver == 1)
+    {
+        anniversary->setChecked(true);
+        aanniversary->setChecked(true);
+        QDate time;
+        filter[3] = 1;
+        fanniver = time.currentDate().year();
+        setfilter();
+    }
     // ----------------------
     table->setContextMenuPolicy(Qt::CustomContextMenu); // контекстное меню
     connect(table, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(menushow(const QPoint&)));
@@ -400,6 +413,7 @@ void MainInterface::filterplace(int index)
 // показать все темы
 void MainInterface::themes()
 {
+    db->getdata();
     QList<QString> lst;
     if(list->isHidden() || showlist == 2)
     {
@@ -447,6 +461,7 @@ void MainInterface::themes()
 // показать все места
 void MainInterface::places()
 {
+    db->getdata();
     QList<QString> lst;
     if(list->isHidden() || showlist == 1)
     {
@@ -680,16 +695,16 @@ void MainInterface::changedetails(QTableWidgetItem *item)
 // обновить настройки
 void MainInterface::upsettings()
 {
-    int flag;
-    if(textfile->isChecked())
+    int anniv;
+    if(alldates->isChecked())
     {
-        flag = 1;
+        anniv = 0;
     }
     else
     {
-        flag = 0;
+        anniv = 1;
     }
-    db->upsettings(settingspath->text(), quality->value(), flag);
+    db->upsettings(settingspath->text(), quality->value(), anniv);
     settingswgt->hide();
 }
 
@@ -764,6 +779,7 @@ void MainInterface::setpath()
     }
     else if(!settingswgt->isHidden())
     {
+        settingspath->setText(p);
         db->path = p;
     }
     wgtpath->hide();
@@ -935,16 +951,20 @@ void MainInterface::importtable()
 void MainInterface::fbig()
 {
     QFont fnt;
-    fnt.setPointSize(table->font().pointSize()+1);
+    db->font += 1;
+    fnt.setPointSize(db->font);
     table->setFont(fnt);
+    db->upfont(db->font);
 }
 
 // уменьшить шрифт
 void MainInterface::fsmall()
 {
     QFont fnt;
-    fnt.setPointSize(table->font().pointSize()-1);
+    db->font -= 1;
+    fnt.setPointSize(db->font);
     table->setFont(fnt);
+    db->upfont(db->font);
 }
 
 // запретить нажатие ПКМ в меню
@@ -1004,6 +1024,16 @@ void MainInterface::settings()
     db->getsettings();
     quality->setValue(db->quality);
     settingspath->setText(db->path);
+    if(db->anniver == 1)
+    {
+        alldates->setChecked(false);
+        anniversarytoday->setChecked(true);
+    }
+    else
+    {
+        alldates->setChecked(true);
+        anniversarytoday->setChecked(false);
+    }
     settingswgt->show();
 }
 

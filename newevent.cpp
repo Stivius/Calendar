@@ -88,10 +88,14 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
     // ----------------------
     // место для изображений
     lbl[8] = new QLabel("Фотография");
-    lbl[9] = new QLabel;
+    fullphoto = new QPushButton;
+    fullphoto->setFlat(true);
     pix = new QPixmap(150,150);
     pix->fill(Qt::transparent);
-    lbl[9]->setPixmap(*pix);
+    QIcon icn(*pix);
+    fullphoto->setIconSize(QSize(150,150));
+    fullphoto->setIcon(icn);
+    connect(fullphoto,SIGNAL(clicked()),SLOT(openfull()));
     btn[0] = new QPushButton("+");
     btn[0]->setFixedSize(25,25);
     connect(btn[0],SIGNAL(clicked()),SLOT(uploadphoto()));
@@ -109,7 +113,7 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
     vlay[4]->addWidget(btn[2]);
     vlay[4]->addWidget(btn[3]);
     hlay[3]->addLayout(vlay[4]);
-    hlay[3]->addWidget(lbl[9]);
+    hlay[3]->addWidget(fullphoto);
     vlay[5]->addWidget(lbl[8]);
     vlay[5]->addLayout(hlay[3]);
     // ----------------------
@@ -123,9 +127,25 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
     hlay[5]->addWidget(btn2[0]);
     hlay[5]->addWidget(btn2[1]);
     // ----------------------
+    QList<QString> tlst,tlst2,tlst3;
+    for(int i = 0; i != db->count(); i++)
+    {
+        tlst.insert(tlst.end(),db->theme[db->id[i]]);
+        tlst2.insert(tlst2.end(),db->place[db->id[i]]);
+        tlst3.insert(tlst3.end(),db->source[db->id[i]]);
+    }
+    QSet<QString> set = tlst.toSet();
+    QSet<QString> set2 = tlst2.toSet();
+    QSet<QString> set3 = tlst3.toSet();
+    tlst = set.toList();
+    tlst2 = set2.toList();
+    tlst3 = set3.toList();
+    qSort(tlst);
+    qSort(tlst2);
+    qSort(tlst3);
     // редактирование события
     cimg = db->imgcount();
-    if(item != 0) // item заменить и передаватть currentrow + формировать id на основе row + column
+    if(item != 0)
     {
         int idd;
         if(!inter->isFilter())
@@ -136,22 +156,6 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
         {
             idd = db->tempid[inter->table->currentRow()];
         }
-        QList<QString> tlst,tlst2,tlst3;
-        for(int i = 0; i != db->count(); i++)
-        {
-            tlst.insert(tlst.end(),db->theme[db->id[i]]);
-            tlst2.insert(tlst2.end(),db->place[db->id[i]]);
-            tlst3.insert(tlst3.end(),db->source[db->id[i]]);
-        }
-        QSet<QString> set = tlst.toSet();
-        QSet<QString> set2 = tlst2.toSet();
-        QSet<QString> set3 = tlst3.toSet();
-        tlst = set.toList();
-        tlst2 = set2.toList();
-        tlst3 = set3.toList();
-        qSort(tlst);
-        qSort(tlst2);
-        qSort(tlst3);
         int c = 0, ind, ind2, ind3;
         QListIterator<QString> i(tlst);
         while(i.hasNext())
@@ -192,7 +196,9 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
         if(vec.size() > 0)
         {
             now = vec.size() - 1;
-            lbl[9]->setPixmap(vec[now]);
+            QIcon icn(vec[now]);
+            fullphoto->setIconSize(QSize(150,150));
+            fullphoto->setIcon(icn);
         }
         cimg = db->imgcount();
         int n = db->getmonth(idd);
@@ -206,6 +212,27 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
         source->setCurrentIndex(ind3);
         extra->setText(db->extra[idd]);
         sdesc2 = db->sdesc[idd];
+    }
+    else
+    {
+        QListIterator<QString> i(tlst);
+        while(i.hasNext())
+        {
+            QString str = i.next();
+            theme->addItem(str);
+        }
+        QListIterator<QString> i2(tlst2);
+        while(i2.hasNext())
+        {
+            QString str = i2.next();
+            place->addItem(str);
+        }
+        QListIterator<QString> i3(tlst3);
+        while(i3.hasNext())
+        {
+            QString str = i3.next();
+            source->addItem(str);
+        }
     }
     // ----------------------
     mlayout->addLayout(hlay[1]);
@@ -247,8 +274,11 @@ void NewEvent::removephoto()
             img.remove(uploaded[n] + "\n");
             uploadedtemp.remove(n);
             uploaded.remove(n);
+            temppath.remove(n);
         }
-        lbl[9]->setPixmap(vec[now]);
+        QIcon icn(vec[now]);
+        fullphoto->setIconSize(QSize(150,150));
+        fullphoto->setIcon(icn);
     }
     else if(now == vec.size()-1 && vec.size() > 1) // с конца
     {
@@ -265,9 +295,12 @@ void NewEvent::removephoto()
             img.remove(uploaded[n] + "\n");
             uploadedtemp.remove(n);
             uploaded.remove(n);
+            temppath.remove(n);
         }
         now--;
-        lbl[9]->setPixmap(vec[now]);
+        QIcon icn(vec[now]);
+        fullphoto->setIconSize(QSize(150,150));
+        fullphoto->setIcon(icn);
     }
     else if(vec.size() == 1) // только одно фото
     {
@@ -284,10 +317,39 @@ void NewEvent::removephoto()
             img.remove(uploaded[n] + "\n");
             uploadedtemp.remove(n);
             uploaded.remove(n);
+            temppath.remove(n);
         }
         pix = new QPixmap(150,150);
         pix->fill(Qt::transparent);
-        lbl[9]->setPixmap(*pix);
+        QIcon icn(*pix);
+        fullphoto->setIconSize(QSize(150,150));
+        fullphoto->setIcon(icn);
+    }
+}
+
+void NewEvent::openfull()
+{
+    int idd;
+    if(!inter->isFilter())
+    {
+        idd = db->id[inter->table->currentRow()];
+    }
+    else
+    {
+        idd = db->tempid[inter->table->currentRow()];
+    }
+    if(vec.size() > 0 && now <= (db->images[idd].size()-1))
+    {
+        QUrl url(db->path + "/" + db->images[idd][now]);
+        QDesktopServices process;
+        process.openUrl(url);
+    }
+    else if(vec.size() > 0 && now > (db->images[idd].size()-1))
+    {
+        int n = now-db->images[idd].size();
+        QUrl url(temppath[n]);
+        QDesktopServices process;
+        process.openUrl(url);
     }
 }
 
@@ -297,7 +359,8 @@ void NewEvent::next()
     if(now < vec.size()-1)
     {
         now++;
-        lbl[9]->setPixmap(vec[now]);
+        QIcon icn(vec[now]);
+        fullphoto->setIcon(icn);
     }
 }
 
@@ -307,7 +370,8 @@ void NewEvent::prev()
     if(now > 0)
     {
         now--;
-        lbl[9]->setPixmap(vec[now]);
+        QIcon icn(vec[now]);
+        fullphoto->setIcon(icn);
     }
 }
 
@@ -322,15 +386,16 @@ void NewEvent::upload()
     else
     {
         pix->load(dir->filePath(view->selectionModel()->currentIndex()));
-        lbl[9]->setPixmap(pix->scaled(150,150,Qt::KeepAspectRatio));
+        QIcon icn(pix->scaled(150,150,Qt::KeepAspectRatio));
+        fullphoto->setIcon(icn);
         vec.push_back(pix->scaled(150,150,Qt::KeepAspectRatio));
         now = vec.size()-1;
         QFile file;
         int n;
         for(int i = 0; i != 100; i++) // вычисляем порядковый номер изоображения
         {
-            QString str(db->path + "/" + "image" + QString::number(i) + ".png");
-            QString str2("image" + QString::number(i) + ".png");
+            QString str(db->path + "/" + "image" + QString::number(i) + ".jpg");
+            QString str2("image" + QString::number(i) + ".jpg");
             if(!file.exists(str))
             {
                 int c = 0;
@@ -348,9 +413,10 @@ void NewEvent::upload()
                 }
             }
         }
-        QString str("image" + QString::number(n) + ".png");
+        QString str("image" + QString::number(n) + ".jpg");
         n++;
         // временные векторы с изображениями
+        temppath.push_back(dir->filePath(view->selectionModel()->currentIndex()));
         uploaded.push_back(str);
         uploadedtemp.push_back(*pix);
         // ----------------------
@@ -384,7 +450,7 @@ void NewEvent::save()
     }
     for(int i = 0; i != uploaded.size(); i++) // сохранение изображений в указанной папке
     {
-        uploadedtemp[i].save(db->path + "/" + uploaded[i], "PNG", db->quality);
+        uploadedtemp[i].save(db->path + "/" + uploaded[i], "JPG", db->quality);
     }
     for(int i = 0; i != removed.size(); i++) // удаление указанных изображений
     {

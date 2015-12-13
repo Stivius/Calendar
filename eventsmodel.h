@@ -15,6 +15,7 @@ public:
     void update(int,QString,int,QString,QString,QString,QString,QString,QString,QString,int);
     void getdata();
     void upsettings(QString, int, int);
+    void upfont(int);
     void getsettings();
     void del(int);
     int count();
@@ -23,9 +24,10 @@ public:
     int getmonth(QString);
 private:
     int quality;
-    int show;
     QString path;
     int img;
+    int anniver;
+    int font;
     QSqlDatabase db;
     QSqlQuery *query;
     QSqlRecord rec;
