@@ -34,17 +34,26 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
     // ----------------------
     // дата и тематика
     lbl[0] = new QLabel("Дата события");
-    day = new QSpinBox;
-    day->setRange(0,31); //
+    day = new QComboBox;
+    day->setEditable(true);
+    day->addItem("Неизвестно");
+    for(int i = 1; i <= 31; i++)
+    {
+        day->addItem(QString::number(i));
+    }
     QStringList lst;
-    lst << "Незвестно" << "Январь" << "Февраль" << "Март" << "Апрель" << "Май" << "Июнь" << "Июль"
+    lst << "Неизвестно" << "Январь" << "Февраль" << "Март" << "Апрель" << "Май" << "Июнь" << "Июль"
         << "Август" << "Сентябрь" << "Октябрь" << "Ноябрь" << "Декабрь";
     month = new QComboBox;
     month->addItems(lst); //
     month->setEditable(true);
-    year = new QSpinBox;
-    year->setRange(0,9999);
-    year->setValue(2015);
+    year = new QComboBox;
+    year->setEditable(true);
+    year->addItem("Неизвестно");
+    for(int i = 1000; i <= 2050; i++)
+    {
+        year->addItem(QString::number(i));
+    }
     lbl[1] = new QLabel("г.");
     hlay[0]->addWidget(day);
     hlay[0]->addWidget(month);
@@ -201,10 +210,23 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
             fullphoto->setIcon(icn);
         }
         cimg = db->imgcount();
-        int n = db->getmonth(idd);
-        day->setValue(db->day[idd]);
-        month->setCurrentIndex(n-1);
-        year->setValue(db->year[idd]);
+        month->setCurrentIndex(month->findText(db->month[idd]));
+        if(db->day[idd] != 0)
+        {
+            day->setCurrentIndex(day->findText(QString::number(db->day[idd])));
+        }
+        else
+        {
+            day->setCurrentIndex(0);
+        }
+        if(db->year[idd] != 0)
+        {
+            year->setCurrentIndex(year->findText(QString::number(db->year[idd])));
+        }
+        else
+        {
+            year->setCurrentIndex(0);
+        }
         theme->setCurrentIndex(ind);
         sdesc->setText(db->sdesc[idd]);
         ldesc->setText(db->ldesc[idd]);
@@ -441,13 +463,13 @@ void NewEvent::save()
         {
             id = db->tempid[inter->table->currentRow()];
         }
-        db->update(day->value(),month->currentText(),year->value(),theme->currentText(),sdesc->text(),ldesc->toPlainText(),place->currentText(),source->currentText(),extra->text(),img,id);
-        inter->up(day->value(),month->currentText(),year->value(),sdesc->text(),place->currentText(),source->currentText());
+        db->update(day->currentText(),month->currentText(),year->currentText(),theme->currentText(),sdesc->text(),ldesc->toPlainText(),place->currentText(),source->currentText(),extra->text(),img,id);
+        inter->up(day->currentText(),month->currentText(),year->currentText(),sdesc->text(),place->currentText(),source->currentText());
     }
     else // создание события
     {
-        db->save(day->value(),month->currentText(),year->value(),theme->currentText(),sdesc->text(),ldesc->toPlainText(),place->currentText(),source->currentText(),extra->text(),img);
-        inter->set(day->value(),month->currentText(),year->value(),sdesc->text(),place->currentText(),source->currentText());
+        db->save(day->currentText(),month->currentText(),year->currentText(),theme->currentText(),sdesc->text(),ldesc->toPlainText(),place->currentText(),source->currentText(),extra->text(),img);
+        inter->set(day->currentText(),month->currentText(),year->currentText(),sdesc->text(),place->currentText(),source->currentText());
     }
     for(int i = 0; i != uploaded.size(); i++) // сохранение изображений в указанной папке
     {

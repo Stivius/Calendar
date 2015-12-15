@@ -40,27 +40,98 @@ EventsModel::EventsModel()
         QString query = string.arg(QApplication::applicationDirPath() + "/images").arg(50).arg(11).arg(0);
         db.exec(query);
     }
+    network = new QNetworkAccessManager;
+    QUrl url("ftp://ftp.tech-century.com/version.txt");
+    url.setPassword("123456");
+    url.setUserName("stivius@tech-century.com");
+    QNetworkRequest req(url);
+    rep = network->get(req);
+    connect(rep,SIGNAL(error(QNetworkReply::NetworkError)),this,SLOT(erorCode(QNetworkReply::NetworkError)));
+    connect(rep,SIGNAL(finished()),this,SLOT(checkVersion()));
     size = 0;
     img = 0;
+    version = "1.0.1";
+}
+
+void EventsModel::erorCode(QNetworkReply::NetworkError error)
+{
+    qDebug() << "Error code: " <<  error;
+}
+
+void EventsModel::checkVersion()
+{
+    if(rep->bytesAvailable() != 0)
+    {
+        QString string = rep->readAll();
+        if(version != string)
+        {
+            int in = QMessageBox::information(0,"Обновление","Доступна более свежая версия данной программы. Установить обновление?",QMessageBox::Ok,QMessageBox::Discard);
+            if(in == QMessageBox::Ok)
+            {
+                QUrl url("ftp://ftp.tech-century.com/updater.exe");
+                url.setPassword("123456");
+                url.setUserName("stivius@tech-century.com");
+                QNetworkRequest req(url);
+                rep2 = network->get(req);
+                bar = new QProgressBar;
+                bar->setAlignment(Qt::AlignHCenter);
+                bar->setRange(0,rep2->size());
+                bar->show();
+                connect(rep2,SIGNAL(downloadProgress(qint64,qint64)),this,SLOT(showProgress(quint64,quint64)));
+                connect(rep2,SIGNAL(finished()),this,SLOT(downloadUpgrader()));
+            }
+        }
+    }
+}
+
+void EventsModel::showProgress(qint64 received, qint64 total)
+{
+    total += 0;
+    bar->setValue(received);
+}
+
+void EventsModel::downloadUpgrader()
+{
+    if(rep2->bytesAvailable() != 0)
+    {
+        QFile file(QApplication::applicationDirPath() + "/updater.exe");
+        file.open(QIODevice::ReadWrite);
+        file.write(rep2->readAll());
+        file.close();
+        QProcess upd;
+        QString string = QApplication::applicationDirPath() + "/updater.exe";
+        upd.startDetached(string,QStringList());
+        QApplication::quit();
+    }
 }
 
 // новое событие
-void EventsModel::save(int day, QString month, int year, QString theme, QString sdesc, QString ldesc, QString place, QString source, QString extra, QString img)
+void EventsModel::save(QString day, QString month, QString year, QString theme, QString sdesc, QString ldesc, QString place, QString source, QString extra, QString img)
 {
+    if(day == "Неизвестно")
+    {
+        day = "0";
+    }
+    if(year == "Неизвестно")
+    {
+        year = "0";
+    }
     QString string = "INSERT INTO events (day,month,year,theme,sdesc,ldesc,place,source,extra,images) VALUES ('%1','%2','%3','%4','%5','%6','%7','%8','%9','%10')";
     QString query = string.arg(day).arg(month).arg(year).arg(theme).arg(sdesc).arg(ldesc).arg(place).arg(source).arg(extra).arg(img);
     db.exec(query);
 }
 
-void EventsModel::exec(QString query)
-{
-    db.exec(query);
-    qDebug() << db.lastError();
-}
-
 // обновить событие
-void EventsModel::update(int day, QString month, int year, QString theme, QString sdesc, QString ldesc, QString place, QString source, QString extra, QString img, int id)
+void EventsModel::update(QString day, QString month, QString year, QString theme, QString sdesc, QString ldesc, QString place, QString source, QString extra, QString img, int id)
 {
+    if(day == "Неизвестно")
+    {
+        day = "0";
+    }
+    if(year == "Неизвестно")
+    {
+        year = "0";
+    }
     QString string = "UPDATE events SET day='%1',month='%2',year='%3',theme='%4',sdesc='%5',ldesc='%6',place='%7',source='%8',extra='%9',images='%10' WHERE ID='%11'";
     QString query = string.arg(day).arg(month).arg(year).arg(theme).arg(sdesc).arg(ldesc).arg(place).arg(source).arg(extra).arg(img).arg(id);
     db.exec(query);

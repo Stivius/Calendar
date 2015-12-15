@@ -115,7 +115,7 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     year = new QComboBox;
     year->setEditable(true);
     year->addItem("любой");
-    for(int i = 1; i <= 9999; i++)
+    for(int i = 1000; i <= 2050; i++)
     {
         year->addItem(QString::number(i));
     }
@@ -876,7 +876,6 @@ void MainInterface::exceltemplate()
     xlsx.write("B1","Событие");
     xlsx.save();
     QDesktopServices process;
-    qDebug() << QApplication::applicationDirPath();
     QUrl url(QApplication::applicationDirPath()+ "/Import.xlsx");
     process.openUrl(url);
 }
@@ -1077,22 +1076,38 @@ void MainInterface::edititem(QTableWidgetItem *item)
 }
 
 // вставить новое событие в таблицу
-void MainInterface::set(int day, QString month, int year,QString sdesc, QString place, QString source)
+void MainInterface::set(QString day, QString month, QString year,QString sdesc, QString place, QString source)
 {
+    if(day == "Неизвестно")
+    {
+        day = "0";
+    }
+    if(year == "Неизвестно")
+    {
+        year = "0";
+    }
     db->getdata();
     table->insertRow(table->rowCount());
     int n = db->getmonth(month);
-    table->setItem(table->rowCount()-1, 0, new QTableWidgetItem(QString::number(day) + "." + QString::number(n) + "." + QString::number(year)));
+    table->setItem(table->rowCount()-1, 0, new QTableWidgetItem(day + "." + QString::number(n) + "." + year));
     table->setItem(table->rowCount()-1, 1, new QTableWidgetItem(sdesc));
     table->setItem(table->rowCount()-1, 3, new QTableWidgetItem(place));
     table->setItem(table->rowCount()-1, 4, new QTableWidgetItem(source));
 }
 
 // обновить событие в таблице
-void MainInterface::up(int day, QString month, int year,QString sdesc, QString place, QString source)
+void MainInterface::up(QString day, QString month, QString year,QString sdesc, QString place, QString source)
 {
+    if(day == "Неизвестно")
+    {
+        day = "0";
+    }
+    if(year == "Неизвестно")
+    {
+        year = "0";
+    }
     int n = db->getmonth(month);
-    table->item(table->currentRow(),0)->setText(QString::number(day) + "." + QString::number(n) + "." + QString::number(year));
+    table->item(table->currentRow(),0)->setText(day + "." + QString::number(n) + "." + year);
     table->item(table->currentRow(), 1)->setText(sdesc);
     table->item(table->currentRow(), 3)->setText(place);
     table->item(table->currentRow(), 4)->setText(source);

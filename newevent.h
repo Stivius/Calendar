@@ -37,9 +37,9 @@ private:
     int edit;
     QString sdesc2;
     QTableWidgetItem *item;
-    QSpinBox *day;
+    QComboBox *day;
     QComboBox *month;
-    QSpinBox *year;
+    QComboBox *year;
     QComboBox *theme;
     QLineEdit *sdesc;
     QTextEdit *ldesc;

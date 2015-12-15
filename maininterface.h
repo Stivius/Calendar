@@ -10,8 +10,8 @@ class MainInterface: public QWidget
 public:
     friend class NewEvent;
     MainInterface(QWidget *parent = 0);
-    void set(int,QString,int,QString,QString,QString);
-    void up(int,QString,int,QString,QString,QString);
+    void set(QString,QString,QString,QString,QString,QString);
+    void up(QString,QString,QString,QString,QString,QString);
     bool isFilter();
 private slots:
     void settings();
