@@ -15,14 +15,14 @@ ManageUpdate::ManageUpdate()
 
 void ManageUpdate::erorCode(QNetworkReply::NetworkError error)
 {
-    qDebug() << "Error code: " <<  error;
+    std::cout << "Error code: " <<  error << std::endl;
 }
 
 
 void ManageUpdate::showProgress(qint64 received, qint64 total)
 {
     total += 0;
-    qDebug() << "Received bytes: " << received << " " << "Total bytes: " << rep->size();
+    std::cout << "Received bytes: " << received << " " << "Total bytes: " << rep->size() << std::endl;
 }
 
 void ManageUpdate::downloadUpdate()

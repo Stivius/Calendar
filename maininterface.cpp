@@ -9,8 +9,8 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     mlayout = new QVBoxLayout;
     // папки по умолчанию
     QDir dir;
-    dir.mkdir("images");
-    dir.mkdir("temporary");
+    dir.mkdir(QApplication::applicationDirPath() + "/images");
+    dir.mkdir(QApplication::applicationDirPath() + "/temporary");
     // ----------------------
     // создание таблицы
     db->getsettings();
@@ -22,11 +22,13 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     connect(table,SIGNAL(itemClicked(QTableWidgetItem*)),SLOT(changedetails(QTableWidgetItem*)));
     connect(table,SIGNAL(itemDoubleClicked(QTableWidgetItem*)),SLOT(card(QTableWidgetItem*)));
     table->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
-    table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
-    table->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
-    table->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
-    table->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Stretch);
+    for(int i = 0; i != 5; i++)
+        table->horizontalHeader()->resizeSection(i,db->headers[i]);
+    table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Interactive);
+    table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Interactive);
+    table->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Interactive);
+    table->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Interactive);
+    table->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Interactive);
     table->setHorizontalHeaderItem(0, new QTableWidgetItem("Дата"));
     table->setHorizontalHeaderItem(1, new QTableWidgetItem("Событие"));
     table->setHorizontalHeaderItem(2, new QTableWidgetItem("Изображения"));
@@ -93,7 +95,6 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     msearchlay = new QHBoxLayout;
     datesearchlay = new QHBoxLayout;
     searchlay = new QHBoxLayout;
-    selected = new QCheckBox("В выбранном");
     anniversary = new QCheckBox("Юбилейные");
     anniversary->setCheckable(true);
     connect(anniversary,SIGNAL(clicked()),SLOT(filteranniver()));
@@ -126,7 +127,6 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     searchinput = new QLineEdit;
     connect(searchinput,SIGNAL(textEdited(QString)),this,SLOT(filtersearch(QString)));
     searchlay->addWidget(searchinput);
-    searchlay->addWidget(selected);
     search->setLayout(searchlay);
     datesearchlay->addWidget(anniversary);
     datesearchlay->addWidget(daylbl);
@@ -276,9 +276,9 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     for(int i = 0; i != db->count(); i++)
     {
         table->insertRow(i);
-        int n = db->getmonth(db->id[i]);
-        table->setItem(i, 0, new QTableWidgetItem(QString::number(db->day[db->id[i]]) + "." + QString::number(n) + "." + QString::number(db->year[db->id[i]])));
+        table->setItem(i, 0, new QTableWidgetItem(((db->day[db->id[i]]<10)?("0" + QString::number(db->day[db->id[i]])):QString::number(db->day[db->id[i]])) + "." + ((db->month[db->id[i]].toInt()<10)?("0" + db->month[db->id[i]]):db->month[db->id[i]]) + "." + ((db->year[db->id[i]]<1000)?("000" + QString::number(db->year[db->id[i]])):QString::number(db->year[db->id[i]]))));
         table->setItem(i, 1, new QTableWidgetItem(db->sdesc[db->id[i]]));
+        table->setItem(i, 2, new QTableWidgetItem((db->images[db->id[i]].size() > 0)?"Есть":"Нет"));
         table->setItem(i, 3, new QTableWidgetItem(db->place[db->id[i]]));
         table->setItem(i, 4, new QTableWidgetItem(db->source[db->id[i]]));
     }
@@ -299,7 +299,35 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     mlayout->addLayout(laylist);
     mlayout->addWidget(eventgroup);
     setLayout(mlayout);
-    this->setFixedSize(1000,600);
+}
+
+MainInterface::~MainInterface()
+{
+    db->query->exec("CREATE TABLE events_sorted"
+            "("
+            "ID INTEGER PRIMARY KEY,"
+            "day INTEGER,"
+            "month VARCHAR(64),"
+            "year INTEGER,"
+            "theme VARCHAR(500),"
+            "sdesc VARCHAR(500),"
+            "ldesc VARCHAR(500),"
+            "place VARCHAR(500),"
+            "source VARCHAR(500),"
+            "extra VARCHAR(500),"
+            "images VARCHAR(500)"
+            ");");
+    QString str = "INSERT INTO events_sorted (day,month,year,theme,sdesc,ldesc,place,source,extra,images) SELECT day,month,year,theme,sdesc,ldesc,place,source,extra,images FROM events ORDER BY year,month,day;";
+    db->query->exec(str);
+    db->query->finish();
+    db->query->exec("DROP TABLE events;");
+    db->query->exec("ALTER TABLE events_sorted RENAME TO events;");
+    QVector<int> vec;
+    for(int i = 0; i != 5; i++)
+    {
+        vec.push_back(table->horizontalHeader()->sectionSize(i));
+    }
+    db->upheaders(vec[0],vec[1],vec[2],vec[3],vec[4]);
 }
 
 void MainInterface::filterday(int index)
@@ -648,9 +676,9 @@ void MainInterface::setfilter()
         if(allowed)
         {
             table->insertRow(j);
-            int n = db->getmonth(db->id[i]);
-            table->setItem(j, 0, new QTableWidgetItem(QString::number(db->day[db->id[i]]) + "." + QString::number(n) + "." + QString::number(db->year[db->id[i]])));
+            table->setItem(j, 0, new QTableWidgetItem(((db->day[db->id[i]]<10)?("0" + QString::number(db->day[db->id[i]])):QString::number(db->day[db->id[i]])) + "." + ((db->month[db->id[i]].toInt()<10)?("0" + db->month[db->id[i]]):db->month[db->id[i]]) + "." + ((db->year[db->id[i]]<1000)?("000" + QString::number(db->year[db->id[i]])):QString::number(db->year[db->id[i]]))));
             table->setItem(j, 1, new QTableWidgetItem(db->sdesc[db->id[i]]));
+            table->setItem(j, 2, new QTableWidgetItem((db->images[db->id[i]].size() > 0)?"Есть":"Нет"));
             table->setItem(j, 3, new QTableWidgetItem(db->place[db->id[i]]));
             table->setItem(j, 4, new QTableWidgetItem(db->source[db->id[i]]));
             j++;
@@ -678,8 +706,7 @@ void MainInterface::changedetails(QTableWidgetItem *item)
             }
             extra->setText(db->extra[id]);
             ldesc->setText(db->ldesc[id]);
-            int n = db->getmonth(id);
-            QString str(QString::number(db->day[id]) + "." + QString::number(n) + "." + QString::number(db->year[id]));
+            QString str(((db->day[id]<10)?("0" + QString::number(db->day[id])):QString::number(db->day[id])) + '.' + ((db->month[id].toInt()<10)?("0" + db->month[id]):db->month[id]) + '.' + ((db->year[id]<1000)?("000" + QString::number(db->year[id])):QString::number(db->year[id])));
             date->setText(str);
             theme->setText(db->theme[id]);
             place->setText(db->place[id]);
@@ -722,8 +749,7 @@ void MainInterface::indetail()
             }
             extra->setText(db->extra[id]);
             ldesc->setText(db->ldesc[id]);
-            int n = db->getmonth(id);
-            QString str(QString::number(db->day[id]) + "." + QString::number(n) + "." + QString::number(db->year[id]));
+            QString str(((db->day[id]<10)?("0" + QString::number(db->day[id])):QString::number(db->day[id])) + "." + ((db->month[id].toInt()<10)?("0" + db->month[id]):db->month[id]) + "." + ((db->year[id]<1000)?("000" + QString::number(db->year[id])):QString::number(db->year[id])));
             date->setText(str);
             theme->setText(db->theme[id]);
             place->setText(db->place[id]);
@@ -909,10 +935,13 @@ void MainInterface::submitimport()
                 day = date.mid(0,ind).toInt();
                 QString event = xlsx.read("B" + QString::number(num)).toString();
                 table->insertRow(table->rowCount());
-                table->setItem(table->rowCount()-1, 0, new QTableWidgetItem(QString::number(day) + '.' + QString::number(month) + '.' + QString::number(year)));
+                table->setItem(table->rowCount()-1, 0, new QTableWidgetItem(((day<10)?("0" + QString::number(day)):QString::number(day)) + '.' + ((month<10)?("0" + QString::number(month)):QString::number(month)) + '.' + ((year<1000)?("000" + QString::number(year)):QString::number(year))));
                 table->setItem(table->rowCount()-1, 1, new QTableWidgetItem(event));
+                table->setItem(table->rowCount()-1, 2, new QTableWidgetItem("Нет"));
+                table->setItem(table->rowCount()-1, 3, new QTableWidgetItem(""));
+                table->setItem(table->rowCount()-1, 4, new QTableWidgetItem(""));
                 QString string = "INSERT INTO events (day,month,year,theme,sdesc,ldesc,place,source,extra,images) VALUES ('%1','%2','%3','%4','%5','%6','%7','%8','%9','%10')";
-                QString query = string.arg(day).arg(db->getmonthname(month)).arg(year).arg("").arg(event).arg("").arg("").arg("").arg("").arg("");
+                QString query = string.arg(day).arg(QString::number(month)).arg(year).arg("").arg(event).arg("").arg("").arg("").arg("").arg("");
                 db->db.exec(query);
             }
             else
@@ -1076,7 +1105,7 @@ void MainInterface::edititem(QTableWidgetItem *item)
 }
 
 // вставить новое событие в таблицу
-void MainInterface::set(QString day, QString month, QString year,QString sdesc, QString place, QString source)
+void MainInterface::set(QString day, QString month, QString year,QString sdesc, QString place, QString source, QString photos)
 {
     if(day == "Неизвестно")
     {
@@ -1089,14 +1118,15 @@ void MainInterface::set(QString day, QString month, QString year,QString sdesc, 
     db->getdata();
     table->insertRow(table->rowCount());
     int n = db->getmonth(month);
-    table->setItem(table->rowCount()-1, 0, new QTableWidgetItem(day + "." + QString::number(n) + "." + year));
+    table->setItem(table->rowCount()-1, 0, new QTableWidgetItem(((day.toInt()<10)?("0" + day):day) + "." + ((n<10)?("0" + QString::number(n)):QString::number(n)) + "." + ((year.toInt()<1000)?("000" + year):year)));
     table->setItem(table->rowCount()-1, 1, new QTableWidgetItem(sdesc));
+    table->setItem(table->rowCount()-1, 2, new QTableWidgetItem(photos));
     table->setItem(table->rowCount()-1, 3, new QTableWidgetItem(place));
     table->setItem(table->rowCount()-1, 4, new QTableWidgetItem(source));
 }
 
 // обновить событие в таблице
-void MainInterface::up(QString day, QString month, QString year,QString sdesc, QString place, QString source)
+void MainInterface::up(QString day, QString month, QString year,QString sdesc, QString place, QString source, QString photos)
 {
     if(day == "Неизвестно")
     {
@@ -1107,8 +1137,9 @@ void MainInterface::up(QString day, QString month, QString year,QString sdesc, Q
         year = "0";
     }
     int n = db->getmonth(month);
-    table->item(table->currentRow(),0)->setText(day + "." + QString::number(n) + "." + year);
+    table->item(table->currentRow(), 0)->setText(((day.toInt()<10)?("0" + day):day) + "." + ((n<10)?("0" + QString::number(n)):QString::number(n)) + "." + ((year.toInt()<1000)?("000" + year):year));
     table->item(table->currentRow(), 1)->setText(sdesc);
+    table->item(table->currentRow(), 2)->setText(photos);
     table->item(table->currentRow(), 3)->setText(place);
     table->item(table->currentRow(), 4)->setText(source);
 }

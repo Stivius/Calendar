@@ -9,6 +9,7 @@
 #include <QNetworkReply>
 #include <QDesktopServices>
 #include <QProgressBar>
+#include <QtAlgorithms>
 
 class EventsModel: public QObject
 {
@@ -17,10 +18,12 @@ public:
     friend class NewEvent;
     friend class MainInterface;
     EventsModel();
+    ~EventsModel();
     void save(QString,QString,QString,QString,QString,QString,QString,QString,QString,QString);
     void update(QString,QString,QString,QString,QString,QString,QString,QString,QString,QString,int);
     void getdata();
     void upsettings(QString, int, int);
+    void upheaders(int,int,int,int,int);
     void upfont(int);
     void getsettings();
     void del(int);
@@ -45,9 +48,11 @@ private:
     int img;
     int anniver;
     int font;
+    QVector<int> headers;
     QSqlDatabase db;
     QSqlQuery *query;
     QSqlRecord rec;
+    QMap<int,QString> data;
     QVector<int> id;
     QVector<int> tempid;
     QMap<int,int> day;

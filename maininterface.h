@@ -10,8 +10,9 @@ class MainInterface: public QWidget
 public:
     friend class NewEvent;
     MainInterface(QWidget *parent = 0);
-    void set(QString,QString,QString,QString,QString,QString);
-    void up(QString,QString,QString,QString,QString,QString);
+    ~MainInterface();
+    void set(QString,QString,QString,QString,QString,QString,QString);
+    void up(QString,QString,QString,QString,QString,QString,QString);
     bool isFilter();
 private slots:
     void settings();
@@ -132,7 +133,6 @@ private:
     QHBoxLayout *msearchlay;
     QHBoxLayout *datesearchlay;
     QHBoxLayout *searchlay;
-    QCheckBox *selected;
     QCheckBox *anniversary;
     QComboBox *day;
     QComboBox *month;

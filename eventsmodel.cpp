@@ -11,7 +11,8 @@ EventsModel::EventsModel()
     db.setUserName("user");
     db.setPassword("123");
     db.open();
-    db.exec("CREATE TABLE events"
+    query = new QSqlQuery(db);
+    query->exec("CREATE TABLE events"
             "("
             "ID INTEGER PRIMARY KEY,"
             "day INTEGER,"
@@ -25,20 +26,31 @@ EventsModel::EventsModel()
             "extra VARCHAR(500),"
             "images VARCHAR(500)"
             ");");
-    db.exec("CREATE TABLE settings"
+    query->exec("CREATE TABLE settings"
             "("
             "path VARCHAR(500),"
             "quality INTEGER,"
             "font INTEGER,"
-            "anniver INTEGER"
+            "anniver INTEGER,"
+            "h1 INTEGER,"
+            "h2 INTEGER,"
+            "h3 INTEGER,"
+            "h4 INTEGER,"
+            "h5 INTEGER"
             ");");
-    query = new QSqlQuery(db);
     query->exec("SELECT * FROM settings");
     if(!query->first())
     {
-        QString string = "INSERT INTO settings (path,quality,font,anniver) VALUES ('%1','%2','%3','%4')";
-        QString query = string.arg(QApplication::applicationDirPath() + "/images").arg(50).arg(11).arg(0);
-        db.exec(query);
+        QString string = "INSERT INTO settings (path,quality,font,anniver,h1,h2,h3,h4,h5) VALUES ('%1','%2','%3','%4','%5','%6','%7','%8','%9')";
+        QString q = string.arg(QApplication::applicationDirPath() + "/images").arg(50).arg(11).arg(0).arg("270").arg("270").arg("270").arg("270").arg("270");
+        query->exec(q);
+    }
+    query->finish();
+    QFile file(QApplication::applicationDirPath() + "/updater.exe");
+    if(file.exists())
+    {
+        file.remove();
+        file.close();
     }
     network = new QNetworkAccessManager;
     QUrl url("ftp://ftp.tech-century.com/version.txt");
@@ -50,7 +62,12 @@ EventsModel::EventsModel()
     connect(rep,SIGNAL(finished()),this,SLOT(checkVersion()));
     size = 0;
     img = 0;
-    version = "1.0.1";
+    version = "1.0.6";
+}
+
+EventsModel::~EventsModel()
+{
+
 }
 
 void EventsModel::erorCode(QNetworkReply::NetworkError error)
@@ -117,7 +134,7 @@ void EventsModel::save(QString day, QString month, QString year, QString theme, 
         year = "0";
     }
     QString string = "INSERT INTO events (day,month,year,theme,sdesc,ldesc,place,source,extra,images) VALUES ('%1','%2','%3','%4','%5','%6','%7','%8','%9','%10')";
-    QString query = string.arg(day).arg(month).arg(year).arg(theme).arg(sdesc).arg(ldesc).arg(place).arg(source).arg(extra).arg(img);
+    QString query = string.arg(day).arg(QString::number(getmonth(month))).arg(year).arg(theme).arg(sdesc).arg(ldesc).arg(place).arg(source).arg(extra).arg(img);
     db.exec(query);
 }
 
@@ -133,7 +150,7 @@ void EventsModel::update(QString day, QString month, QString year, QString theme
         year = "0";
     }
     QString string = "UPDATE events SET day='%1',month='%2',year='%3',theme='%4',sdesc='%5',ldesc='%6',place='%7',source='%8',extra='%9',images='%10' WHERE ID='%11'";
-    QString query = string.arg(day).arg(month).arg(year).arg(theme).arg(sdesc).arg(ldesc).arg(place).arg(source).arg(extra).arg(img).arg(id);
+    QString query = string.arg(day).arg(QString::number(getmonth(month))).arg(year).arg(theme).arg(sdesc).arg(ldesc).arg(place).arg(source).arg(extra).arg(img).arg(id);
     db.exec(query);
 }
 
@@ -144,9 +161,17 @@ void EventsModel::upfont(int font)
     db.exec(query);
 }
 
+void EventsModel::upheaders(int h1, int h2, int h3, int h4, int h5)
+{
+    QString string = "UPDATE settings SET h1='%1',h2='%2',h3='%3',h4='%4',h5='%5'";
+    QString query = string.arg(h1).arg(h2).arg(h3).arg(h4).arg(h5);
+    db.exec(query);
+}
+
 // обновить настройки
 void EventsModel::upsettings(QString path, int quality, int anniver)
 {
+
     QString string = "UPDATE settings SET path='%1',quality='%2',anniver='%3'";
     QString query = string.arg(path).arg(quality).arg(anniver);
     db.exec(query);
@@ -177,13 +202,19 @@ void EventsModel::getsettings()
         quality = query->value(rec.indexOf("quality")).toInt();
         anniver = query->value(rec.indexOf("anniver")).toInt();
         font = query->value(rec.indexOf("font")).toInt();
+        headers.push_back(query->value(rec.indexOf("h1")).toInt());
+        headers.push_back(query->value(rec.indexOf("h2")).toInt());
+        headers.push_back(query->value(rec.indexOf("h3")).toInt());
+        headers.push_back(query->value(rec.indexOf("h4")).toInt());
+        headers.push_back(query->value(rec.indexOf("h5")).toInt());
     }
+    query->finish();
 }
 
 // узнаем месяц
 int EventsModel::getmonth(int i)
 {
-    int n;
+    int n = 0;
     if(month[i] == "Январь")
         n = 1;
     else if(month[i] == "Февраль")
@@ -248,7 +279,7 @@ QString EventsModel::getmonthname(int n)
 // узнаем месяц (перегруженная функция)
 int EventsModel::getmonth(QString str)
 {
-    int n;
+    int n = 0;
     if(str == "Январь")
         n = 1;
     else if(str == "Февраль")
@@ -304,6 +335,7 @@ void EventsModel::getdata()
         day[i] = query->value(rec.indexOf("day")).toInt();
         month[i] = query->value(rec.indexOf("month")).toString();
         year[i] = query->value(rec.indexOf("year")).toInt();
+        data[i] = QString::number(year[i]) + "." + QString::number(getmonth(month[i])) + "." + QString::number(day[i]);
         theme[i] = query->value(rec.indexOf("theme")).toString();
         sdesc[i] = query->value(rec.indexOf("sdesc")).toString();
         ldesc[i] = query->value(rec.indexOf("ldesc")).toString();
@@ -324,6 +356,7 @@ void EventsModel::getdata()
         images[i] = vec;
         size++;
     }
+    query->finish();
 }
 
 // кол-во событий

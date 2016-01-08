@@ -210,7 +210,7 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
             fullphoto->setIcon(icn);
         }
         cimg = db->imgcount();
-        month->setCurrentIndex(month->findText(db->month[idd]));
+        month->setCurrentIndex(month->findText(db->getmonthname(db->month[idd].toInt())));
         if(db->day[idd] != 0)
         {
             day->setCurrentIndex(day->findText(QString::number(db->day[idd])));
@@ -267,6 +267,7 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
 
 void NewEvent::uploadphoto()
 {
+    wgt->setWindowModality(Qt::ApplicationModal);
     wgt->show();
 }
 
@@ -402,6 +403,7 @@ void NewEvent::prev()
 void NewEvent::upload()
 {
     QString str = dir->fileName(view->selectionModel()->currentIndex());
+    str = str.toLower();
     if(str.indexOf(".png") == -1 && str.indexOf(".jpg") == -1 && str.indexOf(".jpeg") == -1) // только .PNG или .JPG/.JPEG
     {
         qDebug() << "Not found";
@@ -464,12 +466,12 @@ void NewEvent::save()
             id = db->tempid[inter->table->currentRow()];
         }
         db->update(day->currentText(),month->currentText(),year->currentText(),theme->currentText(),sdesc->text(),ldesc->toPlainText(),place->currentText(),source->currentText(),extra->text(),img,id);
-        inter->up(day->currentText(),month->currentText(),year->currentText(),sdesc->text(),place->currentText(),source->currentText());
+        inter->up(day->currentText(),month->currentText(),year->currentText(),sdesc->text(),place->currentText(),source->currentText(),(uploaded.size() > 0)?"Есть":"Нет");
     }
     else // создание события
     {
         db->save(day->currentText(),month->currentText(),year->currentText(),theme->currentText(),sdesc->text(),ldesc->toPlainText(),place->currentText(),source->currentText(),extra->text(),img);
-        inter->set(day->currentText(),month->currentText(),year->currentText(),sdesc->text(),place->currentText(),source->currentText());
+        inter->set(day->currentText(),month->currentText(),year->currentText(),sdesc->text(),place->currentText(),source->currentText(),(uploaded.size() > 0)?"Есть":"Нет");
     }
     for(int i = 0; i != uploaded.size(); i++) // сохранение изображений в указанной папке
     {

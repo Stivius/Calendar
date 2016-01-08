@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QProcess>
 #include <QFile>
+#include <iostream>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
