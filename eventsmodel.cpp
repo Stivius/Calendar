@@ -335,7 +335,6 @@ void EventsModel::getdata()
         day[i] = query->value(rec.indexOf("day")).toInt();
         month[i] = query->value(rec.indexOf("month")).toString();
         year[i] = query->value(rec.indexOf("year")).toInt();
-        data[i] = QString::number(year[i]) + "." + QString::number(getmonth(month[i])) + "." + QString::number(day[i]);
         theme[i] = query->value(rec.indexOf("theme")).toString();
         sdesc[i] = query->value(rec.indexOf("sdesc")).toString();
         ldesc[i] = query->value(rec.indexOf("ldesc")).toString();

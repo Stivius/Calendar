@@ -31,7 +31,7 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     table->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Interactive);
     table->setHorizontalHeaderItem(0, new QTableWidgetItem("Дата"));
     table->setHorizontalHeaderItem(1, new QTableWidgetItem("Событие"));
-    table->setHorizontalHeaderItem(2, new QTableWidgetItem("Изображения"));
+    table->setHorizontalHeaderItem(2, new QTableWidgetItem("Фото"));
     table->setHorizontalHeaderItem(3, new QTableWidgetItem("Место"));
     table->setHorizontalHeaderItem(4, new QTableWidgetItem("Источник"));
     // ----------------------
@@ -52,7 +52,7 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     athemes = new QAction("Тематика", 0);
     athemes->setCheckable(true);
     connect(athemes,SIGNAL(triggered()),SLOT(themes()));
-    aplaces = new QAction("Места", 0);
+    aplaces = new QAction("Место", 0);
     aplaces->setCheckable(true);
     connect(aplaces,SIGNAL(triggered()),SLOT(places()));
     aexit = new QAction("Выход", 0);
@@ -139,9 +139,9 @@ MainInterface::MainInterface(QWidget *parent):QWidget(parent)
     msearchlay->addWidget(search);
     msearchlay->addWidget(datesearch);
     // ----------------------
-    // фильтр тематики + места
+    // фильтр тематики + место
     showlist = 0;
-    for(int i = 0; i != 7; i++)
+    for(int i = 0; i != 8; i++)
     {
         filter[i] = 0;
     }
@@ -353,7 +353,7 @@ void MainInterface::filtermonth(int index)
     else
     {
         filter[1] = 1;
-        fmonth = month->itemText(index);
+        fmonth = QString::number(db->getmonth(month->itemText(index)));
     }
     setfilter();
 }
@@ -417,11 +417,11 @@ void MainInterface::filterplace(int index)
     {
         if(index == 0)
         {
-            filter[4] = 0;
+            filter[5] = 0;
         }
         else
         {
-            filter[4] = 2;
+            filter[5] = 1;
             if(index != -1)
             {
                 fplace = list->item(index)->text();
@@ -438,9 +438,14 @@ void MainInterface::themes()
     QList<QString> lst;
     if(list->isHidden() || showlist == 2)
     {
+        if(filter[5] == 1)
+        {
+            filter[5] = 0;
+            setfilter();
+        }
         showlist = 1;
         list->clear();
-        list->addItem("любая");
+        list->addItem("тематика");
         list->setCurrentRow(0);
         if(!isFilter())
         {
@@ -486,9 +491,14 @@ void MainInterface::places()
     QList<QString> lst;
     if(list->isHidden() || showlist == 1)
     {
+        if(filter[4] == 1)
+        {
+            filter[4] = 0;
+            setfilter();
+        }
         showlist = 2;
         list->clear();
-        list->addItem("любое");
+        list->addItem("место");
         list->setCurrentRow(0);
         if(!isFilter())
         {
@@ -521,7 +531,7 @@ void MainInterface::places()
         showlist = 0;
         aplaces->setChecked(false);
         list->hide();
-        filter[4] = 0;
+        filter[5] = 0;
         setfilter();
     }
 }
@@ -529,14 +539,14 @@ void MainInterface::places()
 // с фотографиями
 void MainInterface::filterphotos()
 {
-    if(filter[5] == 1)
+    if(filter[6] == 1)
     {
-        filter[5] = 0;
+        filter[6] = 0;
         aphotos->setChecked(false);
     }
     else
     {
-        filter[5] = 1;
+        filter[6] = 1;
         aphotos->setChecked(true);
     }
     setfilter();
@@ -546,18 +556,18 @@ void MainInterface::filtersearch(QString str)
 {
     if(str == "")
     {
-        filter[6] = 0;
+        filter[7] = 0;
     }
     else
     {
-        filter[6] = 1;
+        filter[7] = 1;
     }
     setfilter();
 }
 
 bool MainInterface::isFilter()
 {
-    for(int i = 0; i != 7; i++)
+    for(int i = 0; i != 8; i++)
     {
         if(filter[i] == 1)
         {
@@ -635,7 +645,7 @@ void MainInterface::setfilter()
                 allowed = false;
             }
         }
-        if(filter[4] == 2 && allowed == true)
+        if(filter[5] == 1 && allowed == true)
         {
             if(db->place[db->id[i]] == fplace)
             {
@@ -646,7 +656,7 @@ void MainInterface::setfilter()
                 allowed = false;
             }
         }
-        if(filter[5] == 1 && allowed == true)
+        if(filter[6] == 1 && allowed == true)
         {
             if(db->images[db->id[i]].size() > 0)
             {
@@ -657,7 +667,7 @@ void MainInterface::setfilter()
                 allowed = false;
             }
         }
-        if(filter[6] == 1 && allowed == true)
+        if(filter[7] == 1 && allowed == true)
         {
             QString str = searchinput->text();
             str = str.toLower();

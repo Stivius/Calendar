@@ -165,7 +165,7 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
         {
             idd = db->tempid[inter->table->currentRow()];
         }
-        int c = 0, ind, ind2, ind3;
+        int c = 0, ind = 0, ind2 = 0, ind3 = 0;
         QListIterator<QString> i(tlst);
         while(i.hasNext())
         {
@@ -238,18 +238,21 @@ NewEvent::NewEvent(EventsModel *model, MainInterface *in, QTableWidgetItem *it, 
     else
     {
         QListIterator<QString> i(tlst);
+        theme->addItem("");
         while(i.hasNext())
         {
             QString str = i.next();
             theme->addItem(str);
         }
         QListIterator<QString> i2(tlst2);
+        place->addItem("");
         while(i2.hasNext())
         {
             QString str = i2.next();
             place->addItem(str);
         }
         QListIterator<QString> i3(tlst3);
+        source->addItem("");
         while(i3.hasNext())
         {
             QString str = i3.next();

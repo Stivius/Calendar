@@ -48,7 +48,7 @@ private slots:
 signals:
     void senditem(QTableWidgetItem*);
 private:
-    int filter[7];
+    int filter[8];
     int fday;
     QString fmonth;
     int fyear;

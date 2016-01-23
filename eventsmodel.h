@@ -52,7 +52,6 @@ private:
     QSqlDatabase db;
     QSqlQuery *query;
     QSqlRecord rec;
-    QMap<int,QString> data;
     QVector<int> id;
     QVector<int> tempid;
     QMap<int,int> day;
