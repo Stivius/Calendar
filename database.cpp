@@ -11,8 +11,8 @@ Database::Database(QObject *parent) : QObject(parent)
     db.setUserName("user");
     db.setPassword("123");
     db.open();
-    query = new QSqlQuery(db);
-    query->exec("CREATE TABLE events"
+    QSqlQuery query(db);
+    query.exec("CREATE TABLE events"
             "("
             "ID INTEGER PRIMARY KEY,"
             "day INTEGER,"
@@ -25,7 +25,7 @@ Database::Database(QObject *parent) : QObject(parent)
             "source VARCHAR(500),"
             "extra VARCHAR(500)"
             ");");
-    query->exec("CREATE TABLE settings"
+    query.exec("CREATE TABLE settings"
             "("
             "path VARCHAR(500),"
             "quality INTEGER,"
@@ -37,59 +37,78 @@ Database::Database(QObject *parent) : QObject(parent)
             "h4 INTEGER,"
             "h5 INTEGER"
             ");");
-    query->exec("SELECT * FROM settings");
-    if(!query->first())
+    query.exec("SELECT * FROM settings");
+    if(!query.first())
     {
         QString string = "INSERT INTO settings (path,quality,font,anniver,h1,h2,h3,h4,h5) VALUES ('%1','%2','%3','%4','%5','%6','%7','%8','%9')";
         QString q = string.arg(QApplication::applicationDirPath() + "/images").arg(50).arg(11).arg(0).arg("270").arg("270").arg("270").arg("270").arg("270");
-        query->exec(q);
+        query.exec(q);
     }
-    query->finish();
+    query.finish();
 }
 
 Database::~Database()
 {
+    QSqlQuery query(db);
+    query.exec("CREATE TABLE events_sorted"
+           "("
+           "ID INTEGER PRIMARY KEY,"
+           "day INTEGER,"
+           "month INTEGER,"
+           "year INTEGER,"
+           "theme VARCHAR(500),"
+           "sdesc VARCHAR(500),"
+           "ldesc VARCHAR(500),"
+           "place VARCHAR(500),"
+           "source VARCHAR(500),"
+           "extra VARCHAR(500)"
+           ");");
+    QString str = "INSERT INTO events_sorted (day,month,year,theme,sdesc,ldesc,place,source,extra) SELECT day,month,year,theme,sdesc,ldesc,place,source,extra FROM events ORDER BY year,month,day;";
+    query.exec(str);
+    query.finish();
+    query.exec("DROP TABLE events;");
+    query.exec("ALTER TABLE events_sorted RENAME TO events;");
     db.close();
 }
 
 int Database::getData(QVector<int>& id, QVector<int>& days, QVector<int>& months, QVector<int>& years, QVector<QString>& themes, QVector<QString>& sDescriptions, QVector<QString>& lDescriptions, QVector<QString>& places, QVector<QString>& sources, QVector<QString>& extra)
 {
-    query = new QSqlQuery(db);
-    query->exec("SELECT * FROM events");
-    rec = query->record();
+    QSqlQuery query(db);
+    query.exec("SELECT * FROM events");
+    QSqlRecord rec = query.record();
     int size = 0;
-    while(query->next())
+    while(query.next())
     {
-        id.push_back(query->value(rec.indexOf("ID")).toInt());
-        days.push_back(query->value(rec.indexOf("day")).toInt());
-        months.push_back(query->value(rec.indexOf("month")).toInt());
-        years.push_back(query->value(rec.indexOf("year")).toInt());
-        themes.push_back(query->value(rec.indexOf("theme")).toString());
-        sDescriptions.push_back(query->value(rec.indexOf("sdesc")).toString());
-        lDescriptions.push_back(query->value(rec.indexOf("ldesc")).toString());
-        places.push_back(query->value(rec.indexOf("place")).toString());
-        sources.push_back(query->value(rec.indexOf("source")).toString());
-        extra.push_back(query->value(rec.indexOf("extra")).toString());
+        id.push_back(query.value(rec.indexOf("ID")).toInt());
+        days.push_back(query.value(rec.indexOf("day")).toInt());
+        months.push_back(query.value(rec.indexOf("month")).toInt());
+        years.push_back(query.value(rec.indexOf("year")).toInt());
+        themes.push_back(query.value(rec.indexOf("theme")).toString());
+        sDescriptions.push_back(query.value(rec.indexOf("sdesc")).toString());
+        lDescriptions.push_back(query.value(rec.indexOf("ldesc")).toString());
+        places.push_back(query.value(rec.indexOf("place")).toString());
+        sources.push_back(query.value(rec.indexOf("source")).toString());
+        extra.push_back(query.value(rec.indexOf("extra")).toString());
         size++;
     }
-    query->finish();
+    query.finish();
     return size;
 }
 
 // получить настройки
 void Database::getSettings(QString& path, int& quality, int& anniver, int& font)
 {
-    query = new QSqlQuery(db);
-    query->exec("SELECT * FROM settings");
-    rec = query->record();
-    while(query->next())
+    QSqlQuery query(db);
+    query.exec("SELECT * FROM settings");
+    QSqlRecord rec = query.record();
+    while(query.next())
     {
-        path = query->value(rec.indexOf("path")).toString();
-        quality = query->value(rec.indexOf("quality")).toInt();
-        anniver = query->value(rec.indexOf("anniver")).toInt();
-        font = query->value(rec.indexOf("font")).toInt();
+        path = query.value(rec.indexOf("path")).toString();
+        quality = query.value(rec.indexOf("quality")).toInt();
+        anniver = query.value(rec.indexOf("anniver")).toInt();
+        font = query.value(rec.indexOf("font")).toInt();
     }
-    query->finish();
+    query.finish();
 }
 
 void Database::updateSettings(QString path, int quality, int anniver)

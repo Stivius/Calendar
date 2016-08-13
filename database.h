@@ -22,8 +22,6 @@ public:
     void updateFont(int);
 private:
     QSqlDatabase db;
-    QSqlQuery *query;
-    QSqlRecord rec;
 };
 
 #endif // DATABASE_H

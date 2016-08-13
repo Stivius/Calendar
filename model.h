@@ -2,10 +2,7 @@
 #define MODEL_H
 
 #include <QObject>
-#include <QMessageBox>
-#include <QDesktopServices>
-#include <QProgressBar>
-#include <QtAlgorithms>
+
 #include "database.h"
 
 class Model: public QObject
@@ -40,6 +37,7 @@ private:
     QString formatDay(int);
     QString formatMonth(int);
     QString formatYear(int);
+
     Database* db;
     int quality;
     QString path;

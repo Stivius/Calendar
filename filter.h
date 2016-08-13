@@ -2,12 +2,13 @@
 #define FILTER_H
 
 #include <QObject>
-#include <bitset>
 #include <QSet>
-#include <QDebug>
-#include "model.h"
-#include <iostream>
 #include <QDate>
+#include <QDebug>
+#include <bitset>
+
+#include "model.h"
+
 
 #define DAY_FILTER 0x01 // hex for 0000 0001
 #define MONTH_FILTER 0x02 // hex for 0000 0010
