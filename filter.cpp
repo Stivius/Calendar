@@ -1,6 +1,4 @@
 #include "filter.h"
-#include <QDebug>
-
 
 Filter::Filter(Model* _model, QObject *parent) : QObject(parent), model(_model)
 {

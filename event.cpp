@@ -1,14 +1,9 @@
 #include "event.h"
 #include "ui_event.h"
-#include <QUrl>
-#include <QDebug>
-#include <QPixmap>
-#include <QDesktopServices>
 
-Event::Event(MainWindow* _window, Model* _model, int _row, QWidget *parent) :
-    QWidget(parent),
+Event::Event(Model* _model, QWidget *parent, int _row) :
+    QDialog(parent),
     ui(new Ui::Event),
-    window(_window),
     model(_model),
     row(_row)
 {
@@ -26,7 +21,7 @@ Event::Event(MainWindow* _window, Model* _model, int _row, QWidget *parent) :
     ui->themeBox->addItems(themesList);
     ui->placeBox->addItems(placesList);
     ui->sourceBox->addItems(sourcesList);
-
+    currentImage = -1;
     if(row != -1)
     {
         ui->extraEdit->setText(model->getExtra(row));
@@ -46,12 +41,13 @@ Event::Event(MainWindow* _window, Model* _model, int _row, QWidget *parent) :
         ui->placeBox->setCurrentIndex(placeInd);
         int sourceInd = ui->sourceBox->findText(model->getSource(row));
         ui->sourceBox->setCurrentIndex(sourceInd);
+        QString images = model->getImages(row);
+        QStringList imagesList = images.split(QChar('\n'), QString::SkipEmptyParts);
+        loadImages(imagesList);
     }
-    // find index and set it
-    currentImage = -1;
 
-    // images - загруженные изначально
-    // uploadedImages - загруженные в процессе
+    connect(this, SIGNAL(addEvent(QString,QString,QString,QString,QString)),  parent, SLOT(addEvent(QString,QString,QString,QString,QString)));
+    connect(this, SIGNAL(updateEvent(int,QString,QString,QString,QString,QString)), parent, SLOT(updateEvent(int,QString,QString,QString,QString,QString)));
 }
 
 Event::~Event()
@@ -67,42 +63,50 @@ void Event::on_uploadButton_clicked()
      * fileSelected signal is emitted twice
      * So this line possible will resolve this strange issue
      */
-    import->setOption(QFileDialog::DontUseNativeDialog, true);
+    // import->setOption(QFileDialog::DontUseNativeDialog, true);
     connect(import,SIGNAL(fileSelected(QString)),SLOT(uploadedPhoto(QString)));
     import->setWindowModality(Qt::ApplicationModal);
     import->setAttribute(Qt::WA_DeleteOnClose);
     import->show();
 }
 
+void Event::loadImages(QStringList imagesList)
+{
+    qDebug() << imagesList.size();
+    for(QString path: imagesList)
+    {
+        QPixmap pix;
+        pix.load(model->getPath() + "/" + path);
+        QIcon icn(pix.scaled(150,150,Qt::KeepAspectRatio));
+        ui->currentPhoto->setIcon(icn);
+        images.push_back(Image{pix, path, ""});
+        currentImage = images.size()-1;
+    }
+}
+
 void Event::uploadedPhoto(QString filePath)
 {
-    if(filePath.indexOf(QRegExp("(.png)|(.jpg)|(.jpeg)")) == -1) // только .PNG или .JPG/.JPEG
+    if(filePath.indexOf(QRegExp("(.png)|(.jpg)|(.jpeg)")) != -1) // только .PNG или .JPG/.JPEG
     {
-        qDebug() << "Not found";
+        QPixmap pix;
+        pix.load(filePath);
+        QIcon icn(pix.scaled(150,150,Qt::KeepAspectRatio));
+        ui->currentPhoto->setIcon(icn);
+        QFileInfo fullPath(filePath);
+        QString path = fullPath.fileName();
+        images.push_back(Image{pix, path, filePath});
+        currentImage = images.size()-1;
     }
     else
-    {
-        QPixmap* pix = new QPixmap;
-        pix->load(filePath);
-        QIcon icn(pix->scaled(150,150,Qt::KeepAspectRatio));
-        ui->currentPhoto->setIcon(icn);
-        images.push_back(pix->scaled(150,150,Qt::KeepAspectRatio));
-        uploadedImages.push_back(*pix);
-        qDebug() << filePath;
-        uploadedPath.push_back(filePath);
-        currentImage = images.size()-1;
-//        int n;
-//        QString str("image" + QString::number(n) + ".jpg");
-//        // ----------------------
-//        QString strF(str + "\n");
-//        img += strF;
-    }
+        QMessageBox::critical(this, "Error", "Неверное изображение!", QMessageBox::Ok);
 }
 
 void Event::on_removeImage_clicked()
 {
     if(currentImage >= 0 && currentImage < images.size())
     {
+        if(images[currentImage].tempPath == "")
+            removed.push_back(images[currentImage].path);
         images.erase(images.begin() + currentImage);
         if(images.size() == 0)
         {
@@ -113,12 +117,12 @@ void Event::on_removeImage_clicked()
         }
         else if(images.size() >= 1 && currentImage != images.size())
         {
-            ui->currentPhoto->setIcon(QIcon(images[currentImage]));
+            ui->currentPhoto->setIcon(QIcon(images[currentImage].image));
         }
         else if(currentImage == images.size())
         {
             --currentImage;
-            ui->currentPhoto->setIcon(QIcon(images[currentImage]));
+            ui->currentPhoto->setIcon(QIcon(images[currentImage].image));
         }
     }
 }
@@ -128,7 +132,7 @@ void Event::on_nextImage_clicked()
     if(currentImage+1 < images.size())
     {
         ++currentImage;
-        ui->currentPhoto->setIcon(QIcon(images[currentImage]));
+        ui->currentPhoto->setIcon(QIcon(images[currentImage].image));
     }
 }
 
@@ -137,25 +141,51 @@ void Event::on_previousImage_clicked()
     if(currentImage-1 >= 0)
     {
         --currentImage;
-        ui->currentPhoto->setIcon(QIcon(images[currentImage]));
+        ui->currentPhoto->setIcon(QIcon(images[currentImage].image));
+    }
+}
+
+QString Event::getImagesList()
+{
+    QString imagesList = "";
+    for(int i = 0; i != images.size(); i++)
+    {
+        QFile file(model->getPath() + "/" + images[i].path);
+        if(!file.exists())
+            images[i].image.save(model->getPath() + "/" + images[i].path);
+        imagesList += images[i].path + "\n";
+    }
+    return imagesList;
+}
+
+void Event::removeImages()
+{
+    for(int i = 0; i != removed.size(); i++)
+    {
+        QFile file(model->getPath() + "/" + removed[i]);
+        if(file.exists())
+            file.remove();
     }
 }
 
 void Event::on_saveButton_clicked()
 {
+    QString imagesList = getImagesList();
+    //qDebug() << imagesList;
+    removeImages();
     QVector<QString> data = {ui->dayBox->currentText(),QString::number(model->getMonth(ui->monthBox->currentText())),ui->yearEdit->text(),
                              ui->themeBox->currentText(), ui->shortEdit->text(), ui->fullEdit->toPlainText(),
-                             ui->placeBox->currentText(), ui->sourceBox->currentText(), ui->extraEdit->text()};
+                             ui->placeBox->currentText(), ui->sourceBox->currentText(), ui->extraEdit->text(), imagesList};
     QString date = model->formatDate(ui->dayBox->currentText().toInt(), model->getMonth(ui->monthBox->currentText()), ui->yearEdit->text().toInt());
     if(row == -1)
     {
         model->insertEvent(data);
-        window->addEvent(date, ui->shortEdit->text(), ui->placeBox->currentText(), ui->sourceBox->currentText(), "Нет");
+        emit addEvent(date, ui->shortEdit->text(), ui->placeBox->currentText(), ui->sourceBox->currentText(), "Нет");
     }
     else
     {
         model->updateEvent(row, data);
-        window->updateEvent(row, date, ui->shortEdit->text(), ui->placeBox->currentText(), ui->sourceBox->currentText(), "Нет");
+        emit updateEvent(row, date, ui->shortEdit->text(), ui->placeBox->currentText(), ui->sourceBox->currentText(), "Нет");
     }
     this->close();
 }
@@ -167,6 +197,12 @@ void Event::on_cancelButton_clicked()
 
 void Event::on_currentPhoto_clicked()
 {
-    QDesktopServices process;
-    process.openUrl(QUrl::fromLocalFile(uploadedPath[currentImage]));
+    if(currentImage != -1)
+    {
+        QDesktopServices process;
+        if(images[currentImage].tempPath == "")
+            process.openUrl(QUrl::fromLocalFile(model->getPath() + "/" + images[currentImage].path));
+        else
+            process.openUrl(QUrl::fromLocalFile(images[currentImage].tempPath));
+    }
 }

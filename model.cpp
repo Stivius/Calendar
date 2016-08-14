@@ -1,7 +1,4 @@
 #include "model.h"
-//#include <qglobal.h>
-#include <QApplication>
-#include <QDebug>
 
 // инициализация база данных
 Model::Model()
@@ -10,7 +7,7 @@ Model::Model()
     db = new Database;
     db->getSettings(path, quality, anniver, font);
     // separate EventModel and SettingsModel
-    size = db->getData(id, days, months, years, themes, sDescriptions, lDescriptions, places, sources, extra);;
+    size = db->getData(id, days, months, years, themes, sDescriptions, lDescriptions, places, sources, extra, images);
 }
 
 Model::~Model()
@@ -147,6 +144,11 @@ QString Model::getSource(int index)
     return sources[index];
 }
 
+QString Model::getImages(int index)
+{
+    return images[index];
+}
+
 void Model::removeEvent(int index)
 {
     db->removeEvent(id[index]);
@@ -160,6 +162,7 @@ void Model::removeEvent(int index)
     places.remove(index);
     sources.remove(index);
     extra.remove(index);
+    images.remove(index);
     --size;
 }
 
@@ -177,6 +180,7 @@ void Model::insertEvent(QVector<QString> data)
     places.push_back(data[6]);
     sources.push_back(data[7]);
     extra.push_back(data[8]);
+    images.push_back(data[9]);
     ++size;
 }
 
@@ -193,7 +197,7 @@ void Model::updateEvent(int index, QVector<QString> data)
     places[index] = data[6];
     sources[index] = data[7];
     extra[index] = data[8];
-
+    images[index] = data[9];
 }
 
 void Model::updateFont(int _font)

@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "event.h"
-#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -68,7 +67,7 @@ void MainWindow::on_detailAction_triggered()
 
 void MainWindow::on_newEventAction_triggered()
 {
-    Event* window = new Event(this, model);
+    Event* window = new Event(model, this);
     window->setWindowModality(Qt::ApplicationModal);
     window->setAttribute(Qt::WA_DeleteOnClose);
     window->show();
@@ -99,8 +98,11 @@ void MainWindow::on_themeAction_triggered()
 {
     ui->listWidget->clear();
     ui->listWidget->addItem("тематика");
+    QStringList themes;
     for(int i = 0; i != model->count(); i++)
-        ui->listWidget->addItem(model->getTheme(i));
+        themes.push_back(model->getTheme(i));
+    themes.removeDuplicates();
+    ui->listWidget->addItems(themes);
     ui->listWidget->setCurrentRow(0);
     if(ui->listWidget->isHidden())
     {
@@ -128,8 +130,11 @@ void MainWindow::on_placeAction_triggered()
 {
     ui->listWidget->clear();
     ui->listWidget->addItem("место");
+    QStringList places;
     for(int i = 0; i != model->count(); i++)
-        ui->listWidget->addItem(model->getPlace(i));
+        places.push_back(model->getPlace(i));
+    places.removeDuplicates();
+    ui->listWidget->addItems(places);
     ui->listWidget->setCurrentRow(0);
     if(ui->listWidget->isHidden())
     {
@@ -214,7 +219,7 @@ void MainWindow::on_cardAction_triggered()
     QModelIndexList selection = ui->tableWidget->selectionModel()->selectedRows();
     if(selection.count() == 0)
         return ;
-    Event* window = new Event(this, model, ui->tableWidget->currentRow());
+    Event* window = new Event(model, this, ui->tableWidget->currentRow());
     window->setWindowModality(Qt::ApplicationModal);
     window->setAttribute(Qt::WA_DeleteOnClose);
     window->show();
@@ -222,7 +227,7 @@ void MainWindow::on_cardAction_triggered()
 
 void MainWindow::on_tableWidget_itemDoubleClicked(QTableWidgetItem *item)
 {
-    Event* window = new Event(this, model, item->row());
+    Event* window = new Event(model, this, item->row());
     window->setWindowModality(Qt::ApplicationModal);
     window->setAttribute(Qt::WA_DeleteOnClose);
     window->show();
@@ -306,4 +311,9 @@ void MainWindow::on_anniverBtn_clicked()
         filter->removeFilter(ANNIVER_FILTER);
     else
         filter->setFilter(ANNIVER_FILTER, QString::number(QDate::currentDate().year()));
+}
+
+void MainWindow::on_helpAction_triggered()
+{
+    QMessageBox::information(this, "Справка", "Справка будет добавлена позже.", QMessageBox::Ok);
 }

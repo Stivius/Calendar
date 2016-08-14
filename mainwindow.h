@@ -2,7 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QMessageBox>
 #include <QTableWidgetItem>
+#include <QDebug>
 
 #include "event.h"
 #include "settings.h"
@@ -20,11 +22,11 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = 0);
-    void addEvent(QString, QString, QString, QString, QString);
-    void updateEvent(int, QString, QString, QString, QString, QString);
     ~MainWindow();
 public slots:
     void updateRows(const QSet<int>&);
+    void addEvent(QString, QString, QString, QString, QString);
+    void updateEvent(int, QString, QString, QString, QString, QString);
 private slots:
     void on_detailAction_triggered();
     void on_newEventAction_triggered();
@@ -47,6 +49,7 @@ private slots:
     void on_listWidget_currentRowChanged(int currentRow);
     void on_searchEdit_textChanged(const QString &text);
     void on_anniverBtn_clicked();
+    void on_helpAction_triggered();
 private:
     void fillTable();
     Ui::MainWindow *ui;

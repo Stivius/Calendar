@@ -1,25 +1,38 @@
 #ifndef EVENT_H
 #define EVENT_H
 
-#include <QWidget>
+#include <QDialog>
 #include <QFileDialog>
+#include <QUrl>
+#include <QDebug>
+#include <QPixmap>
+#include <QDesktopServices>
+#include <QDesktopWidget>
+#include <QFileInfo>
+#include <QMessageBox>
 
-#include "mainwindow.h"
 #include "model.h"
 
 namespace Ui {
 class Event;
 }
 
-class MainWindow;
+struct Image {
+    QPixmap image;
+    QString path;
+    QString tempPath;
+};
 
-class Event : public QWidget
+class Event : public QDialog
 {
     Q_OBJECT
 
 public:
-    Event(MainWindow* _window, Model* _model, int _row = -1, QWidget *parent = 0);
+    Event(Model* _model, QWidget *parent = 0, int _row = -1);
     ~Event();
+signals:
+    void addEvent(QString, QString, QString, QString, QString);
+    void updateEvent(int, QString, QString, QString, QString, QString);
 private slots:
     void on_uploadButton_clicked();
     void uploadedPhoto(QString);
@@ -30,14 +43,14 @@ private slots:
     void on_cancelButton_clicked();
     void on_currentPhoto_clicked();
 private:
+    void loadImages(QStringList imagesList);
+    QString getImagesList();
+    void removeImages();
     Ui::Event *ui;
-    MainWindow* window;
     Model* model;
     int row;
-
-    QVector<QPixmap> images;
-    QVector<QPixmap> uploadedImages;
-    QVector<QString> uploadedPath;
+    QVector<Image> images;
+    QVector<QString> removed;
     int currentImage;
 };
 

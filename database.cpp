@@ -1,7 +1,4 @@
 #include "database.h"
-#include <QApplication>
-#include <QDebug>
-#include <QSqlError>
 
 Database::Database(QObject *parent) : QObject(parent)
 {
@@ -23,7 +20,8 @@ Database::Database(QObject *parent) : QObject(parent)
             "ldesc VARCHAR(500),"
             "place VARCHAR(500),"
             "source VARCHAR(500),"
-            "extra VARCHAR(500)"
+            "extra VARCHAR(500),"
+            "images VARCHAR(500)"
             ");");
     query.exec("CREATE TABLE settings"
             "("
@@ -61,9 +59,10 @@ Database::~Database()
            "ldesc VARCHAR(500),"
            "place VARCHAR(500),"
            "source VARCHAR(500),"
-           "extra VARCHAR(500)"
+           "extra VARCHAR(500),"
+           "images VARCHAR(500)"
            ");");
-    QString str = "INSERT INTO events_sorted (day,month,year,theme,sdesc,ldesc,place,source,extra) SELECT day,month,year,theme,sdesc,ldesc,place,source,extra FROM events ORDER BY year,month,day;";
+    QString str = "INSERT INTO events_sorted (day,month,year,theme,sdesc,ldesc,place,source,extra,images) SELECT day,month,year,theme,sdesc,ldesc,place,source,extra,images FROM events ORDER BY year,month,day;";
     query.exec(str);
     query.finish();
     query.exec("DROP TABLE events;");
@@ -71,7 +70,7 @@ Database::~Database()
     db.close();
 }
 
-int Database::getData(QVector<int>& id, QVector<int>& days, QVector<int>& months, QVector<int>& years, QVector<QString>& themes, QVector<QString>& sDescriptions, QVector<QString>& lDescriptions, QVector<QString>& places, QVector<QString>& sources, QVector<QString>& extra)
+int Database::getData(QVector<int>& id, QVector<int>& days, QVector<int>& months, QVector<int>& years, QVector<QString>& themes, QVector<QString>& sDescriptions, QVector<QString>& lDescriptions, QVector<QString>& places, QVector<QString>& sources, QVector<QString>& extra, QVector<QString>& images)
 {
     QSqlQuery query(db);
     query.exec("SELECT * FROM events");
@@ -89,6 +88,7 @@ int Database::getData(QVector<int>& id, QVector<int>& days, QVector<int>& months
         places.push_back(query.value(rec.indexOf("place")).toString());
         sources.push_back(query.value(rec.indexOf("source")).toString());
         extra.push_back(query.value(rec.indexOf("extra")).toString());
+        images.push_back(query.value(rec.indexOf("images")).toString());
         size++;
     }
     query.finish();
@@ -127,8 +127,8 @@ void Database::updateFont(int font)
 
 int Database::insertEvent(const QVector<QString>& data)
 {
-    QString string = "INSERT INTO events (day,month,year,theme,sdesc,ldesc,place,source,extra) VALUES ('%1','%2','%3','%4','%5','%6','%7','%8','%9')";
-    QString queryInsert = string.arg(data[0]).arg(data[1]).arg(data[2]).arg(data[3]).arg(data[4]).arg(data[5]).arg(data[6]).arg(data[7]).arg(data[8]);
+    QString string = "INSERT INTO events (day,month,year,theme,sdesc,ldesc,place,source,extra,images) VALUES ('%1','%2','%3','%4','%5','%6','%7','%8','%9','%10')";
+    QString queryInsert = string.arg(data[0]).arg(data[1]).arg(data[2]).arg(data[3]).arg(data[4]).arg(data[5]).arg(data[6]).arg(data[7]).arg(data[8]).arg(data[9]);
     db.exec(queryInsert);
     QString queryID = "SELECT * FROM events ORDER BY ID DESC LIMIT 1";
     QSqlQuery query(db);
@@ -143,8 +143,8 @@ int Database::insertEvent(const QVector<QString>& data)
 
 void Database::updateEvent(int id, const QVector<QString>& data)
 {
-    QString string = "UPDATE events SET day='%1',month='%2',year='%3',theme='%4',sdesc='%5',ldesc='%6',place='%7',source='%8',extra='%9' WHERE ID='%10'";
-    QString query = string.arg(data[0]).arg(data[1]).arg(data[2]).arg(data[3]).arg(data[4]).arg(data[5]).arg(data[6]).arg(data[7]).arg(data[8]).arg(id);
+    QString string = "UPDATE events SET day='%1',month='%2',year='%3',theme='%4',sdesc='%5',ldesc='%6',place='%7',source='%8',extra='%9',images='%10' WHERE ID='%11'";
+    QString query = string.arg(data[0]).arg(data[1]).arg(data[2]).arg(data[3]).arg(data[4]).arg(data[5]).arg(data[6]).arg(data[7]).arg(data[8]).arg(data[9]).arg(id);
     db.exec(query);
 }
 

@@ -6,6 +6,8 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlRecord>
+#include <QApplication>
+#include <QDebug>
 
 class Database : public QObject
 {
@@ -14,7 +16,8 @@ public:
     Database(QObject *parent = 0);
     ~Database();
     void getSettings(QString&, int&, int&, int&);
-    int getData(QVector<int>&, QVector<int>&, QVector<int>&, QVector<int>&, QVector<QString>&, QVector<QString>&, QVector<QString>&, QVector<QString>&, QVector<QString>&, QVector<QString>&);
+    int getData(QVector<int>&, QVector<int>&, QVector<int>&, QVector<int>&, QVector<QString>&, QVector<QString>&,
+                QVector<QString>&, QVector<QString>&, QVector<QString>&, QVector<QString>&, QVector<QString>&);
     int insertEvent(const QVector<QString>&);
     void updateEvent(int, const QVector<QString>&);
     void removeEvent(int);

@@ -17,7 +17,7 @@
 #define PLACE_FILTER 0x10 // hex for 0001 0000
 #define TEXT_FILTER 0x20 // hex for 0010 0000
 #define ANNIVER_FILTER 0x40 // hex for 0100 0000
-#define option8 0x80 // hex for 1000 0000
+#define IMAGES_FILTER 0x80 // hex for 1000 0000
 
 class Filter : public QObject
 {

@@ -2,6 +2,8 @@
 #define MODEL_H
 
 #include <QObject>
+#include <QApplication>
+#include <QDebug>
 
 #include "database.h"
 
@@ -32,6 +34,7 @@ public:
     QString getTheme(int);
     QString getPlace(int);
     QString getSource(int);
+    QString getImages(int);
     QString formatDate(int, int, int);
 private:
     QString formatDay(int);
@@ -53,6 +56,7 @@ private:
     QVector<QString> places;
     QVector<QString> sources;
     QVector<QString> extra;
+    QVector<QString> images;
     int size;
 };
 
