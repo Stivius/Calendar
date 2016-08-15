@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QApplication>
 #include <QDebug>
+#include <QFile>
 
 #include "database.h"
 
@@ -22,6 +23,7 @@ public:
     int getQuality();
     int getFont();
     int count();
+    int imagesCount(int);
     int getYear(int);
     int getDay(int);
     int getMonth(int);

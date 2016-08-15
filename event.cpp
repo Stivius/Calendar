@@ -86,15 +86,22 @@ void Event::loadImages(QStringList imagesList)
 
 void Event::uploadedPhoto(QString filePath)
 {
-    if(filePath.indexOf(QRegExp("(.png)|(.jpg)|(.jpeg)")) != -1) // только .PNG или .JPG/.JPEG
+    if(filePath.indexOf(QRegExp("(.png)|(.jpg)|(.jpeg)",Qt::CaseInsensitive)) != -1) // только .PNG или .JPG/.JPEG
     {
+        QFileInfo fullPath(filePath);
+        QString imageName = fullPath.fileName();
+        QFile file(model->getPath() + "/" + imageName);
+        // check if loaded file has the same name
+        if(file.exists())
+        {
+            QMessageBox::critical(this, "Error", "Файл с таким именем уже есть!");
+            return ;
+        }
         QPixmap pix;
         pix.load(filePath);
         QIcon icn(pix.scaled(150,150,Qt::KeepAspectRatio));
         ui->currentPhoto->setIcon(icn);
-        QFileInfo fullPath(filePath);
-        QString path = fullPath.fileName();
-        images.push_back(Image{pix, path, filePath});
+        images.push_back(Image{pix, imageName, filePath});
         currentImage = images.size()-1;
     }
     else
@@ -145,7 +152,7 @@ void Event::on_previousImage_clicked()
     }
 }
 
-QString Event::getImagesList()
+QString Event::getSavedImages()
 {
     QString imagesList = "";
     for(int i = 0; i != images.size(); i++)
@@ -170,8 +177,7 @@ void Event::removeImages()
 
 void Event::on_saveButton_clicked()
 {
-    QString imagesList = getImagesList();
-    //qDebug() << imagesList;
+    QString imagesList = getSavedImages();
     removeImages();
     QVector<QString> data = {ui->dayBox->currentText(),QString::number(model->getMonth(ui->monthBox->currentText())),ui->yearEdit->text(),
                              ui->themeBox->currentText(), ui->shortEdit->text(), ui->fullEdit->toPlainText(),
@@ -180,12 +186,12 @@ void Event::on_saveButton_clicked()
     if(row == -1)
     {
         model->insertEvent(data);
-        emit addEvent(date, ui->shortEdit->text(), ui->placeBox->currentText(), ui->sourceBox->currentText(), "Нет");
+        emit addEvent(date, ui->shortEdit->text(), ui->placeBox->currentText(), ui->sourceBox->currentText(), (images.size() > 0) ? "Есть" : "Нет");
     }
     else
     {
         model->updateEvent(row, data);
-        emit updateEvent(row, date, ui->shortEdit->text(), ui->placeBox->currentText(), ui->sourceBox->currentText(), "Нет");
+        emit updateEvent(row, date, ui->shortEdit->text(), ui->placeBox->currentText(), ui->sourceBox->currentText(), (images.size() > 0) ? "Есть" : "Нет");
     }
     this->close();
 }

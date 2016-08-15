@@ -151,6 +151,13 @@ QString Model::getImages(int index)
 
 void Model::removeEvent(int index)
 {
+    QStringList imagesList = images[index].split(QChar('\n'),QString::SkipEmptyParts);
+    for(QString name: imagesList)
+    {
+        QFile file(path + "/" + name);
+        if(file.exists())
+            file.remove();
+    }
     db->removeEvent(id[index]);
     id.remove(index);
     days.remove(index);
@@ -249,4 +256,9 @@ QString Model::formatYear(int year)
 int Model::count()
 {
     return size;
+}
+
+int Model::imagesCount(int index)
+{
+    return getImages(index).split(QChar('\n'),QString::SkipEmptyParts).size();
 }

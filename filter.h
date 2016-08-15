@@ -36,7 +36,8 @@ private:
     void changeThemeFilter(size_t, QString);
     void changePlaceFilter(size_t, QString);
     void changeTextFilter(size_t, QString);
-    void changeAnniverFilter(size_t, int value = -1);
+    void changeAnniverFilter(size_t, int);
+    void changeImageFilter(size_t);
     Model* model;
     std::bitset<8> flags;
     QSet<int> hiddenRows[8];

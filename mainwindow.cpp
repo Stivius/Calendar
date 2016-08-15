@@ -45,7 +45,7 @@ void MainWindow::fillTable()
         ui->tableWidget->insertRow(i);
         ui->tableWidget->setItem(i, 0, new QTableWidgetItem(model->getDate(i)));
         ui->tableWidget->setItem(i, 1, new QTableWidgetItem(model->getSDescrpition(i)));
-        ui->tableWidget->setItem(i, 2, new QTableWidgetItem("Нет"));
+        ui->tableWidget->setItem(i, 2, new QTableWidgetItem(model->imagesCount(i) > 0 ? "Есть" : "Нет"));
         ui->tableWidget->setItem(i, 3, new QTableWidgetItem(model->getPlace(i)));
         ui->tableWidget->setItem(i, 4, new QTableWidgetItem(model->getSource(i)));
     }
@@ -83,7 +83,7 @@ void MainWindow::on_settingsAction_triggered()
 
 void MainWindow::on_exportAction_triggered()
 {
-    Export* window = new Export;
+    Export* window = new Export(model);
     window->setWindowModality(Qt::ApplicationModal);
     window->setAttribute(Qt::WA_DeleteOnClose);
     window->show();
@@ -205,6 +205,9 @@ void MainWindow::showMenu(const QPoint& pos)
 
 void MainWindow::on_removeEvent_triggered()
 {
+    QModelIndexList selection = ui->tableWidget->selectionModel()->selectedRows();
+    if(selection.count() == 0)
+        return ;
     model->removeEvent(ui->tableWidget->currentRow());
     ui->tableWidget->removeRow(ui->tableWidget->currentRow());
 }
@@ -315,5 +318,13 @@ void MainWindow::on_anniverBtn_clicked()
 
 void MainWindow::on_helpAction_triggered()
 {
-    QMessageBox::information(this, "Справка", "Справка будет добавлена позже.", QMessageBox::Ok);
+    QMessageBox::information(this, "Справка", "Справка будет добавлена позже", QMessageBox::Ok);
+}
+
+void MainWindow::on_photosAction_triggered()
+{
+    if(!ui->photosAction->isChecked())
+        filter->removeFilter(IMAGES_FILTER);
+    else
+        filter->setFilter(IMAGES_FILTER);
 }

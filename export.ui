@@ -37,7 +37,7 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QRadioButton" name="radioButton">
+         <widget class="QRadioButton" name="printBtn">
           <property name="text">
            <string>На печать</string>
           </property>
@@ -47,7 +47,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="radioButton_2">
+         <widget class="QRadioButton" name="browserBtn">
           <property name="text">
            <string>Формат веб-бразуера</string>
           </property>
@@ -57,7 +57,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_2">
+      <widget class="QPushButton" name="submitExport">
        <property name="text">
         <string>Экспорт</string>
        </property>

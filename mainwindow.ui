@@ -546,7 +546,7 @@
      <x>0</x>
      <y>0</y>
      <width>685</width>
-     <height>27</height>
+     <height>20</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -569,7 +569,7 @@
     </property>
     <addaction name="increaseFont"/>
     <addaction name="decreaseFont"/>
-    <addaction name="action_10"/>
+    <addaction name="photosAction"/>
     <addaction name="detailAction"/>
    </widget>
    <widget class="QMenu" name="menu_5">
@@ -640,7 +640,7 @@
     <string>Юбилейные</string>
    </property>
   </action>
-  <action name="action_10">
+  <action name="photosAction">
    <property name="checkable">
     <bool>true</bool>
    </property>

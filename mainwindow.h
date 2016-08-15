@@ -50,6 +50,8 @@ private slots:
     void on_searchEdit_textChanged(const QString &text);
     void on_anniverBtn_clicked();
     void on_helpAction_triggered();
+    void on_photosAction_triggered();
+
 private:
     void fillTable();
     Ui::MainWindow *ui;

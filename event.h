@@ -44,7 +44,7 @@ private slots:
     void on_currentPhoto_clicked();
 private:
     void loadImages(QStringList imagesList);
-    QString getImagesList();
+    QString getSavedImages();
     void removeImages();
     Ui::Event *ui;
     Model* model;

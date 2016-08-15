@@ -54,6 +54,13 @@ void Filter::changeAnniverFilter(size_t index, int value)
             hiddenRows[index].insert(i);
 }
 
+void Filter::changeImageFilter(size_t index)
+{
+    for(int i = 0; i != model->count(); i++)
+        if(model->imagesCount(i) == 0)
+            hiddenRows[index].insert(i);
+}
+
 void Filter::setFilter(unsigned short flag, QString value)
 {
     std::bitset<8> temp(flags);
@@ -75,7 +82,7 @@ void Filter::setFilter(unsigned short flag, QString value)
                 case 4: changePlaceFilter(i, value); break;
                 case 5: changeTextFilter(i, value); break;
                 case 6: changeAnniverFilter(i, value.toInt()); break;
-                case 7: changePlaceFilter(i, value); break;
+                case 7: changeImageFilter(i); break;
             }
             QSet<int> unitedSet;
             for(int i = 0; i != 8; i++)
