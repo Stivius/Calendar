@@ -11,6 +11,9 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets sql printsupport
 TARGET = Calendar2
 TEMPLATE = app
 
+QMAKE_LFLAGS_RELEASE += -static -static-libgcc
+include(C:/Users/maxim/Desktop/qtxlsx/src/xlsx/qtxlsx.pri)
+
 
 SOURCES += main.cpp\
         mainwindow.cpp \
