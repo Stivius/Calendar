@@ -15,7 +15,7 @@ class Database : public QObject
 public:
     Database(QObject *parent = 0);
     ~Database();
-    void getSettings(QString&, int&, int&, int&);
+    void getSettings(QString&, int&, int&, int&, QString&);
     int getData(QVector<int>&, QVector<int>&, QVector<int>&, QVector<int>&, QVector<QString>&, QVector<QString>&,
                 QVector<QString>&, QVector<QString>&, QVector<QString>&, QVector<QString>&, QVector<QString>&);
     int insertEvent(const QVector<QString>&);
@@ -23,6 +23,10 @@ public:
     void removeEvent(int);
     void updateSettings(QString, int, int);
     void updateFont(int);
+    void updateHeaders(QString);
+
+    bool startTransaction();
+    bool finishTransaction();
 private:
     QSqlDatabase db;
 };

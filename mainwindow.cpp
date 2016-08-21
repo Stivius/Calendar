@@ -13,7 +13,10 @@ MainWindow::MainWindow(QWidget *parent) :
     fnt.setPointSize(model->getFont());
     ui->tableWidget->setFont(fnt);
     for(int i = 0; i != 5; i++)
-        ui->tableWidget->horizontalHeader()->setSectionResizeMode(i, QHeaderView::Stretch);
+    {
+        ui->tableWidget->horizontalHeader()->setSectionResizeMode(i, QHeaderView::Interactive);
+        ui->tableWidget->horizontalHeader()->resizeSection(i, model->getHeader(i));
+    }
     ui->detailBox->hide();
     ui->listWidget->hide();
     if(model->count() > 0)
@@ -23,6 +26,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    QVector<int> vec;
+    for(int i = 0; i != 5; i++)
+        vec.push_back(ui->tableWidget->horizontalHeader()->sectionSize(i));
+    model->updateHeaders(vec);
     delete model;
     delete ui;
 }
@@ -83,7 +90,15 @@ void MainWindow::on_settingsAction_triggered()
 
 void MainWindow::on_exportAction_triggered()
 {
-    Export* window = new Export(model);
+    Export* window = new Export(model, filter);
+    window->setWindowModality(Qt::ApplicationModal);
+    window->setAttribute(Qt::WA_DeleteOnClose);
+    window->show();
+}
+
+void MainWindow::on_importAction_triggered()
+{
+    Import* window = new Import(model, this);
     window->setWindowModality(Qt::ApplicationModal);
     window->setAttribute(Qt::WA_DeleteOnClose);
     window->show();

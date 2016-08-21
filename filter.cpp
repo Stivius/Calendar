@@ -84,7 +84,6 @@ void Filter::setFilter(unsigned short flag, QString value)
                 case 6: changeAnniverFilter(i, value.toInt()); break;
                 case 7: changeImageFilter(i); break;
             }
-            QSet<int> unitedSet;
             for(int i = 0; i != 8; i++)
                 unitedSet += hiddenRows[i];
             emit updateRows(unitedSet);
@@ -101,7 +100,7 @@ void Filter::removeFilter(unsigned short flag)
         if(flags.test(i) != oldFlags.test(i) && flags.test(i) == 0)
         {
             hiddenRows[i].clear();
-            QSet<int> unitedSet;
+            unitedSet.clear();
             for(int i = 0; i != 8; i++)
                 unitedSet += hiddenRows[i];
             emit updateRows(unitedSet);
@@ -112,4 +111,9 @@ void Filter::removeFilter(unsigned short flag)
 unsigned short Filter::getFilter()
 {
     return flags.to_ulong();
+}
+
+QSet<int> Filter::getHiddenRows()
+{
+    return unitedSet;
 }

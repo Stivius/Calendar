@@ -76,7 +76,7 @@ void Event::loadImages(QStringList imagesList)
     for(QString path: imagesList)
     {
         QPixmap pix;
-        pix.load(model->getPath() + "/" + path);
+        pix.load(QApplication::applicationDirPath() + "/images/" + path);
         QIcon icn(pix.scaled(150,150,Qt::KeepAspectRatio));
         ui->currentPhoto->setIcon(icn);
         images.push_back(Image{pix, path, ""});
@@ -90,7 +90,7 @@ void Event::uploadedPhoto(QString filePath)
     {
         QFileInfo fullPath(filePath);
         QString imageName = fullPath.fileName();
-        QFile file(model->getPath() + "/" + imageName);
+        QFile file(QApplication::applicationDirPath() + "/images/" + imageName);
         // check if loaded file has the same name
         if(file.exists())
         {
@@ -157,9 +157,9 @@ QString Event::getSavedImages()
     QString imagesList = "";
     for(int i = 0; i != images.size(); i++)
     {
-        QFile file(model->getPath() + "/" + images[i].path);
+        QFile file(QApplication::applicationDirPath() + "/images/" + images[i].path);
         if(!file.exists())
-            images[i].image.save(model->getPath() + "/" + images[i].path);
+            images[i].image.save(QApplication::applicationDirPath() + "/images/" + images[i].path);
         imagesList += images[i].path + "\n";
     }
     return imagesList;
@@ -169,7 +169,7 @@ void Event::removeImages()
 {
     for(int i = 0; i != removed.size(); i++)
     {
-        QFile file(model->getPath() + "/" + removed[i]);
+        QFile file(QApplication::applicationDirPath() + "/images/" + removed[i]);
         if(file.exists())
             file.remove();
     }
@@ -207,7 +207,7 @@ void Event::on_currentPhoto_clicked()
     {
         QDesktopServices process;
         if(images[currentImage].tempPath == "")
-            process.openUrl(QUrl::fromLocalFile(model->getPath() + "/" + images[currentImage].path));
+            process.openUrl(QUrl::fromLocalFile(QApplication::applicationDirPath() + "/images/" + images[currentImage].path));
         else
             process.openUrl(QUrl::fromLocalFile(images[currentImage].tempPath));
     }

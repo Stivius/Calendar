@@ -27,6 +27,7 @@ public:
     void setFilter(unsigned short, QString value = "");
     void removeFilter(unsigned short);
     unsigned short getFilter();
+    QSet<int> getHiddenRows();
 signals:
     void updateRows(const QSet<int>&);
 private:
@@ -41,6 +42,7 @@ private:
     Model* model;
     std::bitset<8> flags;
     QSet<int> hiddenRows[8];
+    QSet<int> unitedSet;
 };
 
 #endif // FILTER_H

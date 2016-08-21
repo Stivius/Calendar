@@ -29,17 +29,13 @@ Database::Database(QObject *parent) : QObject(parent)
             "quality INTEGER,"
             "font INTEGER,"
             "anniver INTEGER,"
-            "h1 INTEGER,"
-            "h2 INTEGER,"
-            "h3 INTEGER,"
-            "h4 INTEGER,"
-            "h5 INTEGER"
+            "headers VARCHAR(100)"
             ");");
     query.exec("SELECT * FROM settings");
     if(!query.first())
     {
-        QString string = "INSERT INTO settings (path,quality,font,anniver,h1,h2,h3,h4,h5) VALUES ('%1','%2','%3','%4','%5','%6','%7','%8','%9')";
-        QString q = string.arg(QApplication::applicationDirPath() + "/images").arg(50).arg(11).arg(0).arg("270").arg("270").arg("270").arg("270").arg("270");
+        QString string = "INSERT INTO settings (path,quality,font,anniver,headers) VALUES ('%1','%2','%3','%4','%5')";
+        QString q = string.arg(QApplication::applicationDirPath() + "/images").arg(50).arg(11).arg(0).arg("270\n270\n270\n270\n270");
         query.exec(q);
     }
     query.finish();
@@ -96,7 +92,7 @@ int Database::getData(QVector<int>& id, QVector<int>& days, QVector<int>& months
 }
 
 // получить настройки
-void Database::getSettings(QString& path, int& quality, int& anniver, int& font)
+void Database::getSettings(QString& path, int& quality, int& anniver, int& font, QString& headers)
 {
     QSqlQuery query(db);
     query.exec("SELECT * FROM settings");
@@ -107,6 +103,7 @@ void Database::getSettings(QString& path, int& quality, int& anniver, int& font)
         quality = query.value(rec.indexOf("quality")).toInt();
         anniver = query.value(rec.indexOf("anniver")).toInt();
         font = query.value(rec.indexOf("font")).toInt();
+        headers = query.value(rec.indexOf("headers")).toString();
     }
     query.finish();
 }
@@ -125,6 +122,13 @@ void Database::updateFont(int font)
     db.exec(query);
 }
 
+void Database::updateHeaders(QString headers)
+{
+    QString string = "UPDATE settings SET headers='%1'";
+    QString query = string.arg(headers);
+    db.exec(query);
+}
+
 int Database::insertEvent(const QVector<QString>& data)
 {
     QString string = "INSERT INTO events (day,month,year,theme,sdesc,ldesc,place,source,extra,images) VALUES ('%1','%2','%3','%4','%5','%6','%7','%8','%9','%10')";
@@ -134,8 +138,8 @@ int Database::insertEvent(const QVector<QString>& data)
     QSqlQuery query(db);
     query.exec(queryID);
     QSqlRecord rec = query.record();
-    int id;
-    while(query.next())
+    int id = -1;
+    if(query.next())
         id = query.value(rec.indexOf("ID")).toInt();
     qDebug() << "INSERTED ID: " << id;
     return id;
@@ -153,4 +157,14 @@ void Database::removeEvent(int id)
     QString string = "DELETE FROM events WHERE ID='%1'";
     QString query = string.arg(id);
     db.exec(query);
+}
+
+bool Database::startTransaction()
+{
+    return db.transaction();
+}
+
+bool Database::finishTransaction()
+{
+    return db.commit();
 }

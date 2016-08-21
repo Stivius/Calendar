@@ -8,7 +8,7 @@ Settings::Settings(Model *_model, QWidget *parent):
 {
     ui->setupUi(this);
     ui->qualitySlider->setValue(model->getQuality());
-    ui->pathEdit->setText(model->getPath());
+    ui->pathEdit->setText(QApplication::applicationDirPath() + "/images/");
 }
 
 Settings::~Settings()
@@ -38,6 +38,6 @@ void Settings::on_pathButton_clicked()
 
 void Settings::on_applyButton_clicked()
 {
-    model->updateSettings(ui->pathEdit->text(), ui->qualitySlider->value(), 0);
+    model->updateSettings(QApplication::applicationDirPath() + "/images/", ui->qualitySlider->value(), 0);
     this->close();
 }

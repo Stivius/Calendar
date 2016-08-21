@@ -22,7 +22,8 @@ SOURCES += main.cpp\
     export.cpp \
     model.cpp \
     database.cpp \
-    filter.cpp
+    filter.cpp \
+    import.cpp
 
 HEADERS  += mainwindow.h \
     event.h \
@@ -30,9 +31,11 @@ HEADERS  += mainwindow.h \
     export.h \
     model.h \
     database.h \
-    filter.h
+    filter.h \
+    import.h
 
 FORMS    += mainwindow.ui \
     event.ui \
     settings.ui \
-    export.ui
+    export.ui \
+    import.ui

@@ -11,6 +11,7 @@
 #include "export.h"
 #include "model.h"
 #include "filter.h"
+#include "import.h"
 
 namespace Ui {
 class MainWindow;
@@ -51,6 +52,8 @@ private slots:
     void on_anniverBtn_clicked();
     void on_helpAction_triggered();
     void on_photosAction_triggered();
+
+    void on_importAction_triggered();
 
 private:
     void fillTable();

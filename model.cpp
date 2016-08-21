@@ -5,7 +5,7 @@ Model::Model()
 {
     // load Database
     db = new Database;
-    db->getSettings(path, quality, anniver, font);
+    db->getSettings(path, quality, anniver, font, headers);
     // separate EventModel and SettingsModel
     size = db->getData(id, days, months, years, themes, sDescriptions, lDescriptions, places, sources, extra, images);
 }
@@ -28,6 +28,12 @@ int Model::getQuality()
 int Model::getFont()
 {
     return font;
+}
+
+int Model::getHeader(int index)
+{
+    QString header = headers.split(QChar('\n'), QString::SkipEmptyParts).at(index);
+    return header.toInt();
 }
 
 int Model::getDay(int index)
@@ -213,6 +219,14 @@ void Model::updateFont(int _font)
     db->updateFont(font);
 }
 
+void Model::updateHeaders(QVector<int> headers)
+{
+    QString sHeaders;
+    for(int header: headers)
+        sHeaders += QString::number(header) + "\n";
+    db->updateHeaders(sHeaders);
+}
+
 void Model::updateSettings(QString _path, int _quality, int _anniver)
 {
     path = _path;
@@ -261,4 +275,14 @@ int Model::count()
 int Model::imagesCount(int index)
 {
     return getImages(index).split(QChar('\n'),QString::SkipEmptyParts).size();
+}
+
+bool Model::startMultiInsertion()
+{
+    return db->startTransaction();
+}
+
+bool Model::finishMultiInsertion()
+{
+    return db->finishTransaction();
 }

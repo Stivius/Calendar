@@ -18,10 +18,13 @@ public:
     void updateEvent(int, QVector<QString>);
     void removeEvent(int);
     void updateFont(int);
+    void updateHeaders(QVector<int>);
     void updateSettings(QString, int, int);
     QString getPath();
     int getQuality();
     int getFont();
+    int getHeader(int);
+
     int count();
     int imagesCount(int);
     int getYear(int);
@@ -38,6 +41,9 @@ public:
     QString getSource(int);
     QString getImages(int);
     QString formatDate(int, int, int);
+
+    bool startMultiInsertion();
+    bool finishMultiInsertion();
 private:
     QString formatDay(int);
     QString formatMonth(int);
@@ -48,6 +54,8 @@ private:
     QString path;
     int anniver;
     int font;
+    QString headers;
+
     QVector<int> id;
     QVector<int> days;
     QVector<int> months;

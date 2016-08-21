@@ -6,9 +6,10 @@
 #include <QTextDocument>
 #include <QTextStream>
 
-Export::Export(Model* _model, QWidget *parent) :
+Export::Export(Model* _model, Filter* _filter, QWidget *parent) :
     QDialog(parent),
     model(_model),
+    filter(_filter),
     ui(new Ui::Export)
 {
     ui->setupUi(this);
@@ -47,18 +48,22 @@ void Export::on_submitExport_clicked()
            "<th>Дата</th>"
            "<th>Событие</th>"
            "</tr>";
+    QSet<int> hiddenRows = filter->getHiddenRows();
     for(int i = 0; i != model->count(); i++)
     {
-        QString strF =
-               "<tr>"
-               "<td><img src='%1' width='150'></td>"
-               "<td>%2</td>"
-               "<td>%3</td>"
-               "</tr>";
-        QString imagePath = "";
-        if(model->getImages(i) > 0)
-            imagePath = model->getPath() + "/" + model->getImages(i).split(QChar('\n'),QString::SkipEmptyParts).at(0);
-        str += strF.arg(imagePath).arg(model->getDate(i)).arg(model->getSDescrpition(i));
+        if(!hiddenRows.contains(i))
+        {
+            QString strF =
+                   "<tr>"
+                   "<td><img src='%1' width='150'></td>"
+                   "<td>%2</td>"
+                   "<td>%3</td>"
+                   "</tr>";
+            QString imagePath = "";
+            if(model->getImages(i) > 0)
+                imagePath = QApplication::applicationDirPath() + "/images/" + model->getImages(i).split(QChar('\n'),QString::SkipEmptyParts).at(0);
+            str += strF.arg(imagePath).arg(model->getDate(i)).arg(model->getSDescrpition(i));
+        }
     }
     str += "</table>"
            "</html>";
