@@ -26,21 +26,21 @@ void Filter::changeYearFilter(size_t index, int value)
             hiddenRows[index].insert(i);
 }
 
-void Filter::changeThemeFilter(size_t index, QString value)
+void Filter::changeThemeFilter(size_t index, const QString& value)
 {
     for(int i = 0; i != model->count(); i++)
         if(model->getTheme(i) != value)
             hiddenRows[index].insert(i);
 }
 
-void Filter::changePlaceFilter(size_t index, QString value)
+void Filter::changePlaceFilter(size_t index, const QString& value)
 {
     for(int i = 0; i != model->count(); i++)
         if(model->getPlace(i) != value)
             hiddenRows[index].insert(i);
 }
 
-void Filter::changeTextFilter(size_t index, QString value)
+void Filter::changeTextFilter(size_t index, const QString& value)
 {
     for(int i = 0; i != model->count(); i++)
         if(!model->getSDescrpition(i).contains(value,Qt::CaseInsensitive))

@@ -7,7 +7,7 @@ Import::Import(Model* _model, QWidget *parent) :
     model(_model),
     ui(new Ui::Import)
 {
-    connect(this, SIGNAL(addEvent(QString,QString,QString,QString,QString)), parent, SLOT(addEvent(QString,QString,QString,QString,QString)));
+    connect(this, SIGNAL(addEvent(const QString&, const QString&, const QString&, const QString&, const QString&)), parent, SLOT(addEvent(const QString&, const QString&, const QString&, const QString&, const QString&)));
     ui->setupUi(this);
 }
 

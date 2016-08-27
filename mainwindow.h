@@ -25,9 +25,9 @@ public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
 public slots:
-    void updateRows(const QSet<int>&);
-    void addEvent(QString, QString, QString, QString, QString);
-    void updateEvent(int, QString, QString, QString, QString, QString);
+    void updateRows(const QSet<int>& rows);
+    void addEvent(const QString& date, const QString& shortDescr, const QString& place, const QString& source, const QString& photos);
+    void updateEvent(int id, const QString& date, const QString& shortDescr, const QString& place, const QString& source, const QString& photos);
 private slots:
     void on_detailAction_triggered();
     void on_newEventAction_triggered();
@@ -52,9 +52,7 @@ private slots:
     void on_anniverBtn_clicked();
     void on_helpAction_triggered();
     void on_photosAction_triggered();
-
     void on_importAction_triggered();
-
 private:
     void fillTable();
     Ui::MainWindow *ui;

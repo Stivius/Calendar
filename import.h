@@ -20,7 +20,7 @@ public:
     explicit Import(Model* _model, QWidget *parent = 0);
     ~Import();
 signals:
-    void addEvent(QString, QString, QString, QString, QString);
+    void addEvent(const QString& date, const QString& shortDescr, const QString& place, const QString& source, const QString& photos);
 private slots:
     void on_importBtn_clicked();
     void on_excelTemplateBtn_clicked();

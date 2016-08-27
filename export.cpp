@@ -35,6 +35,7 @@ void Export::on_pathButton_clicked()
     import->setAttribute(Qt::WA_DeleteOnClose);
     import->show();
 }
+
 void Export::on_submitExport_clicked()
 {
     QTextCodec::setCodecForLocale(QTextCodec::codecForName(("windows-1251")));

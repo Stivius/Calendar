@@ -21,7 +21,6 @@ public:
 private slots:
     void on_pathButton_clicked();    
     void on_submitExport_clicked();
-
 private:
     Model* model;
     Filter* filter;

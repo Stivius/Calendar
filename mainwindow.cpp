@@ -174,7 +174,7 @@ void MainWindow::on_placeAction_triggered()
 }
 
 // change
-void MainWindow::addEvent(QString date, QString shortDescr, QString place, QString source, QString photos)
+void MainWindow::addEvent(const QString& date, const QString& shortDescr, const QString& place, const QString& source, const QString& photos)
 {
     ui->tableWidget->insertRow(ui->tableWidget->rowCount());
     ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 0, new QTableWidgetItem(date));
@@ -184,7 +184,7 @@ void MainWindow::addEvent(QString date, QString shortDescr, QString place, QStri
     ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 4, new QTableWidgetItem(source));
 }
 
-void MainWindow::updateEvent(int row, QString date, QString shortDescr, QString place, QString source, QString photos)
+void MainWindow::updateEvent(int row, const QString& date, const QString& shortDescr, const QString& place, const QString& source, const QString& photos)
 {
     ui->tableWidget->item(row, 0)->setText(date);
     ui->tableWidget->item(row, 1)->setText(shortDescr);

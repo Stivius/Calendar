@@ -9,7 +9,7 @@
 
 #include "model.h"
 
-
+// list of flags
 #define DAY_FILTER 0x01 // hex for 0000 0001
 #define MONTH_FILTER 0x02 // hex for 0000 0010
 #define YEAR_FILTER 0x04 // hex for 0000 0100
@@ -24,21 +24,21 @@ class Filter : public QObject
     Q_OBJECT
 public:
     Filter(Model* _model, QObject *parent = 0);
-    void setFilter(unsigned short, QString value = "");
-    void removeFilter(unsigned short);
+    void setFilter(unsigned short flag, QString value = "");
+    void removeFilter(unsigned short flag);
     unsigned short getFilter();
     QSet<int> getHiddenRows();
 signals:
-    void updateRows(const QSet<int>&);
+    void updateRows(const QSet<int>& rows);
 private:
-    void changeDayFilter(size_t, int);
-    void changeMonthFilter(size_t, int);
-    void changeYearFilter(size_t, int);
-    void changeThemeFilter(size_t, QString);
-    void changePlaceFilter(size_t, QString);
-    void changeTextFilter(size_t, QString);
-    void changeAnniverFilter(size_t, int);
-    void changeImageFilter(size_t);
+    void changeDayFilter(size_t index, int value);
+    void changeMonthFilter(size_t index, int value);
+    void changeYearFilter(size_t index, int value);
+    void changeThemeFilter(size_t index, const QString& value);
+    void changePlaceFilter(size_t index, const QString& value);
+    void changeTextFilter(size_t index, const QString& value);
+    void changeAnniverFilter(size_t index, int value);
+    void changeImageFilter(size_t index);
     Model* model;
     std::bitset<8> flags;
     QSet<int> hiddenRows[8];

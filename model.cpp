@@ -30,9 +30,9 @@ int Model::getFont()
     return font;
 }
 
-int Model::getHeader(int index)
+int Model::getHeader(int number)
 {
-    QString header = headers.split(QChar('\n'), QString::SkipEmptyParts).at(index);
+    QString header = headers.split(QChar('\n'), QString::SkipEmptyParts).at(number);
     return header.toInt();
 }
 
@@ -46,7 +46,7 @@ int Model::getMonth(int index)
     return months[index];
 }
 
-int Model::getMonth(QString monthName)
+int Model::getMonth(const QString& monthName)
 {
     int n = 0;
     if(monthName == "Январь")
@@ -180,7 +180,7 @@ void Model::removeEvent(int index)
 }
 
 // новое событие
-void Model::insertEvent(QVector<QString> data)
+void Model::insertEvent(QVector<QString>& data)
 {
     int newID = db->insertEvent(data);
     id.push_back(newID);
@@ -198,7 +198,7 @@ void Model::insertEvent(QVector<QString> data)
 }
 
 // обновить событие
-void Model::updateEvent(int index, QVector<QString> data)
+void Model::updateEvent(int index, QVector<QString>& data)
 {
     db->updateEvent(id[index], data);
     days[index] = data[0].toInt();
@@ -219,7 +219,7 @@ void Model::updateFont(int _font)
     db->updateFont(font);
 }
 
-void Model::updateHeaders(QVector<int> headers)
+void Model::updateHeaders(const QVector<int>& headers)
 {
     QString sHeaders;
     for(int header: headers)
@@ -227,7 +227,7 @@ void Model::updateHeaders(QVector<int> headers)
     db->updateHeaders(sHeaders);
 }
 
-void Model::updateSettings(QString _path, int _quality, int _anniver)
+void Model::updateSettings(const QString& _path, int _quality, int _anniver)
 {
     path = _path;
     quality = _quality;

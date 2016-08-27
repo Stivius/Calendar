@@ -46,8 +46,8 @@ Event::Event(Model* _model, QWidget *parent, int _row) :
         loadImages(imagesList);
     }
 
-    connect(this, SIGNAL(addEvent(QString,QString,QString,QString,QString)),  parent, SLOT(addEvent(QString,QString,QString,QString,QString)));
-    connect(this, SIGNAL(updateEvent(int,QString,QString,QString,QString,QString)), parent, SLOT(updateEvent(int,QString,QString,QString,QString,QString)));
+    connect(this, SIGNAL(addEvent(const QString&, const QString&, const QString&, const QString&, const QString&)),  parent, SLOT(addEvent(const QString&, const QString&, const QString&, const QString&, const QString&)));
+    connect(this, SIGNAL(updateEvent(int,const QString&, const QString&, const QString&, const QString&, const QString&)), parent, SLOT(updateEvent(int,const QString&, const QString&, const QString&, const QString&, const QString&)));
 }
 
 Event::~Event()
@@ -70,7 +70,7 @@ void Event::on_uploadButton_clicked()
     import->show();
 }
 
-void Event::loadImages(QStringList imagesList)
+void Event::loadImages(const QStringList& imagesList)
 {
     qDebug() << imagesList.size();
     for(QString path: imagesList)
@@ -84,7 +84,7 @@ void Event::loadImages(QStringList imagesList)
     }
 }
 
-void Event::uploadedPhoto(QString filePath)
+void Event::uploadedPhoto(QString& filePath)
 {
     if(filePath.indexOf(QRegExp("(.png)|(.jpg)|(.jpeg)",Qt::CaseInsensitive)) != -1) // только .PNG или .JPG/.JPEG
     {

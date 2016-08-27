@@ -15,15 +15,16 @@ class Database : public QObject
 public:
     Database(QObject *parent = 0);
     ~Database();
-    void getSettings(QString&, int&, int&, int&, QString&);
-    int getData(QVector<int>&, QVector<int>&, QVector<int>&, QVector<int>&, QVector<QString>&, QVector<QString>&,
-                QVector<QString>&, QVector<QString>&, QVector<QString>&, QVector<QString>&, QVector<QString>&);
-    int insertEvent(const QVector<QString>&);
-    void updateEvent(int, const QVector<QString>&);
-    void removeEvent(int);
-    void updateSettings(QString, int, int);
-    void updateFont(int);
-    void updateHeaders(QString);
+    void getSettings(QString& path, int& quality, int& anniver, int& font, QString& headers);
+    int getData(QVector<int>& id, QVector<int>& days, QVector<int>& months, QVector<int>& years,
+                QVector<QString>& themes, QVector<QString>& sDescriptions, QVector<QString>& lDescriptions,
+                QVector<QString>& places, QVector<QString>& sources, QVector<QString>& extra, QVector<QString>& images);
+    int insertEvent(const QVector<QString>& data);
+    void updateEvent(int id, const QVector<QString>& data);
+    void removeEvent(int id);
+    void updateSettings(const QString& path, int quality, int anniver);
+    void updateFont(int font);
+    void updateHeaders(const QString& headers);
 
     bool startTransaction();
     bool finishTransaction();

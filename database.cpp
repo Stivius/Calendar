@@ -66,6 +66,23 @@ Database::~Database()
     db.close();
 }
 
+// получить настройки
+void Database::getSettings(QString& path, int& quality, int& anniver, int& font, QString& headers)
+{
+    QSqlQuery query(db);
+    query.exec("SELECT * FROM settings");
+    QSqlRecord rec = query.record();
+    while(query.next())
+    {
+        path = query.value(rec.indexOf("path")).toString();
+        quality = query.value(rec.indexOf("quality")).toInt();
+        anniver = query.value(rec.indexOf("anniver")).toInt();
+        font = query.value(rec.indexOf("font")).toInt();
+        headers = query.value(rec.indexOf("headers")).toString();
+    }
+    query.finish();
+}
+
 int Database::getData(QVector<int>& id, QVector<int>& days, QVector<int>& months, QVector<int>& years, QVector<QString>& themes, QVector<QString>& sDescriptions, QVector<QString>& lDescriptions, QVector<QString>& places, QVector<QString>& sources, QVector<QString>& extra, QVector<QString>& images)
 {
     QSqlQuery query(db);
@@ -89,44 +106,6 @@ int Database::getData(QVector<int>& id, QVector<int>& days, QVector<int>& months
     }
     query.finish();
     return size;
-}
-
-// получить настройки
-void Database::getSettings(QString& path, int& quality, int& anniver, int& font, QString& headers)
-{
-    QSqlQuery query(db);
-    query.exec("SELECT * FROM settings");
-    QSqlRecord rec = query.record();
-    while(query.next())
-    {
-        path = query.value(rec.indexOf("path")).toString();
-        quality = query.value(rec.indexOf("quality")).toInt();
-        anniver = query.value(rec.indexOf("anniver")).toInt();
-        font = query.value(rec.indexOf("font")).toInt();
-        headers = query.value(rec.indexOf("headers")).toString();
-    }
-    query.finish();
-}
-
-void Database::updateSettings(QString path, int quality, int anniver)
-{
-    QString string = "UPDATE settings SET path='%1',quality='%2',anniver='%3'";
-    QString query = string.arg(path).arg(quality).arg(anniver);
-    db.exec(query);
-}
-
-void Database::updateFont(int font)
-{
-    QString string = "UPDATE settings SET font='%1'";
-    QString query = string.arg(font);
-    db.exec(query);
-}
-
-void Database::updateHeaders(QString headers)
-{
-    QString string = "UPDATE settings SET headers='%1'";
-    QString query = string.arg(headers);
-    db.exec(query);
 }
 
 int Database::insertEvent(const QVector<QString>& data)
@@ -156,6 +135,27 @@ void Database::removeEvent(int id)
 {
     QString string = "DELETE FROM events WHERE ID='%1'";
     QString query = string.arg(id);
+    db.exec(query);
+}
+
+void Database::updateSettings(const QString& path, int quality, int anniver)
+{
+    QString string = "UPDATE settings SET path='%1',quality='%2',anniver='%3'";
+    QString query = string.arg(path).arg(quality).arg(anniver);
+    db.exec(query);
+}
+
+void Database::updateFont(int font)
+{
+    QString string = "UPDATE settings SET font='%1'";
+    QString query = string.arg(font);
+    db.exec(query);
+}
+
+void Database::updateHeaders(const QString& headers)
+{
+    QString string = "UPDATE settings SET headers='%1'";
+    QString query = string.arg(headers);
     db.exec(query);
 }
 

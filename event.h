@@ -31,11 +31,11 @@ public:
     Event(Model* _model, QWidget *parent = 0, int _row = -1);
     ~Event();
 signals:
-    void addEvent(QString, QString, QString, QString, QString);
-    void updateEvent(int, QString, QString, QString, QString, QString);
+    void addEvent(const QString& date, const QString& shortDescr, const QString& place, const QString& source, const QString& photos);
+    void updateEvent(int id, const QString& date, const QString& shortDescr, const QString& place, const QString& source, const QString& photos);
 private slots:
     void on_uploadButton_clicked();
-    void uploadedPhoto(QString);
+    void uploadedPhoto(QString& filePath);
     void on_removeImage_clicked();
     void on_nextImage_clicked();
     void on_previousImage_clicked();
@@ -43,7 +43,7 @@ private slots:
     void on_cancelButton_clicked();
     void on_currentPhoto_clicked();
 private:
-    void loadImages(QStringList imagesList);
+    void loadImages(const QStringList& imagesList);
     QString getSavedImages();
     void removeImages();
     Ui::Event *ui;
