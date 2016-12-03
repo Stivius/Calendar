@@ -1,10 +1,10 @@
-#include "mainwindow.h"
+#include "eventsmainwindow.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    MainWindow w;
+    EventsMainWindow w;
     w.showMaximized();
 
     return a.exec();

@@ -2,56 +2,49 @@
 #define EVENT_H
 
 #include <QDialog>
-#include <QFileDialog>
-#include <QUrl>
-#include <QDebug>
-#include <QPixmap>
-#include <QDesktopServices>
-#include <QDesktopWidget>
-#include <QFileInfo>
-#include <QMessageBox>
+#include <QDataWidgetMapper>
 
-#include "model.h"
+class EventsProxyModel;
 
 namespace Ui {
 class Event;
 }
 
 struct Image {
-    QPixmap image;
-    QString path;
-    QString tempPath;
+    QPixmap _pixmap;
+    QString _path;
+    QString _tempPath;
 };
 
 class Event : public QDialog
 {
     Q_OBJECT
-
 public:
-    Event(Model* _model, QWidget *parent = 0, int _row = -1);
+    Event(EventsProxyModel* eventsModel, int currentRow = -1, QWidget* parent = 0);
     ~Event();
-signals:
-    void addEvent(const QString& date, const QString& shortDescr, const QString& place, const QString& source, const QString& photos);
-    void updateEvent(int id, const QString& date, const QString& shortDescr, const QString& place, const QString& source, const QString& photos);
 private slots:
     void on_uploadButton_clicked();
-    void uploadedPhoto(QString& filePath);
+    void uploadPhoto(QString filePath);
     void on_removeImage_clicked();
     void on_nextImage_clicked();
     void on_previousImage_clicked();
     void on_saveButton_clicked();
     void on_cancelButton_clicked();
     void on_currentPhoto_clicked();
+
 private:
-    void loadImages(const QStringList& imagesList);
-    QString getSavedImages();
+    void loadImages();
+    void saveImages();
     void removeImages();
-    Ui::Event *ui;
-    Model* model;
-    int row;
+
+private:
+    Ui::Event* ui;
+    EventsProxyModel* _eventsModel;
+    QDataWidgetMapper* _widgetMapper;
+    int _currentRow;
+    int _currentImageIndex;
     QVector<Image> images;
-    QVector<QString> removed;
-    int currentImage;
+    QVector<QString> imagesToRemove;
 };
 
 #endif // EVENT_H

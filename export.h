@@ -4,8 +4,7 @@
 #include <QDialog>
 #include <QFileDialog>
 
-#include "model.h"
-#include "filter.h"
+class EventsProxyModel;
 
 namespace Ui {
 class Export;
@@ -16,14 +15,13 @@ class Export : public QDialog
     Q_OBJECT
 
 public:
-    Export(Model* _model, Filter* _filter, QWidget *parent = 0);
+    Export(EventsProxyModel* eventsProxyModel, QWidget *parent = 0);
     ~Export();
 private slots:
-    void on_pathButton_clicked();    
+    void on_pathButton_clicked();
     void on_submitExport_clicked();
 private:
-    Model* model;
-    Filter* filter;
+    EventsProxyModel* _eventsProxyModel;
     Ui::Export *ui;
 };
 

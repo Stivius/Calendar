@@ -16,26 +16,30 @@ include(qtxlsx/src/xlsx/qtxlsx.pri)
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp \
     event.cpp \
     settings.cpp \
     export.cpp \
-    model.cpp \
-    database.cpp \
     filter.cpp \
-    import.cpp
+    import.cpp \
+    eventssqlmodel.cpp \
+    eventsproxymodel.cpp \
+    settingssqlmodel.cpp \
+    eventsmainwindow.cpp
 
-HEADERS  += mainwindow.h \
+HEADERS  += \
     event.h \
     settings.h \
     export.h \
-    model.h \
-    database.h \
     filter.h \
-    import.h
+    import.h \
+    eventssqlmodel.h \
+    eventsproxymodel.h \
+    settingssqlmodel.h \
+    eventsmainwindow.h
 
-FORMS    += mainwindow.ui \
+FORMS    += \
     event.ui \
     settings.ui \
     export.ui \
-    import.ui
+    import.ui \
+    eventsmainwindow.ui

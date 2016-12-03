@@ -1,23 +1,33 @@
 #include "settings.h"
 #include "ui_settings.h"
 
-Settings::Settings(Model *_model, QWidget *parent):
+#include "settingssqlmodel.h"
+
+Settings::Settings(SettingsSqlModel* settingsModel, QWidget *parent):
     QDialog(parent),
     ui(new Ui::Settings),
-    model(_model)
+    _settingsModel(settingsModel)
 {
     ui->setupUi(this);
-    ui->qualitySlider->setValue(model->getQuality());
-    ui->pathEdit->setText(QApplication::applicationDirPath() + "/images/");
+
+    _widgetMapper = new QDataWidgetMapper;
+    _widgetMapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
+    _widgetMapper->setModel(_settingsModel);
+    _widgetMapper->addMapping(ui->pathEdit, _settingsModel->column(Path));
+    _widgetMapper->addMapping(ui->qualitySlider, _settingsModel->column(Quality));
+    _widgetMapper->addMapping(ui->radioButton_2, _settingsModel->column(Anniversary));
+    _widgetMapper->setCurrentIndex(0);
 }
 
 Settings::~Settings()
 {
+    _widgetMapper->revert();
     delete ui;
 }
 
 void Settings::on_cancelButton_clicked()
 {
+    _widgetMapper->revert();
     this->close();
 }
 
@@ -38,6 +48,7 @@ void Settings::on_pathButton_clicked()
 
 void Settings::on_applyButton_clicked()
 {
-    model->updateSettings(QApplication::applicationDirPath() + "/images/", ui->qualitySlider->value(), 0);
+    _widgetMapper->submit();
+    _settingsModel->submitAll();
     this->close();
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
+ <class>EventsMainWindow</class>
+ <widget class="QMainWindow" name="EventsMainWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -349,7 +349,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableWidget" name="tableWidget">
+           <widget class="QTableView" name="tableView">
             <property name="maximumSize">
              <size>
               <width>16777215</width>
@@ -374,43 +374,6 @@
             <property name="showGrid">
              <bool>true</bool>
             </property>
-            <property name="columnCount">
-             <number>5</number>
-            </property>
-            <attribute name="horizontalHeaderCascadingSectionResizes">
-             <bool>false</bool>
-            </attribute>
-            <attribute name="horizontalHeaderDefaultSectionSize">
-             <number>100</number>
-            </attribute>
-            <attribute name="horizontalHeaderStretchLastSection">
-             <bool>false</bool>
-            </attribute>
-            <column>
-             <property name="text">
-              <string>Дата</string>
-             </property>
-            </column>
-            <column>
-             <property name="text">
-              <string>Событие</string>
-             </property>
-            </column>
-            <column>
-             <property name="text">
-              <string>Фото</string>
-             </property>
-            </column>
-            <column>
-             <property name="text">
-              <string>Место</string>
-             </property>
-            </column>
-            <column>
-             <property name="text">
-              <string>Источник</string>
-             </property>
-            </column>
            </widget>
           </item>
          </layout>
@@ -546,7 +509,7 @@
      <x>0</x>
      <y>0</y>
      <width>685</width>
-     <height>21</height>
+     <height>19</height>
     </rect>
    </property>
    <property name="sizePolicy">
