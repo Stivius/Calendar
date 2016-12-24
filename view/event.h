@@ -23,19 +23,19 @@ public:
     Event(EventsProxyModel* eventsModel, int currentRow = -1, QWidget* parent = 0);
     ~Event();
 private slots:
-    void on_uploadButton_clicked();
-    void uploadPhoto(QString filePath);
-    void on_removeImage_clicked();
-    void on_nextImage_clicked();
-    void on_previousImage_clicked();
+//    void on_uploadButton_clicked();
+//    void uploadPhoto(QString filePath);
+//    void on_removeImage_clicked();
+//    void on_nextImage_clicked();
+//    void on_previousImage_clicked();
     void on_saveButton_clicked();
     void on_cancelButton_clicked();
-    void on_currentPhoto_clicked();
+//    void on_currentPhoto_clicked();
 
 private:
-    void loadImages();
-    void saveImages();
-    void removeImages();
+//    void loadImages();
+//    void saveImages();
+//    void removeImages();
 
 private:
     Ui::Event* ui;

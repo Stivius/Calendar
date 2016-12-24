@@ -18,7 +18,6 @@ include(qtxlsx/src/xlsx/qtxlsx.pri)
 SOURCES += main.cpp\
     model/eventsproxymodel.cpp \
     model/eventssqlmodel.cpp \
-    model/filter.cpp \
     model/settingssqlmodel.cpp \
     view/event.cpp \
     view/eventsmainwindow.cpp \
@@ -29,7 +28,6 @@ SOURCES += main.cpp\
 HEADERS  += \
     model/eventsproxymodel.h \
     model/eventssqlmodel.h \
-    model/filter.h \
     model/settingssqlmodel.h \
     view/event.h \
     view/eventsmainwindow.h \

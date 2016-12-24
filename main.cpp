@@ -1,4 +1,4 @@
-#include "eventsmainwindow.h"
+#include "view/eventsmainwindow.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])

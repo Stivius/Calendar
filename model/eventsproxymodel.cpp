@@ -5,14 +5,15 @@
 
 EventsProxyModel::EventsProxyModel(EventsSqlModel* model, QObject *parent) :
     QSortFilterProxyModel(parent),
-    _model(model)
+    _model(model),
+    _filters(8, QVariant())
 {
     setSourceModel(_model);
-    setHeaderData(_model->column(Date), Qt::Horizontal, QString("Дата"));
-    setHeaderData(_model->column(ShortDescription), Qt::Horizontal, QString("Событие"));
-    setHeaderData(_model->column(Images), Qt::Horizontal, QString("Фото"));
-    setHeaderData(_model->column(Place), Qt::Horizontal, QString("Место"));
-    setHeaderData(_model->column(Source), Qt::Horizontal, QString("Источник"));
+    setHeaderData(this->column(Date), Qt::Horizontal, QString("Дата"));
+    setHeaderData(this->column(ShortDescription), Qt::Horizontal, QString("Событие"));
+    setHeaderData(this->column(Images), Qt::Horizontal, QString("Фото"));
+    setHeaderData(this->column(Place), Qt::Horizontal, QString("Место"));
+    setHeaderData(this->column(Source), Qt::Horizontal, QString("Источник"));
 }
 
 QVariant EventsProxyModel::data(const QModelIndex &index, int role) const
@@ -26,6 +27,9 @@ bool EventsProxyModel::filterAcceptsColumn(int source_column, const QModelIndex 
     switch(source_column)
     {
     case 0:
+    case 5:
+    case 6:
+    case 7:
         return false;
     }
     return true;
@@ -33,9 +37,55 @@ bool EventsProxyModel::filterAcceptsColumn(int source_column, const QModelIndex 
 
 bool EventsProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
-    if(source_row == 0)
-        return false;
+    Q_UNUSED(source_parent);
+    if(_filters[DayFilter].isValid())
+    {
+        if(_model->day(source_row) != _filters[DayFilter])
+            return false;
+    }
+    if(_filters[MonthFilter].isValid())
+    {
+        if(_model->month(source_row) != _filters[MonthFilter])
+            return false;
+    }
+    if(_filters[YearFilter].isValid())
+    {
+        if(_model->year(source_row) != _filters[YearFilter])
+            return false;
+    }
+    if(_filters[ThemeFilter].isValid())
+    {
+        if(_model->theme(source_row) != _filters[ThemeFilter])
+            return false;
+    }
+    if(_filters[PlaceFilter].isValid())
+    {
+        if(_model->place(source_row) != _filters[PlaceFilter])
+            return false;
+    }
+    if(_filters[TextFilter].isValid())
+    {
+        if(!_model->shortDescription(source_row).contains(_filters[TextFilter].toString(),Qt::CaseInsensitive))
+            return false;
+    }
+    if(_filters[AnniversaryFilter].isValid())
+    {
+        if(abs(_filters[AnniversaryFilter].toInt() - _model->year(source_row)) % 5 != 0)
+            return false;
+    }
     return true;
+}
+
+void EventsProxyModel::setFilter(FilterType filterType, QVariant value)
+{
+    _filters[filterType] = value;
+    invalidate();
+}
+
+void EventsProxyModel::removeFilter(FilterType filterType)
+{
+    _filters[filterType] = QVariant();
+    invalidate();
 }
 
 QString EventsProxyModel::theme(int row) const
@@ -79,6 +129,16 @@ QString EventsProxyModel::date(int row) const
 void EventsProxyModel::setDate(int row, int day, int month, int year)
 {
     setData(index(row, column(Date)), QDate(year, month, day).toString("dd/MM/yyyy"));
+}
+
+bool EventsProxyModel::submitAll()
+{
+    return _model->submitAll();
+}
+
+void EventsProxyModel::revertAll()
+{
+    _model->revertAll();
 }
 
 QString EventsProxyModel::shortDescription(int row) const

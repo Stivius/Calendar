@@ -1,23 +1,23 @@
-//#include "import.h"
-//#include "ui_import.h"
-//#include <QMessageBox>
+#include "import.h"
+#include "ui_import.h"
+#include <QMessageBox>
 
-//Import::Import(Model* _model, QWidget *parent) :
-//    QDialog(parent),
-//    model(_model),
-//    ui(new Ui::Import)
-//{
-//    connect(this, SIGNAL(addEvent(const QString&, const QString&, const QString&, const QString&, const QString&)), parent, SLOT(addEvent(const QString&, const QString&, const QString&, const QString&, const QString&)));
-//    ui->setupUi(this);
-//}
+Import::Import(EventsProxyModel* eventsModel, QWidget *parent) :
+    QDialog(parent),
+    _eventsModel(eventsModel),
+    ui(new Ui::Import)
+{
+    //connect(this, SIGNAL(addEvent(const QString&, const QString&, const QString&, const QString&, const QString&)), parent, SLOT(addEvent(const QString&, const QString&, const QString&, const QString&, const QString&)));
+    ui->setupUi(this);
+}
 
-//Import::~Import()
-//{
-//    delete ui;
-//}
+Import::~Import()
+{
+    delete ui;
+}
 
-//void Import::on_importBtn_clicked()
-//{
+void Import::on_importBtn_clicked()
+{
 //    QXlsx::Document xlsx(QApplication::applicationDirPath()+ "/Import.xlsx");
 //    bool loop = true;
 //    int num = 2;
@@ -49,14 +49,14 @@
 //    QFile file(QApplication::applicationDirPath()+ "/Import.xlsx");
 //    file.remove();
 //    this->close();
-//}
+}
 
-//void Import::on_excelTemplateBtn_clicked()
-//{
+void Import::on_excelTemplateBtn_clicked()
+{
 //    QXlsx::Document xlsx(QApplication::applicationDirPath()+ "/Import.xlsx");
 //    xlsx.write("A1","Дата");
 //    xlsx.write("B1","Событие");
 //    xlsx.save();
 //    QDesktopServices process;
 //    process.openUrl(QUrl::fromLocalFile(QApplication::applicationDirPath()+ "/Import.xlsx"));
-//}
+}

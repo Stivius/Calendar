@@ -1,7 +1,7 @@
 #include "settings.h"
 #include "ui_settings.h"
 
-#include "settingssqlmodel.h"
+#include "model/settingssqlmodel.h"
 
 Settings::Settings(SettingsSqlModel* settingsModel, QWidget *parent):
     QDialog(parent),

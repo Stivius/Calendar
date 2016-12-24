@@ -3,13 +3,15 @@
 
 #include <QMessageBox>
 #include <QDebug>
+#include <QDate>
 
-#include "event.h"
-#include "eventssqlmodel.h"
-#include "eventsproxymodel.h"
-#include "settingssqlmodel.h"
-#include "settings.h"
-#include "export.h"
+#include "model/eventssqlmodel.h"
+#include "model/eventsproxymodel.h"
+#include "model/settingssqlmodel.h"
+#include "view/settings.h"
+#include "view/export.h"
+#include "view/import.h"
+#include "view/event.h"
 
 EventsMainWindow::EventsMainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -28,9 +30,7 @@ EventsMainWindow::EventsMainWindow(QWidget *parent) :
     QFont fnt;
     fnt.setPointSize(_settingsModel->font());
     ui->tableView->setFont(fnt);
-    ui->tableView->setColumnHidden(5, true);
-    ui->tableView->setColumnHidden(6, true);
-    ui->tableView->setColumnHidden(7, true);
+
 
     _widgetMapper = new QDataWidgetMapper;
     _widgetMapper->setModel(_eventsProxyModel);
@@ -89,13 +89,13 @@ void EventsMainWindow::on_exportAction_triggered()
     window->show();
 }
 
-//void MainWindow::on_importAction_triggered()
-//{
-//    Import* window = new Import(model, this);
-//    window->setWindowModality(Qt::ApplicationModal);
-//    window->setAttribute(Qt::WA_DeleteOnClose);
-//    window->show();
-//}
+void EventsMainWindow::on_importAction_triggered()
+{
+    Import* window = new Import(_eventsProxyModel, this);
+    window->setWindowModality(Qt::ApplicationModal);
+    window->setAttribute(Qt::WA_DeleteOnClose);
+    window->show();
+}
 
 void EventsMainWindow::on_exitAction_triggered()
 {
@@ -171,9 +171,9 @@ void EventsMainWindow::on_removeEvent_triggered()
 {
     QModelIndexList selection = ui->tableView->selectionModel()->selectedRows();
     if(selection.count() == 0)
-        return ;
-    _eventsSqlModel->removeRow(ui->tableView->currentIndex().row());
-    _eventsSqlModel->submitAll();
+        return;
+    _eventsProxyModel->removeRow(ui->tableView->currentIndex().row());
+    _eventsProxyModel->submitAll();
 }
 
 void EventsMainWindow::on_fullList_triggered()
@@ -185,7 +185,7 @@ void EventsMainWindow::on_cardAction_triggered()
 {
     QModelIndexList selection = ui->tableView->selectionModel()->selectedRows();
     if(selection.count() == 0)
-        return ;
+        return;
     Event* window = new Event(_eventsProxyModel, ui->tableView->currentIndex().row(), this);
     window->setWindowModality(Qt::ApplicationModal);
     window->setAttribute(Qt::WA_DeleteOnClose);
@@ -236,66 +236,66 @@ void EventsMainWindow::on_decreaseFont_triggered()
     }
 }
 
-//void MainWindow::on_dayBox_activated(int index)
-//{
-//    if(index == 0)
-//        filter->removeFilter(DAY_FILTER);
-//    else
-//        filter->setFilter(DAY_FILTER, ui->dayBox->currentText());
-//}
+void EventsMainWindow::on_dayBox_activated(int index)
+{
+    if(index == 0)
+        _eventsProxyModel->removeFilter(DayFilter);
+    else
+        _eventsProxyModel->setFilter(DayFilter, ui->dayBox->currentIndex());
+}
 
-//void MainWindow::on_monthBox_activated(int index)
-//{
-//    if(index == 0)
-//        filter->removeFilter(MONTH_FILTER);
-//    else
-//        filter->setFilter(MONTH_FILTER, QString::number(model->getMonth(ui->monthBox->currentText())));
-//}
+void EventsMainWindow::on_monthBox_activated(int index)
+{
+    if(index == 0)
+        _eventsProxyModel->removeFilter(MonthFilter);
+    else
+        _eventsProxyModel->setFilter(MonthFilter, ui->monthBox->currentIndex());
+}
 
-//void MainWindow::on_yearEdit_textChanged(const QString &year)
-//{
-//    if(year == "")
-//        filter->removeFilter(YEAR_FILTER);
-//    else
-//        filter->setFilter(YEAR_FILTER, ui->yearEdit->text());
-//}
+void EventsMainWindow::on_yearEdit_textChanged(const QString &year)
+{
+    if(year == QString())
+        _eventsProxyModel->removeFilter(YearFilter);
+    else
+        _eventsProxyModel->setFilter(YearFilter, ui->yearEdit->text());
+}
 
-//void MainWindow::on_listWidget_currentRowChanged(int currentRow)
-//{
-//    if(currentRow != -1)
-//    {
-//        if(ui->themeAction->isChecked())
-//        {
-//            if(currentRow == 0)
-//                filter->removeFilter(THEME_FILTER);
-//            else
-//                filter->setFilter(THEME_FILTER, ui->listWidget->currentItem()->text());
-//        }
-//        else
-//        {
-//            if(currentRow == 0)
-//                filter->removeFilter(PLACE_FILTER);
-//            else
-//                filter->setFilter(PLACE_FILTER, ui->listWidget->currentItem()->text());
-//        }
-//    }
-//}
+void EventsMainWindow::on_listWidget_currentRowChanged(int currentRow)
+{
+    if(currentRow != -1)
+    {
+        if(ui->themeAction->isChecked())
+        {
+            if(currentRow == 0)
+                _eventsProxyModel->removeFilter(ThemeFilter);
+            else
+                _eventsProxyModel->setFilter(ThemeFilter, ui->listWidget->currentItem()->text());
+        }
+        else
+        {
+            if(currentRow == 0)
+                _eventsProxyModel->removeFilter(PlaceFilter);
+            else
+                _eventsProxyModel->setFilter(PlaceFilter, ui->listWidget->currentItem()->text());
+        }
+    }
+}
 
-//void MainWindow::on_searchEdit_textChanged(const QString &text)
-//{
-//    if(text == "")
-//        filter->removeFilter(TEXT_FILTER);
-//    else
-//        filter->setFilter(TEXT_FILTER, ui->searchEdit->text());
-//}
+void EventsMainWindow::on_searchEdit_textChanged(const QString &text)
+{
+    if(text == QString())
+        _eventsProxyModel->removeFilter(TextFilter);
+    else
+        _eventsProxyModel->setFilter(TextFilter, ui->searchEdit->text());
+}
 
-//void MainWindow::on_anniverBtn_clicked()
-//{
-//    if(!ui->anniverBtn->isChecked())
-//        filter->removeFilter(ANNIVER_FILTER);
-//    else
-//        filter->setFilter(ANNIVER_FILTER, QString::number(QDate::currentDate().year()));
-//}
+void EventsMainWindow::on_anniverBtn_clicked()
+{
+    if(!ui->anniverBtn->isChecked())
+        _eventsProxyModel->removeFilter(AnniversaryFilter);
+    else
+        _eventsProxyModel->setFilter(AnniversaryFilter, QDate::currentDate().year());
+}
 
 //void MainWindow::on_photosAction_triggered()
 //{

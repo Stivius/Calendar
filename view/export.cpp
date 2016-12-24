@@ -7,7 +7,7 @@
 #include <QTextDocument>
 #include <QTextStream>
 
-#include "eventsproxymodel.h"
+#include "model/eventsproxymodel.h"
 
 Export::Export(EventsProxyModel* eventsProxyModel, QWidget *parent) :
     QDialog(parent),

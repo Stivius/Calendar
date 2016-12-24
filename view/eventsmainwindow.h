@@ -35,15 +35,15 @@ private slots:
     void on_cardAction_triggered();
     void on_increaseFont_triggered();
     void on_decreaseFont_triggered();
-//    void on_dayBox_activated(int index);
-//    void on_monthBox_activated(int index);
-//    void on_yearEdit_textChanged(const QString &year);
-//    void on_listWidget_currentRowChanged(int currentRow);
-//    void on_searchEdit_textChanged(const QString &text);
-//    void on_anniverBtn_clicked();
+    void on_dayBox_activated(int index);
+    void on_monthBox_activated(int index);
+    void on_yearEdit_textChanged(const QString &year);
+    void on_listWidget_currentRowChanged(int currentRow);
+    void on_searchEdit_textChanged(const QString &text);
+    void on_anniverBtn_clicked();
     void on_helpAction_triggered();
 //    void on_photosAction_triggered();
-//    void on_importAction_triggered();
+    void on_importAction_triggered();
     void on_tableView_doubleClicked(const QModelIndex &index);
     void on_tableView_clicked(const QModelIndex &index);
 

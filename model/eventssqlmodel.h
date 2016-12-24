@@ -22,9 +22,15 @@ public:
     EventsSqlModel(QSqlDatabase database, QObject* parent = nullptr);
     QVariant data(const QModelIndex& index, int role) const;
     QHash<int, QByteArray> roleNames() const;
-    QString theme(int row);
-    QString place(int row);
-    int column(int role);
+    QString theme(int row) const;
+    QString place(int row) const;
+    int column(int role) const;
+    QString date(int row) const;
+    QString shortDescription(int row) const;
+    QString source(int row) const;
+    int day(int row) const;
+    int month(int row) const;
+    int year(int row) const;
 };
 
 #endif // MODEL_H

@@ -4,7 +4,17 @@
 #include <QObject>
 #include <QSortFilterProxyModel>
 
-#include "eventssqlmodel.h"
+#include "model/eventssqlmodel.h"
+
+enum FilterType {
+    DayFilter,
+    MonthFilter,
+    YearFilter,
+    ThemeFilter,
+    PlaceFilter,
+    TextFilter,
+    AnniversaryFilter
+};
 
 class EventsProxyModel : public QSortFilterProxyModel
 {
@@ -24,9 +34,13 @@ public:
     int month(int row) const;
     int year(int row) const;
     void setDate(int row, int day, int month, int year);
+    bool submitAll();
+    void revertAll();
+    void setFilter(FilterType filterType, QVariant value);
+    void removeFilter(FilterType filterType);
 private:
     EventsSqlModel* _model;
-
+    QVector<QVariant> _filters;
 };
 
 #endif // TABLEMODEL_H
