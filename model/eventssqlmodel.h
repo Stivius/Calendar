@@ -4,7 +4,7 @@
 #include <QSqlTableModel>
 
 enum EventsModelRoles {
-    Id = Qt::UserRole + 1,
+    Id = Qt::UserRole,
     Date,
     ShortDescription,
     Images,
@@ -22,15 +22,16 @@ public:
     EventsSqlModel(QSqlDatabase database, QObject* parent = nullptr);
     QVariant data(const QModelIndex& index, int role) const;
     QHash<int, QByteArray> roleNames() const;
+    int column(int role) const;
     QString theme(int row) const;
     QString place(int row) const;
-    int column(int role) const;
-    QString date(int row) const;
-    QString shortDescription(int row) const;
     QString source(int row) const;
+    QString shortDescription(int row) const;
     int day(int row) const;
     int month(int row) const;
     int year(int row) const;
+    QString date(int row) const;
+    void setDate(int row, int day, int month, int year);
 };
 
 #endif // MODEL_H

@@ -5,13 +5,16 @@
 #include <QDebug>
 #include <QDate>
 
-#include "model/eventssqlmodel.h"
 #include "model/eventsproxymodel.h"
+#include "model/eventssqlmodel.h"
 #include "model/settingssqlmodel.h"
-#include "view/settings.h"
 #include "view/export.h"
 #include "view/import.h"
-#include "view/event.h"
+#include "view/settings.h"
+#include "view/eventview.h"
+#include "controller/eventcontroller.h"
+
+const int INVALID_ROW = -1;
 
 EventsMainWindow::EventsMainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -20,29 +23,35 @@ EventsMainWindow::EventsMainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->detailBox->hide();
     ui->listWidget->hide();
+
     _database = QSqlDatabase::addDatabase("QSQLITE");
     _database.setDatabaseName("db");
     _database.open();
+
     _eventsSqlModel = new EventsSqlModel(_database);
     _eventsProxyModel = new EventsProxyModel(_eventsSqlModel);
     _settingsModel = new SettingsSqlModel(_database);
+
     ui->tableView->setModel(_eventsProxyModel);
     QFont fnt;
     fnt.setPointSize(_settingsModel->font());
     ui->tableView->setFont(fnt);
 
+    hideColumns();
+    connect(_eventsProxyModel, &EventsProxyModel::filterUpdated, this, [=](){
+        hideColumns();
+    });
 
     _widgetMapper = new QDataWidgetMapper;
     _widgetMapper->setModel(_eventsProxyModel);
 
-    _widgetMapper->addMapping(ui->extraEdit, _eventsProxyModel->column(ExtraDescription));
-    _widgetMapper->addMapping(ui->fullEdit, _eventsProxyModel->column(LongDescription));
-    _widgetMapper->addMapping(ui->dateEdit, _eventsProxyModel->column(Date));
-    _widgetMapper->addMapping(ui->themeEdit, _eventsProxyModel->column(Theme));
-    _widgetMapper->addMapping(ui->placeEdit, _eventsProxyModel->column(Place));
+    _widgetMapper->addMapping(ui->extraEdit, _eventsSqlModel->column(ExtraDescription));
+    _widgetMapper->addMapping(ui->fullEdit, _eventsSqlModel->column(LongDescription));
+    _widgetMapper->addMapping(ui->dateEdit, _eventsSqlModel->column(Date));
+    _widgetMapper->addMapping(ui->themeEdit, _eventsSqlModel->column(Theme));
+    _widgetMapper->addMapping(ui->placeEdit, _eventsSqlModel->column(Place));
 
     connect(ui->tableView, &QTableView::customContextMenuRequested, this, &EventsMainWindow::showMenu);
-
 }
 
 EventsMainWindow::~EventsMainWindow()
@@ -67,10 +76,15 @@ void EventsMainWindow::on_detailAction_triggered()
 
 void EventsMainWindow::on_newEventAction_triggered()
 {
-    Event* window = new Event(_eventsProxyModel);
-    window->setWindowModality(Qt::ApplicationModal);
-    window->setAttribute(Qt::WA_DeleteOnClose);
-    window->show();
+    EventView* eventView = new EventView;
+    eventView->setWindowModality(Qt::ApplicationModal);
+    eventView->setAttribute(Qt::WA_DeleteOnClose);
+
+    EventController* eventController = new EventController(eventView,
+                                                           _eventsSqlModel,
+                                                           INVALID_ROW,
+                                                           this);
+    eventView->show();
 }
 
 void EventsMainWindow::on_settingsAction_triggered()
@@ -117,6 +131,7 @@ void EventsMainWindow::on_themeAction_triggered()
     themes.removeDuplicates();
     ui->listWidget->addItems(themes);
     ui->listWidget->setCurrentRow(0);
+
     if(ui->listWidget->isHidden())
     {
         ui->listWidget->show();
@@ -147,6 +162,7 @@ void EventsMainWindow::on_placeAction_triggered()
     places.removeDuplicates();
     ui->listWidget->addItems(places);
     ui->listWidget->setCurrentRow(0);
+
     if(ui->listWidget->isHidden())
     {
         ui->listWidget->show();
@@ -172,8 +188,9 @@ void EventsMainWindow::on_removeEvent_triggered()
     QModelIndexList selection = ui->tableView->selectionModel()->selectedRows();
     if(selection.count() == 0)
         return;
-    _eventsProxyModel->removeRow(ui->tableView->currentIndex().row());
-    _eventsProxyModel->submitAll();
+    QModelIndex sourceIndex = _eventsProxyModel->mapToSource(ui->tableView->currentIndex());
+    _eventsSqlModel->removeRow(sourceIndex.row());
+    _eventsSqlModel->submitAll();
 }
 
 void EventsMainWindow::on_fullList_triggered()
@@ -186,10 +203,18 @@ void EventsMainWindow::on_cardAction_triggered()
     QModelIndexList selection = ui->tableView->selectionModel()->selectedRows();
     if(selection.count() == 0)
         return;
-    Event* window = new Event(_eventsProxyModel, ui->tableView->currentIndex().row(), this);
-    window->setWindowModality(Qt::ApplicationModal);
-    window->setAttribute(Qt::WA_DeleteOnClose);
-    window->show();
+
+    EventView* eventView = new EventView;
+    eventView->setWindowModality(Qt::ApplicationModal);
+    eventView->setAttribute(Qt::WA_DeleteOnClose);
+
+    QModelIndex sourceIndex = _eventsProxyModel->mapToSource(ui->tableView->currentIndex());
+    EventController* eventController = new EventController(eventView,
+                                                           _eventsSqlModel,
+                                                           sourceIndex.row(),
+                                                           this);
+
+    eventView->show();
 }
 
 void EventsMainWindow::showMenu(const QPoint& pos)
@@ -206,10 +231,17 @@ void EventsMainWindow::showMenu(const QPoint& pos)
 
 void EventsMainWindow::on_tableView_doubleClicked(const QModelIndex &index)
 {
-    Event* window = new Event(_eventsProxyModel, index.row(), this);
-    window->setWindowModality(Qt::ApplicationModal);
-    window->setAttribute(Qt::WA_DeleteOnClose);
-    window->show();
+    EventView* eventView = new EventView;
+    eventView->setWindowModality(Qt::ApplicationModal);
+    eventView->setAttribute(Qt::WA_DeleteOnClose);
+
+    QModelIndex sourceIndex = _eventsProxyModel->mapToSource(index);
+    EventController* eventController = new EventController(eventView,
+                                                           _eventsSqlModel,
+                                                           sourceIndex.row(),
+                                                           this);
+
+    eventView->show();
 }
 
 void EventsMainWindow::on_tableView_clicked(const QModelIndex &index)
@@ -297,10 +329,15 @@ void EventsMainWindow::on_anniverBtn_clicked()
         _eventsProxyModel->setFilter(AnniversaryFilter, QDate::currentDate().year());
 }
 
-//void MainWindow::on_photosAction_triggered()
-//{
-//    if(!ui->photosAction->isChecked())
-//        filter->removeFilter(IMAGES_FILTER);
-//    else
-//        filter->setFilter(IMAGES_FILTER);
-//}
+void EventsMainWindow::hideColumns()
+{
+    ui->tableView->setColumnHidden(_eventsSqlModel->column(Id), true);
+    ui->tableView->setColumnHidden(_eventsSqlModel->column(Theme), true);
+    ui->tableView->setColumnHidden(_eventsSqlModel->column(LongDescription), true);
+    ui->tableView->setColumnHidden(_eventsSqlModel->column(ExtraDescription), true);
+}
+
+void EventsMainWindow::on_photosAction_triggered()
+{
+
+}

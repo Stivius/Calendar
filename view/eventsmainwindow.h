@@ -17,10 +17,14 @@ class EventsMainWindow;
 class EventsMainWindow : public QMainWindow
 {
     Q_OBJECT
+signals:
+
 
 public:
     EventsMainWindow(QWidget *parent = 0);
     ~EventsMainWindow();
+    void hideColumns();
+
 private slots:
     void on_detailAction_triggered();
     void on_newEventAction_triggered();
@@ -42,7 +46,7 @@ private slots:
     void on_searchEdit_textChanged(const QString &text);
     void on_anniverBtn_clicked();
     void on_helpAction_triggered();
-//    void on_photosAction_triggered();
+    void on_photosAction_triggered();
     void on_importAction_triggered();
     void on_tableView_doubleClicked(const QModelIndex &index);
     void on_tableView_clicked(const QModelIndex &index);
@@ -50,11 +54,11 @@ private slots:
 private:
     Ui::EventsMainWindow *ui;
     QSqlDatabase _database;
-    EventsSqlModel* _eventsSqlModel;
-    EventsProxyModel* _eventsProxyModel;
-    SettingsSqlModel* _settingsModel;
-    QDataWidgetMapper* _widgetMapper;
-//    Filter* filter;
+    EventsSqlModel* _eventsSqlModel = nullptr;
+    EventsProxyModel* _eventsProxyModel = nullptr;
+    SettingsSqlModel* _settingsModel = nullptr;
+    QDataWidgetMapper* _widgetMapper = nullptr;
+
 };
 
 #endif // MAINWINDOW_H

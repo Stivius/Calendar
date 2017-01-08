@@ -19,25 +19,27 @@ SOURCES += main.cpp\
     model/eventsproxymodel.cpp \
     model/eventssqlmodel.cpp \
     model/settingssqlmodel.cpp \
-    view/event.cpp \
     view/eventsmainwindow.cpp \
     view/export.cpp \
     view/import.cpp \
-    view/settings.cpp
+    view/settings.cpp \
+    view/eventview.cpp \
+    controller/eventcontroller.cpp
 
 HEADERS  += \
     model/eventsproxymodel.h \
     model/eventssqlmodel.h \
     model/settingssqlmodel.h \
-    view/event.h \
     view/eventsmainwindow.h \
     view/export.h \
     view/import.h \
-    view/settings.h
+    view/settings.h \
+    view/eventview.h \
+    controller/eventcontroller.h
 
 FORMS    += \
-    ui/event.ui \
     ui/eventsmainwindow.ui \
     ui/export.ui \
     ui/import.ui \
-    ui/settings.ui
+    ui/settings.ui \
+    ui/eventview.ui
