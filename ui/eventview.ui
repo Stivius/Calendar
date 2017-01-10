@@ -423,7 +423,7 @@
            <item>
             <layout class="QVBoxLayout" name="verticalLayout_8">
              <item>
-              <widget class="QPushButton" name="uploadButton">
+              <widget class="QPushButton" name="uploadImage">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -483,7 +483,7 @@
             </layout>
            </item>
            <item>
-            <widget class="QPushButton" name="currentPhoto">
+            <widget class="QPushButton" name="currentImage">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>

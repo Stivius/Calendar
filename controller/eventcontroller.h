@@ -3,9 +3,16 @@
 
 #include <QObject>
 #include <QDataWidgetMapper>
+#include <QPixmap>
 
 class EventsSqlModel;
 class EventView;
+
+struct Image {
+   QPixmap _pixmap;
+   QString _imageName;
+   QString _tempPath;
+};
 
 class EventController : public QObject
 {
@@ -22,10 +29,27 @@ private slots:
     void cancelSaving();
 
 private:
+    void uploadPhoto(QString filePath);
+    void openCurrentPhoto();
+    void openFileDialog();
+    void removeImage();
+    void nextImage();
+    void previousImage();
+
+    void loadImages();
+    void saveImages();
+    void removeTemporaryImages();
+    QStringList getImagesNames();
+
+private:
     EventView* _eventView;
     EventsSqlModel* _eventsModel;
     QDataWidgetMapper* _widgetMapper;
     int _currentRow;
+
+    QVector<Image> _images;
+    QStringList _imagesToRemove;
+    int _currentImageIndex;  
 
 };
 

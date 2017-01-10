@@ -14,7 +14,12 @@
 #include "view/eventview.h"
 #include "controller/eventcontroller.h"
 
-const int INVALID_ROW = -1;
+//====================================================================================
+
+const int INVALID_INDEX = -1;
+const int MIN_FONT_SIZE = 7;
+
+//====================================================================================
 
 EventsMainWindow::EventsMainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -54,10 +59,14 @@ EventsMainWindow::EventsMainWindow(QWidget *parent) :
     connect(ui->tableView, &QTableView::customContextMenuRequested, this, &EventsMainWindow::showMenu);
 }
 
+//====================================================================================
+
 EventsMainWindow::~EventsMainWindow()
 {
     delete ui;
 }
+
+//====================================================================================
 
 void EventsMainWindow::on_detailAction_triggered()
 {
@@ -74,6 +83,8 @@ void EventsMainWindow::on_detailAction_triggered()
     _widgetMapper->setCurrentIndex(ui->tableView->currentIndex().row());
 }
 
+//====================================================================================
+
 void EventsMainWindow::on_newEventAction_triggered()
 {
     EventView* eventView = new EventView;
@@ -82,10 +93,12 @@ void EventsMainWindow::on_newEventAction_triggered()
 
     EventController* eventController = new EventController(eventView,
                                                            _eventsSqlModel,
-                                                           INVALID_ROW,
+                                                           INVALID_INDEX,
                                                            this);
     eventView->show();
 }
+
+//====================================================================================
 
 void EventsMainWindow::on_settingsAction_triggered()
 {
@@ -95,6 +108,8 @@ void EventsMainWindow::on_settingsAction_triggered()
     window->show();
 }
 
+//====================================================================================
+
 void EventsMainWindow::on_exportAction_triggered()
 {
     Export* window = new Export(_eventsProxyModel);
@@ -102,6 +117,8 @@ void EventsMainWindow::on_exportAction_triggered()
     window->setAttribute(Qt::WA_DeleteOnClose);
     window->show();
 }
+
+//====================================================================================
 
 void EventsMainWindow::on_importAction_triggered()
 {
@@ -111,15 +128,21 @@ void EventsMainWindow::on_importAction_triggered()
     window->show();
 }
 
+//====================================================================================
+
 void EventsMainWindow::on_exitAction_triggered()
 {
     qApp->quit();
 }
 
+//====================================================================================
+
 void EventsMainWindow::on_helpAction_triggered()
 {
     QMessageBox::information(this, "Справка", "Справка будет добавлена позже", QMessageBox::Ok);
 }
+
+//====================================================================================
 
 void EventsMainWindow::on_themeAction_triggered()
 {
@@ -152,6 +175,8 @@ void EventsMainWindow::on_themeAction_triggered()
     }
 }
 
+//====================================================================================
+
 void EventsMainWindow::on_placeAction_triggered()
 {
     ui->listWidget->clear();
@@ -183,25 +208,31 @@ void EventsMainWindow::on_placeAction_triggered()
     }
 }
 
+//====================================================================================
+
 void EventsMainWindow::on_removeEvent_triggered()
 {
     QModelIndexList selection = ui->tableView->selectionModel()->selectedRows();
-    if(selection.count() == 0)
+    if(selection.empty())
         return;
     QModelIndex sourceIndex = _eventsProxyModel->mapToSource(ui->tableView->currentIndex());
     _eventsSqlModel->removeRow(sourceIndex.row());
     _eventsSqlModel->submitAll();
 }
 
+//====================================================================================
+
 void EventsMainWindow::on_fullList_triggered()
 {
     qDebug() << "FullList";
 }
 
+//====================================================================================
+
 void EventsMainWindow::on_cardAction_triggered()
 {
     QModelIndexList selection = ui->tableView->selectionModel()->selectedRows();
-    if(selection.count() == 0)
+    if(selection.empty())
         return;
 
     EventView* eventView = new EventView;
@@ -217,6 +248,8 @@ void EventsMainWindow::on_cardAction_triggered()
     eventView->show();
 }
 
+//====================================================================================
+
 void EventsMainWindow::showMenu(const QPoint& pos)
 {
     QPoint globalPos = ui->tableView->mapToGlobal(pos);
@@ -228,6 +261,8 @@ void EventsMainWindow::showMenu(const QPoint& pos)
     contextmenu->addAction(ui->removeEvent);
     contextmenu->exec(globalPos);
 }
+
+//====================================================================================
 
 void EventsMainWindow::on_tableView_doubleClicked(const QModelIndex &index)
 {
@@ -244,10 +279,14 @@ void EventsMainWindow::on_tableView_doubleClicked(const QModelIndex &index)
     eventView->show();
 }
 
+//====================================================================================
+
 void EventsMainWindow::on_tableView_clicked(const QModelIndex &index)
 {
     _widgetMapper->setCurrentIndex(index.row());
 }
+
+//====================================================================================
 
 void EventsMainWindow::on_increaseFont_triggered()
 {
@@ -257,9 +296,11 @@ void EventsMainWindow::on_increaseFont_triggered()
     ui->tableView->setFont(fnt);
 }
 
+//====================================================================================
+
 void EventsMainWindow::on_decreaseFont_triggered()
 {
-    if(_settingsModel->font() > 7)
+    if(_settingsModel->font() > MIN_FONT_SIZE)
     {
         QFont fnt;
         fnt.setPointSize(_settingsModel->font() - 1);
@@ -267,6 +308,8 @@ void EventsMainWindow::on_decreaseFont_triggered()
         ui->tableView->setFont(fnt);
     }
 }
+
+//====================================================================================
 
 void EventsMainWindow::on_dayBox_activated(int index)
 {
@@ -276,6 +319,8 @@ void EventsMainWindow::on_dayBox_activated(int index)
         _eventsProxyModel->setFilter(DayFilter, ui->dayBox->currentIndex());
 }
 
+//====================================================================================
+
 void EventsMainWindow::on_monthBox_activated(int index)
 {
     if(index == 0)
@@ -283,6 +328,8 @@ void EventsMainWindow::on_monthBox_activated(int index)
     else
         _eventsProxyModel->setFilter(MonthFilter, ui->monthBox->currentIndex());
 }
+
+//====================================================================================
 
 void EventsMainWindow::on_yearEdit_textChanged(const QString &year)
 {
@@ -292,9 +339,11 @@ void EventsMainWindow::on_yearEdit_textChanged(const QString &year)
         _eventsProxyModel->setFilter(YearFilter, ui->yearEdit->text());
 }
 
+//====================================================================================
+
 void EventsMainWindow::on_listWidget_currentRowChanged(int currentRow)
 {
-    if(currentRow != -1)
+    if(currentRow != INVALID_INDEX)
     {
         if(ui->themeAction->isChecked())
         {
@@ -313,6 +362,8 @@ void EventsMainWindow::on_listWidget_currentRowChanged(int currentRow)
     }
 }
 
+//====================================================================================
+
 void EventsMainWindow::on_searchEdit_textChanged(const QString &text)
 {
     if(text == QString())
@@ -320,6 +371,8 @@ void EventsMainWindow::on_searchEdit_textChanged(const QString &text)
     else
         _eventsProxyModel->setFilter(TextFilter, ui->searchEdit->text());
 }
+
+//====================================================================================
 
 void EventsMainWindow::on_anniverBtn_clicked()
 {
@@ -329,6 +382,8 @@ void EventsMainWindow::on_anniverBtn_clicked()
         _eventsProxyModel->setFilter(AnniversaryFilter, QDate::currentDate().year());
 }
 
+//====================================================================================
+
 void EventsMainWindow::hideColumns()
 {
     ui->tableView->setColumnHidden(_eventsSqlModel->column(Id), true);
@@ -337,7 +392,11 @@ void EventsMainWindow::hideColumns()
     ui->tableView->setColumnHidden(_eventsSqlModel->column(ExtraDescription), true);
 }
 
+//====================================================================================
+
 void EventsMainWindow::on_photosAction_triggered()
 {
 
 }
+
+//====================================================================================

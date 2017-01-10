@@ -5,6 +5,7 @@
 #include <QLineEdit>
 #include <QComboBox>
 #include <QPlainTextEdit>
+#include <QPushButton>
 
 namespace Ui {
 class EventView;
@@ -16,6 +17,10 @@ class EventView : public QWidget
 signals:
     void saved();
     void canceled();
+    void uploadBtnClicked();
+    void removeBtnClicked();
+    void nextBtnClicked();
+    void previousBtnClicked();
 
 public:
     explicit EventView(QWidget *parent = 0);
@@ -42,13 +47,11 @@ public:
     QComboBox *themeBox();
     QComboBox *placeBox();
     QComboBox *sourceBox();
-
-private slots:
-    void on_saveButton_clicked();
-    void on_cancelButton_clicked();
+    QPushButton *currentImage();
 
 private:
     Ui::EventView *ui;
+
 };
 
 #endif // EVENTVIEW_H

@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QSortFilterProxyModel>
 
-#include "model/eventssqlmodel.h"
+class EventsSqlModel;
 
 enum FilterType {
     DayFilter,

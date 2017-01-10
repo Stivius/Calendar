@@ -3,6 +3,8 @@
 
 #include "model/settingssqlmodel.h"
 
+//====================================================================================
+
 Settings::Settings(SettingsSqlModel* settingsModel, QWidget *parent):
     QDialog(parent),
     ui(new Ui::Settings),
@@ -19,17 +21,23 @@ Settings::Settings(SettingsSqlModel* settingsModel, QWidget *parent):
     _widgetMapper->setCurrentIndex(0);
 }
 
+//====================================================================================
+
 Settings::~Settings()
 {
     _widgetMapper->revert();
     delete ui;
 }
 
+//====================================================================================
+
 void Settings::on_cancelButton_clicked()
 {
     _widgetMapper->revert();
     this->close();
 }
+
+//====================================================================================
 
 void Settings::on_pathButton_clicked()
 {
@@ -46,9 +54,14 @@ void Settings::on_pathButton_clicked()
     import->show();
 }
 
+//====================================================================================
+
 void Settings::on_applyButton_clicked()
 {
     _widgetMapper->submit();
     _settingsModel->submitAll();
     this->close();
 }
+
+//====================================================================================
+

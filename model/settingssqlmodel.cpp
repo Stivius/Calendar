@@ -5,6 +5,8 @@
 
 const QString UPDATE_FONT = "UPDATE settings SET font='%1'";
 
+//====================================================================================
+
 SettingsSqlModel::SettingsSqlModel(QSqlDatabase database, QObject* parent) :
     QSqlTableModel(parent, database)
 {
@@ -12,6 +14,8 @@ SettingsSqlModel::SettingsSqlModel(QSqlDatabase database, QObject* parent) :
     setTable("settings");
     select();
 }
+
+//====================================================================================
 
 QHash<int, QByteArray> SettingsSqlModel::roleNames() const
 {
@@ -23,18 +27,26 @@ QHash<int, QByteArray> SettingsSqlModel::roleNames() const
     return roles;
 }
 
+//====================================================================================
+
 void SettingsSqlModel::setFont(int fontSize)
 {
     setData(index(0, column(Font)), fontSize);
     submitAll();
 }
 
+//====================================================================================
+
 int SettingsSqlModel::font()
 {
     return QSqlTableModel::data(index(0, column(Font))).toInt();
 }
 
+//====================================================================================
+
 int SettingsSqlModel::column(int role)
 {
     return role - (Qt::UserRole + 1);
 }
+
+//====================================================================================

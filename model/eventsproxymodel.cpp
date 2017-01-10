@@ -1,20 +1,31 @@
 #include "eventsproxymodel.h"
+#include "model/eventssqlmodel.h"
 
 #include <QDate>
 #include <QDebug>
 
+//====================================================================================
+
+const int NUMBER_OF_FILTERS = 8;
+
+//====================================================================================
+
 EventsProxyModel::EventsProxyModel(EventsSqlModel* model, QObject *parent) :
     QSortFilterProxyModel(parent),
     _model(model),
-    _filters(8, QVariant())
+    _filters(NUMBER_OF_FILTERS, QVariant())
 {
     setSourceModel(_model);
 }
+
+//====================================================================================
 
 QVariant EventsProxyModel::data(const QModelIndex &index, int role) const
 {
     return QSortFilterProxyModel::data(index, role);
 }
+
+//====================================================================================
 
 bool EventsProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
@@ -57,6 +68,8 @@ bool EventsProxyModel::filterAcceptsRow(int source_row, const QModelIndex &sourc
     return true;
 }
 
+//====================================================================================
+
 void EventsProxyModel::setFilter(FilterType filterType, QVariant value)
 {
     _filters[filterType] = value;
@@ -64,9 +77,13 @@ void EventsProxyModel::setFilter(FilterType filterType, QVariant value)
     emit filterUpdated();
 }
 
+//====================================================================================
+
 void EventsProxyModel::removeFilter(FilterType filterType)
 {
     _filters[filterType] = QVariant();
     invalidate();
     emit filterUpdated();
 }
+
+//====================================================================================
