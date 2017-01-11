@@ -13,7 +13,8 @@ enum FilterType {
     ThemeFilter,
     PlaceFilter,
     TextFilter,
-    AnniversaryFilter
+    AnniversaryFilter,
+    ImagesFilter
 };
 
 class EventsProxyModel : public QSortFilterProxyModel

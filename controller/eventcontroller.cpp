@@ -34,6 +34,7 @@ EventController::EventController(EventView* eventView,
     connect(_eventView, &EventView::removeBtnClicked, this, &EventController::removeImage);
     connect(_eventView, &EventView::nextBtnClicked, this, &EventController::nextImage);
     connect(_eventView, &EventView::previousBtnClicked, this, &EventController::previousImage);
+    connect(_eventView, &EventView::currentImageClicked, this, &EventController::openCurrentImage);
 
     _widgetMapper = new QDataWidgetMapper;
     _widgetMapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
@@ -96,6 +97,8 @@ void EventController::saveEvent()
                           _eventView->selectedDay(),
                           _eventView->selectedMonth(),
                           _eventView->selectedYear());
+    removeTemporaryImages();
+    saveImages();
     _eventsModel->setImagesList(_currentRow, getImagesNames());
     _widgetMapper->submit();
     _eventsModel->submitAll();
@@ -113,7 +116,7 @@ void EventController::cancelSaving()
 
 //====================================================================================
 
-void EventController::openCurrentPhoto()
+void EventController::openCurrentImage()
 {
    if(_currentImageIndex != INVALID_INDEX)
    {
@@ -136,7 +139,7 @@ void EventController::openFileDialog()
     * So this line possible will resolve this strange issue
     */
    // import->setOption(QFileDialog::DontUseNativeDialog, true);
-   connect(import, &QFileDialog::fileSelected, this, &EventController::uploadPhoto);
+   connect(import, &QFileDialog::fileSelected, this, &EventController::uploadImage);
    import->setWindowModality(Qt::ApplicationModal);
    import->setAttribute(Qt::WA_DeleteOnClose);
    import->show();
@@ -150,7 +153,7 @@ void EventController::loadImages()
    for(int i = 0; i != imagesList.size(); i++)
    {
        QString imageName = imagesList[i];
-       qDebug() << imageName;
+       // qDebug() << imageName;
        QString imagePath = QApplication::applicationDirPath() + "/images/" + imageName;
        QFile file(imagePath);
        if(file.exists()) // if file exists in folder
@@ -172,7 +175,7 @@ void EventController::loadImages()
 
 //====================================================================================
 
-void EventController::uploadPhoto(QString filePath)
+void EventController::uploadImage(QString filePath)
 {
    if(filePath.indexOf(QRegExp(EXTENSION_PATTERN, Qt::CaseInsensitive)) != INVALID_INDEX) // только .PNG или .JPG/.JPEG
    {

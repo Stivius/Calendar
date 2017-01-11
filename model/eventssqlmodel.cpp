@@ -28,6 +28,17 @@ EventsSqlModel::EventsSqlModel(QSqlDatabase database, QObject* parent) :
 
 QVariant EventsSqlModel::data(const QModelIndex& index, int role) const
 {
+    if(role == Qt::DisplayRole)
+    {
+        if(index.column() == column(Images))
+        {
+            if(imagesList(index.row()).size() > 0)
+                return QString("Есть");
+            else
+                return QString("Нет");
+        }
+
+    }
     return QSqlTableModel::data(index, role);
 }
 
@@ -87,7 +98,7 @@ QString EventsSqlModel::shortDescription(int row) const
 
 QStringList EventsSqlModel::imagesList(int row) const
 {
-    return data(index(row, column(Images)), Qt::DisplayRole).toString().split(IMAGES_SPLITTER);
+    return QSqlTableModel::data(QSqlTableModel::index(row, column(Images)), Qt::DisplayRole).toString().split(IMAGES_SPLITTER, QString::SkipEmptyParts);
 }
 
 //====================================================================================

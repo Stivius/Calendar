@@ -65,6 +65,11 @@ bool EventsProxyModel::filterAcceptsRow(int source_row, const QModelIndex &sourc
         if(abs(_filters[AnniversaryFilter].toInt() - _model->year(source_row)) % 5 != 0)
             return false;
     }
+    if(_filters[ImagesFilter].isValid())
+    {
+        if(_model->imagesList(source_row).size() == _filters[ImagesFilter].toInt())
+            return false;
+    }
     return true;
 }
 

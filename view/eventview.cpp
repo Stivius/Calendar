@@ -16,6 +16,7 @@ EventView::EventView(QWidget *parent) :
     connect(ui->removeImage, &QPushButton::clicked, this, &EventView::removeBtnClicked);
     connect(ui->nextImage, &QPushButton::clicked, this, &EventView::nextBtnClicked);
     connect(ui->previousImage, &QPushButton::clicked, this, &EventView::previousBtnClicked);
+    connect(ui->currentImage, &QPushButton::clicked, this, &EventView::currentImageClicked);
 }
 
 //====================================================================================

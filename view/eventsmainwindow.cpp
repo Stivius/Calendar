@@ -384,19 +384,22 @@ void EventsMainWindow::on_anniverBtn_clicked()
 
 //====================================================================================
 
+void EventsMainWindow::on_photosAction_triggered()
+{
+    if(!ui->imagesAction->isChecked())
+        _eventsProxyModel->removeFilter(ImagesFilter);
+    else
+        _eventsProxyModel->setFilter(ImagesFilter, 0);
+}
+
+//====================================================================================
+
 void EventsMainWindow::hideColumns()
 {
     ui->tableView->setColumnHidden(_eventsSqlModel->column(Id), true);
     ui->tableView->setColumnHidden(_eventsSqlModel->column(Theme), true);
     ui->tableView->setColumnHidden(_eventsSqlModel->column(LongDescription), true);
     ui->tableView->setColumnHidden(_eventsSqlModel->column(ExtraDescription), true);
-}
-
-//====================================================================================
-
-void EventsMainWindow::on_photosAction_triggered()
-{
-
 }
 
 //====================================================================================

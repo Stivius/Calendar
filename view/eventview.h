@@ -21,6 +21,7 @@ signals:
     void removeBtnClicked();
     void nextBtnClicked();
     void previousBtnClicked();
+    void currentImageClicked();
 
 public:
     explicit EventView(QWidget *parent = 0);

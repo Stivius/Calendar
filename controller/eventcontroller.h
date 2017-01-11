@@ -29,8 +29,8 @@ private slots:
     void cancelSaving();
 
 private:
-    void uploadPhoto(QString filePath);
-    void openCurrentPhoto();
+    void uploadImage(QString filePath);
+    void openCurrentImage();
     void openFileDialog();
     void removeImage();
     void nextImage();

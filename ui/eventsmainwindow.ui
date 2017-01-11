@@ -532,7 +532,7 @@
     </property>
     <addaction name="increaseFont"/>
     <addaction name="decreaseFont"/>
-    <addaction name="photosAction"/>
+    <addaction name="imagesAction"/>
     <addaction name="detailAction"/>
    </widget>
    <widget class="QMenu" name="menu_5">
@@ -603,7 +603,7 @@
     <string>Юбилейные</string>
    </property>
   </action>
-  <action name="photosAction">
+  <action name="imagesAction">
    <property name="checkable">
     <bool>true</bool>
    </property>
