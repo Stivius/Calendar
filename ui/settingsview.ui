@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Settings</class>
- <widget class="QDialog" name="Settings">
+ <class>SettingsView</class>
+ <widget class="QDialog" name="SettingsView">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -31,7 +31,7 @@
           <widget class="QLineEdit" name="pathEdit"/>
          </item>
          <item>
-          <widget class="QPushButton" name="pathButton">
+          <widget class="QPushButton" name="choosePathBtn">
            <property name="text">
             <string>Выбрать</string>
            </property>
@@ -72,7 +72,7 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QRadioButton" name="radioButton">
+         <widget class="QRadioButton" name="allEventsBtn">
           <property name="text">
            <string>показать все даты</string>
           </property>
@@ -82,7 +82,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="radioButton_2">
+         <widget class="QRadioButton" name="anniversaryBtn">
           <property name="text">
            <string>юбилейные на сегодня</string>
           </property>
@@ -94,14 +94,14 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
-        <widget class="QPushButton" name="applyButton">
+        <widget class="QPushButton" name="submitBtn">
          <property name="text">
           <string>Подтвердить</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="cancelButton">
+        <widget class="QPushButton" name="cancelBtn">
          <property name="text">
           <string>Отмена</string>
          </property>

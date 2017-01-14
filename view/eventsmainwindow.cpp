@@ -10,10 +10,11 @@
 #include "model/settingssqlmodel.h"
 #include "view/exportview.h"
 #include "view/import.h"
-#include "view/settings.h"
+#include "view/settingsview.h"
 #include "view/eventview.h"
 #include "controller/eventcontroller.h"
 #include "controller/exportcontroller.h"
+#include "controller/settingscontroller.h"
 
 //====================================================================================
 
@@ -36,11 +37,11 @@ EventsMainWindow::EventsMainWindow(QWidget *parent) :
 
     _eventsSqlModel = new EventsSqlModel(_database);
     _eventsProxyModel = new EventsProxyModel(_eventsSqlModel);
-    _settingsModel = new SettingsSqlModel(_database);
+    _settingsSqlModel = new SettingsSqlModel(_database);
 
     ui->tableView->setModel(_eventsProxyModel);
     QFont fnt;
-    fnt.setPointSize(_settingsModel->font());
+    fnt.setPointSize(_settingsSqlModel->font());
     ui->tableView->setFont(fnt);
 
     hideColumns();
@@ -106,10 +107,18 @@ void EventsMainWindow::on_newEventAction_triggered()
 
 void EventsMainWindow::on_settingsAction_triggered()
 {
-    Settings* window = new Settings(_settingsModel);
-    window->setWindowModality(Qt::ApplicationModal);
-    window->setAttribute(Qt::WA_DeleteOnClose);
-    window->show();
+    SettingsView* settingsView = new SettingsView(this);
+    settingsView->setWindowModality(Qt::ApplicationModal);
+    settingsView->setAttribute(Qt::WA_DeleteOnClose);
+
+    SettingsController* settingsController = new SettingsController(settingsView,
+                                                                    _settingsSqlModel,
+                                                                    this);
+    connect(settingsController, &SettingsController::finished, [=](){
+        delete settingsController;
+    });
+
+    settingsView->show();
 }
 
 //====================================================================================
@@ -308,8 +317,8 @@ void EventsMainWindow::on_tableView_clicked(const QModelIndex &index)
 void EventsMainWindow::on_increaseFont_triggered()
 {
     QFont fnt;
-    fnt.setPointSize(_settingsModel->font() + 1);
-    _settingsModel->setFont(fnt.pointSize());
+    fnt.setPointSize(_settingsSqlModel->font() + 1);
+    _settingsSqlModel->setFont(fnt.pointSize());
     ui->tableView->setFont(fnt);
 }
 
@@ -317,11 +326,11 @@ void EventsMainWindow::on_increaseFont_triggered()
 
 void EventsMainWindow::on_decreaseFont_triggered()
 {
-    if(_settingsModel->font() > MIN_FONT_SIZE)
+    if(_settingsSqlModel->font() > MIN_FONT_SIZE)
     {
         QFont fnt;
-        fnt.setPointSize(_settingsModel->font() - 1);
-        _settingsModel->setFont(fnt.pointSize());
+        fnt.setPointSize(_settingsSqlModel->font() - 1);
+        _settingsSqlModel->setFont(fnt.pointSize());
         ui->tableView->setFont(fnt);
     }
 }

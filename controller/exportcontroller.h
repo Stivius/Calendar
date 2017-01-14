@@ -32,8 +32,8 @@ private:
     void setExportType(ExportType exportType);
 
 private:
-    ExportView* _exportView;
-    EventsProxyModel* _eventsProxyModel;
+    ExportView* _exportView = nullptr;
+    EventsProxyModel* _eventsProxyModel = nullptr;
 
     QString _path;
     ExportType _exportType = ExportType::Pdf;

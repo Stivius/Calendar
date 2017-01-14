@@ -21,11 +21,12 @@ SOURCES += main.cpp\
     model/settingssqlmodel.cpp \
     view/eventsmainwindow.cpp \
     view/import.cpp \
-    view/settings.cpp \
     view/eventview.cpp \
     controller/eventcontroller.cpp \
     controller/exportcontroller.cpp \
-    view/exportview.cpp
+    view/exportview.cpp \
+    controller/settingscontroller.cpp \
+    view/settingsview.cpp
 
 HEADERS  += \
     model/eventsproxymodel.h \
@@ -33,15 +34,16 @@ HEADERS  += \
     model/settingssqlmodel.h \
     view/eventsmainwindow.h \
     view/import.h \
-    view/settings.h \
     view/eventview.h \
     controller/eventcontroller.h \
     controller/exportcontroller.h \
-    view/exportview.h
+    view/exportview.h \
+    controller/settingscontroller.h \
+    view/settingsview.h
 
 FORMS    += \
     ui/eventsmainwindow.ui \
     ui/import.ui \
-    ui/settings.ui \
     ui/eventview.ui \
-    ui/exportview.ui
+    ui/exportview.ui \
+    ui/settingsview.ui

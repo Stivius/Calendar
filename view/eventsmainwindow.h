@@ -56,7 +56,7 @@ private:
     QSqlDatabase _database;
     EventsSqlModel* _eventsSqlModel = nullptr;
     EventsProxyModel* _eventsProxyModel = nullptr;
-    SettingsSqlModel* _settingsModel = nullptr;
+    SettingsSqlModel* _settingsSqlModel = nullptr;
     QDataWidgetMapper _widgetMapper;
 
 };
