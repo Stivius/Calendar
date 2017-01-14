@@ -8,6 +8,7 @@
 #include <QTextStream>
 
 #include "model/eventsproxymodel.h"
+#include "model/eventssqlmodel.h"
 
 Export::Export(EventsProxyModel* eventsProxyModel, QWidget *parent) :
     QDialog(parent),
@@ -36,50 +37,57 @@ void Export::on_pathButton_clicked()
 
 void Export::on_submitExport_clicked()
 {
-//    QTextCodec::setCodecForLocale(QTextCodec::codecForName(("windows-1251")));
-//    QString str;
-//    str += "<html>"
-//           "<meta http-equiv='Content-Type' content='text/html; charset=windows-1251' />"
-//           "<table border='1' align='center'>"
-//           "<caption>Таблица из календаря (by stivius)</caption>"
-//           "<tr>"
-//           "<th>Изображение</th>"
-//           "<th>Дата</th>"
-//           "<th>Событие</th>"
-//           "</tr>";
-//    for(int i = 0; i != _eventsProxyModel->rowCount(); i++)
-//    {
-//        QString strF =
-//               "<tr>"
-//               "<td><img src='%1' width='%2'></td>"
-//               "<td>%3</td>"
-//               "<td>%4</td>"
-//               "</tr>";
-//        QString imagePath = "";
-//        str += strF.arg(imagePath).arg((imagePath != QString()) ? "150" : "0").arg(_eventsProxyModel->date(i)).arg(_eventsProxyModel->shortDescription(i));
-//    }
-//    str += "</table>"
-//           "</html>";
-//    QDesktopServices process;
-//    if(ui->browserBtn->isChecked()) // HTML
-//    {
-//        QFile file(ui->pathEdit->text() + "/export.html");
-//        if(file.exists())
-//            file.remove();
-//        file.open(QIODevice::WriteOnly);
-//        QTextStream stream(&file);
-//        stream << str;
-//        process.openUrl(QUrl::fromLocalFile(QApplication::applicationDirPath() + "/export.html"));
-//    }
-//    else // PDF
-//    {
-//        QPrinter printer(QPrinter::PrinterResolution);
-//        printer.setPageSize(QPrinter::A4);
-//        printer.setOutputFormat(QPrinter::PdfFormat);
-//        printer.setOutputFileName(ui->pathEdit->text() + "/export.pdf");
-//        QTextDocument *doc = new QTextDocument;
-//        doc->setHtml(str);
-//        doc->print(&printer);
-//        process.openUrl(QUrl::fromLocalFile(QApplication::applicationDirPath() + "/export.pdf"));
-//    }
+    EventsSqlModel* sqlModel = static_cast<EventsSqlModel*>(_eventsProxyModel->sourceModel());
+    QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
+    QString str = QString();
+    str += "<html>"
+           "<meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />"
+           "<table border='1' align='center'>"
+           "<caption>Таблица из календаря (by stivius)</caption>"
+           "<tr>"
+           "<th>Изображение</th>"
+           "<th>Дата</th>"
+           "<th>Событие</th>"
+           "</tr>";
+    for(int i = 0; i != _eventsProxyModel->rowCount(); i++)
+    {
+        QString strF =
+               "<tr align='center'>"
+               "<td width='%1' height='%2'><img src='%3' width='%1'></td>"
+               "<td width='%1' height='%2'>%4</td>"
+               "<td width='%1' height='%2'>%5</td>"
+               "</tr>";
+        QModelIndex sourceIndex = _eventsProxyModel->mapToSource(_eventsProxyModel->index(i, 0));
+        int row = sourceIndex.row();
+        QStringList images = sqlModel->imagesList(row);
+        QString imagePath = QString();
+        if(!images.empty())
+            imagePath = QApplication::applicationDirPath() + "/images/" + images.at(0);
+        str += strF.arg("100").arg("100").arg(imagePath).arg(sqlModel->date(row)).arg(sqlModel->shortDescription(row));
+    }
+    str += "</table>"
+           "</html>";
+    QDesktopServices process;
+    if(ui->browserBtn->isChecked()) // HTML
+    {
+        QFile file(ui->pathEdit->text() + "/export.html");
+        if(file.exists())
+            file.remove();
+        file.open(QIODevice::WriteOnly);
+        QTextStream stream(&file);
+        stream << str;
+        process.openUrl(QUrl::fromLocalFile(QApplication::applicationDirPath() + "/export.html"));
+    }
+    else // PDF
+    {
+        QPrinter printer(QPrinter::PrinterResolution);
+        printer.setPageSize(QPrinter::A4);
+        printer.setOutputFormat(QPrinter::PdfFormat);
+        printer.setOutputFileName(ui->pathEdit->text() + "/export.pdf");
+        QTextDocument *doc = new QTextDocument;
+        doc->setHtml(str);
+        doc->print(&printer);
+        process.openUrl(QUrl::fromLocalFile(QApplication::applicationDirPath() + "/export.pdf"));
+    }
+    this->close();
 }

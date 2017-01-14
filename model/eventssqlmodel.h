@@ -18,6 +18,7 @@ enum EventsModelRoles {
 class EventsSqlModel: public QSqlTableModel
 {
     Q_OBJECT
+    QString getFormat(int day, int month, int year, const QString &format) const;
 public:
     EventsSqlModel(QSqlDatabase database, QObject* parent = nullptr);
     QVariant data(const QModelIndex& index, int role) const;

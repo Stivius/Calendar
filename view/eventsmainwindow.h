@@ -46,7 +46,7 @@ private slots:
     void on_searchEdit_textChanged(const QString &text);
     void on_anniverBtn_clicked();
     void on_helpAction_triggered();
-    void on_photosAction_triggered();
+    void on_imagesAction_triggered();
     void on_importAction_triggered();
     void on_tableView_doubleClicked(const QModelIndex &index);
     void on_tableView_clicked(const QModelIndex &index);
@@ -57,7 +57,7 @@ private:
     EventsSqlModel* _eventsSqlModel = nullptr;
     EventsProxyModel* _eventsProxyModel = nullptr;
     SettingsSqlModel* _settingsModel = nullptr;
-    QDataWidgetMapper* _widgetMapper = nullptr;
+    QDataWidgetMapper _widgetMapper;
 
 };
 

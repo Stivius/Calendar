@@ -5,8 +5,26 @@
 
 //====================================================================================
 
-const QString DATE_PATTERN = "dd/MM/yyyy";
+const QString FORMATTED_DATE = "%1/%2/%3";
+const QString UNFORMATTED_DATE = "%3/%2/%1";
+const QString UNKNOWN_DAY = "00";
+const QString UNKNOWN_MONTH = "00";
+const QString UNKNOWN_YEAR = "0000";
+const QString KNOWN_DAY = "dd";
+const QString KNOWN_MONTH = "MM";
+const QString KNOWN_YEAR = "yyyy";
+
 const QChar IMAGES_SPLITTER = '\n';
+const QChar DATE_SPLITTER = '/';
+
+const int DAY_INDEX = 0;
+const int MONTH_INDEX = 1;
+const int YEAR_INDEX = 2;
+
+const int DEFAULT_DAY = 1;
+const int DEFAULT_MONTH = 1;
+const int DEFAULT_YEAR = 1;
+
 
 //====================================================================================
 
@@ -14,6 +32,7 @@ EventsSqlModel::EventsSqlModel(QSqlDatabase database, QObject* parent) :
     QSqlTableModel(parent, database)
 {
     setTable("events");
+    setSort(column(Date), Qt::AscendingOrder);
     setEditStrategy(QSqlTableModel::OnManualSubmit);
     select();
 
@@ -28,7 +47,7 @@ EventsSqlModel::EventsSqlModel(QSqlDatabase database, QObject* parent) :
 
 QVariant EventsSqlModel::data(const QModelIndex& index, int role) const
 {
-    if(role == Qt::DisplayRole)
+    if(role == Qt::DisplayRole || role == Qt::EditRole)
     {
         if(index.column() == column(Images))
         {
@@ -36,6 +55,10 @@ QVariant EventsSqlModel::data(const QModelIndex& index, int role) const
                 return QString("Есть");
             else
                 return QString("Нет");
+        }
+        else if(index.column() == column(Date))
+        {
+            return date(index.row());
         }
 
     }
@@ -112,38 +135,83 @@ void EventsSqlModel::setImagesList(int row, QStringList imagesList)
 
 int EventsSqlModel::day(int row) const
 {
-    QDate d = QDate::fromString(date(row), DATE_PATTERN);
-    return d.day();
+    QString s = date(row);
+
+    QStringList splittedDate = s.split(QChar(DATE_SPLITTER), QString::SkipEmptyParts);
+    if(splittedDate.isEmpty())
+        return 0;
+
+    return splittedDate[DAY_INDEX].toInt();;
 }
 
 //====================================================================================
 
 int EventsSqlModel::month(int row) const
 {
-    QDate d = QDate::fromString(date(row), DATE_PATTERN);
-    return d.month();
+    QString s = date(row);
+
+    QStringList splittedDate = s.split(QChar(DATE_SPLITTER), QString::SkipEmptyParts);
+    if(splittedDate.isEmpty())
+        return 0;
+
+    return splittedDate[MONTH_INDEX].toInt();
 }
 
 //====================================================================================
 
 int EventsSqlModel::year(int row) const
 {
-    QDate d = QDate::fromString(date(row), DATE_PATTERN);
-    return d.year();
+    QString s = date(row);
+
+    QStringList splittedDate = s.split(QChar(DATE_SPLITTER), QString::SkipEmptyParts);
+    if(splittedDate.isEmpty())
+        return 0;
+
+    return splittedDate[YEAR_INDEX].toInt();
 }
 
 //====================================================================================
 
 QString EventsSqlModel::date(int row) const
 {
-    return data(index(row, column(Date)), Qt::DisplayRole).toString();
+    QString s = QSqlTableModel::data(QSqlTableModel::index(row, column(Date)), Qt::DisplayRole).toString();
+    QStringList splittedDate = s.split(QChar(DATE_SPLITTER), QString::SkipEmptyParts);
+    if(splittedDate.isEmpty())
+        return QString();
+
+    std::reverse(splittedDate.begin(), splittedDate.end());
+
+    int day = splittedDate[DAY_INDEX].toInt();
+    int month = splittedDate[MONTH_INDEX].toInt();
+    int year = splittedDate[YEAR_INDEX].toInt();
+
+    QString finalUnformattedFormat = getFormat(day, month, year, UNFORMATTED_DATE);
+    QString finalFormattedFormat = getFormat(day, month, year, FORMATTED_DATE);
+
+    QDate d = QDate::fromString(s, finalUnformattedFormat);
+    return d.toString(finalFormattedFormat);
 }
 
 //====================================================================================
 
 void EventsSqlModel::setDate(int row, int day, int month, int year)
 {
-    setData(index(row, column(Date)), QDate(year, month, day).toString(DATE_PATTERN));
+    QString finalFormat = getFormat(day, month, year, UNFORMATTED_DATE);
+    day = (day == 0) ? DEFAULT_DAY : day;
+    month = (month == 0) ? DEFAULT_MONTH : month;
+    year = (year == 0) ? DEFAULT_YEAR : year;
+    setData(index(row, column(Date)), QDate(year, month, day).toString(finalFormat));
+}
+
+//====================================================================================
+
+QString EventsSqlModel::getFormat(int day, int month, int year, const QString& format) const
+{
+    QString finalDay = (day == 0) ? UNKNOWN_DAY : KNOWN_DAY;
+    QString finalMonth = (month == 0) ? UNKNOWN_MONTH : KNOWN_MONTH;
+    QString finalYear = (year == 0) ? UNKNOWN_YEAR : KNOWN_YEAR;
+    QString finalFormat = format.arg(finalDay).arg(finalMonth).arg(finalYear);
+    return finalFormat;
 }
 
 //====================================================================================

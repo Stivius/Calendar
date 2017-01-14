@@ -17,6 +17,9 @@ struct Image {
 class EventController : public QObject
 {
     Q_OBJECT
+signals:
+    void finished();
+
 public:
     EventController(EventView* evenView,
                     EventsSqlModel* eventsModel,
@@ -29,7 +32,7 @@ private slots:
     void cancelSaving();
 
 private:
-    void uploadImage(QString filePath);
+    void uploadImage(const QString& filePath);
     void openCurrentImage();
     void openFileDialog();
     void removeImage();
@@ -42,9 +45,9 @@ private:
     QStringList getImagesNames();
 
 private:
-    EventView* _eventView;
-    EventsSqlModel* _eventsModel;
-    QDataWidgetMapper* _widgetMapper;
+    EventView* _eventView = nullptr;
+    EventsSqlModel* _eventsModel = nullptr;
+    QDataWidgetMapper _widgetMapper;
     int _currentRow;
 
     QVector<Image> _images;

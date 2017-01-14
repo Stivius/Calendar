@@ -47,14 +47,13 @@ EventsMainWindow::EventsMainWindow(QWidget *parent) :
         hideColumns();
     });
 
-    _widgetMapper = new QDataWidgetMapper;
-    _widgetMapper->setModel(_eventsProxyModel);
+    _widgetMapper.setModel(_eventsProxyModel);
 
-    _widgetMapper->addMapping(ui->extraEdit, _eventsSqlModel->column(ExtraDescription));
-    _widgetMapper->addMapping(ui->fullEdit, _eventsSqlModel->column(LongDescription));
-    _widgetMapper->addMapping(ui->dateEdit, _eventsSqlModel->column(Date));
-    _widgetMapper->addMapping(ui->themeEdit, _eventsSqlModel->column(Theme));
-    _widgetMapper->addMapping(ui->placeEdit, _eventsSqlModel->column(Place));
+    _widgetMapper.addMapping(ui->extraEdit, _eventsSqlModel->column(ExtraDescription));
+    _widgetMapper.addMapping(ui->fullEdit, _eventsSqlModel->column(LongDescription));
+    _widgetMapper.addMapping(ui->dateEdit, _eventsSqlModel->column(Date));
+    _widgetMapper.addMapping(ui->themeEdit, _eventsSqlModel->column(Theme));
+    _widgetMapper.addMapping(ui->placeEdit, _eventsSqlModel->column(Place));
 
     connect(ui->tableView, &QTableView::customContextMenuRequested, this, &EventsMainWindow::showMenu);
 }
@@ -80,7 +79,7 @@ void EventsMainWindow::on_detailAction_triggered()
         ui->detailBox->hide();
         ui->detailAction->setChecked(false);
     }
-    _widgetMapper->setCurrentIndex(ui->tableView->currentIndex().row());
+    _widgetMapper.setCurrentIndex(ui->tableView->currentIndex().row());
 }
 
 //====================================================================================
@@ -95,6 +94,10 @@ void EventsMainWindow::on_newEventAction_triggered()
                                                            _eventsSqlModel,
                                                            INVALID_INDEX,
                                                            this);
+    connect(eventController, &EventController::finished, [=](){
+        delete eventController;
+    });
+
     eventView->show();
 }
 
@@ -237,13 +240,15 @@ void EventsMainWindow::on_cardAction_triggered()
 
     EventView* eventView = new EventView;
     eventView->setWindowModality(Qt::ApplicationModal);
-    eventView->setAttribute(Qt::WA_DeleteOnClose);
 
     QModelIndex sourceIndex = _eventsProxyModel->mapToSource(ui->tableView->currentIndex());
     EventController* eventController = new EventController(eventView,
                                                            _eventsSqlModel,
                                                            sourceIndex.row(),
                                                            this);
+    connect(eventController, &EventController::finished, [=](){
+        delete eventController;
+    });
 
     eventView->show();
 }
@@ -275,6 +280,9 @@ void EventsMainWindow::on_tableView_doubleClicked(const QModelIndex &index)
                                                            _eventsSqlModel,
                                                            sourceIndex.row(),
                                                            this);
+    connect(eventController, &EventController::finished, [=](){
+        delete eventController;
+    });
 
     eventView->show();
 }
@@ -283,7 +291,7 @@ void EventsMainWindow::on_tableView_doubleClicked(const QModelIndex &index)
 
 void EventsMainWindow::on_tableView_clicked(const QModelIndex &index)
 {
-    _widgetMapper->setCurrentIndex(index.row());
+    _widgetMapper.setCurrentIndex(index.row());
 }
 
 //====================================================================================
@@ -384,7 +392,7 @@ void EventsMainWindow::on_anniverBtn_clicked()
 
 //====================================================================================
 
-void EventsMainWindow::on_photosAction_triggered()
+void EventsMainWindow::on_imagesAction_triggered()
 {
     if(!ui->imagesAction->isChecked())
         _eventsProxyModel->removeFilter(ImagesFilter);

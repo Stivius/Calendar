@@ -25,7 +25,7 @@ private slots:
 private:
     Ui::Settings *ui;
     SettingsSqlModel* _settingsModel;
-    QDataWidgetMapper* _widgetMapper;
+    QDataWidgetMapper _widgetMapper;
 };
 
 #endif // SETTINGS_H

@@ -414,7 +414,7 @@
          <item>
           <widget class="QLabel" name="label_9">
            <property name="text">
-            <string>Фотография</string>
+            <string>Изображения</string>
            </property>
           </widget>
          </item>
