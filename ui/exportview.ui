@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Export</class>
- <widget class="QDialog" name="Export">
+ <class>ExportView</class>
+ <widget class="QDialog" name="ExportView">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -22,7 +22,7 @@
         <widget class="QLineEdit" name="pathEdit"/>
        </item>
        <item>
-        <widget class="QPushButton" name="pathButton">
+        <widget class="QPushButton" name="choosePathBtn">
          <property name="text">
           <string>Выбрать</string>
          </property>
@@ -37,7 +37,7 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QRadioButton" name="printBtn">
+         <widget class="QRadioButton" name="pdfBtn">
           <property name="text">
            <string>На печать</string>
           </property>
@@ -57,7 +57,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="submitExport">
+      <widget class="QPushButton" name="submitExportBtn">
        <property name="text">
         <string>Экспорт</string>
        </property>

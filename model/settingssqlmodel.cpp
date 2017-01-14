@@ -46,7 +46,7 @@ int SettingsSqlModel::font()
 
 int SettingsSqlModel::column(int role)
 {
-    return role - (Qt::UserRole + 1);
+    return role - Qt::UserRole;
 }
 
 //====================================================================================

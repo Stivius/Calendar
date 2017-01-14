@@ -8,11 +8,12 @@
 #include "model/eventsproxymodel.h"
 #include "model/eventssqlmodel.h"
 #include "model/settingssqlmodel.h"
-#include "view/export.h"
+#include "view/exportview.h"
 #include "view/import.h"
 #include "view/settings.h"
 #include "view/eventview.h"
 #include "controller/eventcontroller.h"
+#include "controller/exportcontroller.h"
 
 //====================================================================================
 
@@ -115,10 +116,18 @@ void EventsMainWindow::on_settingsAction_triggered()
 
 void EventsMainWindow::on_exportAction_triggered()
 {
-    Export* window = new Export(_eventsProxyModel);
-    window->setWindowModality(Qt::ApplicationModal);
-    window->setAttribute(Qt::WA_DeleteOnClose);
-    window->show();
+    ExportView* exportView = new ExportView(this);
+    exportView->setWindowModality(Qt::ApplicationModal);
+    exportView->setAttribute(Qt::WA_DeleteOnClose);
+
+    ExportController* exportController = new ExportController(exportView,
+                                                              _eventsProxyModel,
+                                                              this);
+    connect(exportController, &ExportController::finished, [=](){
+        delete exportController;
+    });
+
+    exportView->show();
 }
 
 //====================================================================================

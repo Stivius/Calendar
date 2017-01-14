@@ -4,7 +4,7 @@
 #include <QSqlTableModel>
 
 enum SettingsModelRoles {
-    Path = Qt::UserRole + 1,
+    Path = Qt::UserRole,
     Quality,
     Font,
     Anniversary

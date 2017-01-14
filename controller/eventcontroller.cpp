@@ -1,6 +1,6 @@
 #include "eventcontroller.h"
-#include "ui_eventview.h"
 
+#include <QApplication>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QDebug>
