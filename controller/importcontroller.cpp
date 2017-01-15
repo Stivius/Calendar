@@ -43,24 +43,24 @@ ImportController::~ImportController()
 void ImportController::importEvents()
 {
     QXlsx::Document xlsx(QApplication::applicationDirPath()+ "/import.xlsx");
-    int num = INITIAL_CELL_NUMBER;
+    int cellNumber = INITIAL_CELL_NUMBER;
     _eventsSqlModel->database().transaction();
 
     QString date = xlsx.read("A2").toString();
-    QString eventsDescriotion = xlsx.read("B2").toString();
-    while(date != QString() && eventsDescriotion != QString())
+    QString eventsDescription = xlsx.read("B2").toString();
+    while(date != QString() && eventsDescription != QString())
     {
         if(QDate::fromString(date, EXCEL_DATE_FORMAT).isValid())
         {
             date = date.replace('-', '/');
-            _eventsSqlModel->insertEvent(date, eventsDescriotion);
+            _eventsSqlModel->insertEvent(date, eventsDescription);
         }
         else
-            qDebug() << "Ошибка в ячейке: " << num;
+            qDebug() << "Ошибка в ячейке: " << cellNumber;
 
-        num++;
-        date = xlsx.read("A" + QString::number(num)).toString();
-        eventsDescriotion = xlsx.read("B" + QString::number(num)).toString();
+        cellNumber++;
+        date = xlsx.read("A" + QString::number(cellNumber)).toString();
+        eventsDescription = xlsx.read("B" + QString::number(cellNumber)).toString();
     }
 
     _eventsSqlModel->database().commit();
