@@ -20,6 +20,7 @@
 
 const int INVALID_INDEX = -1;
 const int MIN_FONT_SIZE = 7;
+const int COLUMNS_COUNT = 5;
 
 //====================================================================================
 
@@ -44,10 +45,20 @@ EventsMainWindow::EventsMainWindow(QWidget *parent) :
     fnt.setPointSize(_settingsSqlModel->font());
     ui->tableView->setFont(fnt);
 
+    QStringList sizes = _settingsSqlModel->sectionSizes();
+    for(int i = 1; i <= COLUMNS_COUNT; i++)
+        ui->tableView->horizontalHeader()->resizeSection(i, sizes[i-1].toInt());
+
     hideColumns();
     connect(_eventsProxyModel, &EventsProxyModel::filterUpdated, this, [=](){
         hideColumns();
     });
+
+    if(_settingsSqlModel->anniversaryDates())
+    {
+        ui->anniverBtn->setChecked(true);
+        _eventsProxyModel->setFilter(AnniversaryFilter, QDate::currentDate().year());
+    }
 
     _widgetMapper.setModel(_eventsProxyModel);
 
@@ -64,10 +75,22 @@ EventsMainWindow::EventsMainWindow(QWidget *parent) :
 
 EventsMainWindow::~EventsMainWindow()
 {
+    calculateColumnsSize();
+
     delete _settingsSqlModel;
     delete _eventsProxyModel;
     delete _eventsSqlModel;
     delete ui;
+}
+
+//====================================================================================
+
+void EventsMainWindow::calculateColumnsSize()
+{
+    QStringList sizes;
+    for(int i = 1; i <= COLUMNS_COUNT; i++)
+        sizes.push_back(QString::number(ui->tableView->horizontalHeader()->sectionSize(i)));
+    _settingsSqlModel->setSectionsSizes(sizes);
 }
 
 //====================================================================================

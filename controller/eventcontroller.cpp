@@ -76,7 +76,7 @@ EventController::EventController(EventView* eventView,
 EventController::~EventController()
 {
     _eventsModel->revertAll();
-    qDebug() << "event controller deleted";
+    //qDebug() << "event controller deleted";
 }
 
 //====================================================================================

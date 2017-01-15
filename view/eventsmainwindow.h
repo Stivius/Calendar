@@ -52,6 +52,9 @@ private slots:
     void on_tableView_clicked(const QModelIndex &index);
 
 private:
+    void calculateColumnsSize();
+
+private:
     Ui::EventsMainWindow *ui;
     QSqlDatabase _database;
     EventsSqlModel* _eventsSqlModel = nullptr;

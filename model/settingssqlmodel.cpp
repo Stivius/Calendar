@@ -3,7 +3,7 @@
 #include <QSqlError>
 #include <QDebug>
 
-const QString UPDATE_FONT = "UPDATE settings SET font='%1'";
+const QChar SECTIONS_SLITTER = '-';
 
 //====================================================================================
 
@@ -19,7 +19,7 @@ SettingsSqlModel::SettingsSqlModel(QSqlDatabase database, QObject* parent) :
 
 SettingsSqlModel::~SettingsSqlModel()
 {
-    qDebug() << "settingssql model deleted";
+    //qDebug() << "settingssql model deleted";
 }
 
 //====================================================================================
@@ -31,6 +31,7 @@ QHash<int, QByteArray> SettingsSqlModel::roleNames() const
     roles[Quality] = "quality";
     roles[Font] = "font";
     roles[Anniversary] = "anniversary";
+    roles[HeadersSizes] = "headersSize";
     return roles;
 }
 
@@ -54,6 +55,28 @@ int SettingsSqlModel::font()
 int SettingsSqlModel::column(int role)
 {
     return role - Qt::UserRole;
+}
+
+//====================================================================================
+
+QStringList SettingsSqlModel::sectionSizes()
+{
+    return data(index(0, column(HeadersSizes))).toString().split(SECTIONS_SLITTER);
+}
+
+//====================================================================================
+
+void SettingsSqlModel::setSectionsSizes(QStringList sizes)
+{
+    setData(index(0, column(HeadersSizes)), sizes.join(SECTIONS_SLITTER));
+    submitAll();
+}
+
+//====================================================================================
+
+bool SettingsSqlModel::anniversaryDates()
+{
+    return QSqlTableModel::data(index(0, column(Anniversary))).toBool();
 }
 
 //====================================================================================

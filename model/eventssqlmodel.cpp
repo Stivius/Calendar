@@ -47,7 +47,7 @@ EventsSqlModel::EventsSqlModel(QSqlDatabase database, QObject* parent) :
 
 EventsSqlModel::~EventsSqlModel()
 {
-    qDebug() << "eventssql model deleted";
+    //qDebug() << "eventssql model deleted";
 }
 
 //====================================================================================

@@ -22,7 +22,7 @@ EventsProxyModel::EventsProxyModel(EventsSqlModel* model, QObject *parent) :
 
 EventsProxyModel::~EventsProxyModel()
 {
-    qDebug() << "eventsproxy model deleted";
+    //qDebug() << "eventsproxy model deleted";
 }
 
 //====================================================================================

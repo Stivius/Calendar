@@ -42,7 +42,7 @@ ExportController::ExportController(ExportView* exportView,
 
 ExportController::~ExportController()
 {
-    qDebug() << "export controller deleted";
+    //qDebug() << "export controller deleted";
 }
 
 //====================================================================================

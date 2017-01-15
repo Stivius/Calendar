@@ -7,7 +7,8 @@ enum SettingsModelRoles {
     Path = Qt::UserRole,
     Quality,
     Font,
-    Anniversary
+    Anniversary,
+    HeadersSizes
 };
 
 class SettingsSqlModel : public QSqlTableModel
@@ -18,6 +19,9 @@ public:
     ~SettingsSqlModel();
     QHash<int, QByteArray> roleNames() const;
     int column(int role);
+    QStringList sectionSizes();
+    void setSectionsSizes(QStringList sizes);
+    bool anniversaryDates();
     void setFont(int fontSize);
     int font();
 };

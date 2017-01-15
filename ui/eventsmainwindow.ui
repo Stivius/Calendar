@@ -601,14 +601,6 @@
     <string>Шрифт меньше</string>
    </property>
   </action>
-  <action name="anniverAction">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Юбилейные</string>
-   </property>
-  </action>
   <action name="imagesAction">
    <property name="checkable">
     <bool>true</bool>
