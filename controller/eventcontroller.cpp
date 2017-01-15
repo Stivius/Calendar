@@ -29,8 +29,8 @@ EventController::EventController(EventView* eventView,
 {   
     connect(_eventView, &EventView::destroyed, this, &EventController::finished);
 
-    connect(_eventView, &EventView::saved, this, &EventController::saveEvent);
-    connect(_eventView, &EventView::canceled, this, &EventController::cancelSaving);
+    connect(_eventView, &EventView::saveBtnClicked, this, &EventController::saveEvent);
+    connect(_eventView, &EventView::cancelBtnClicked, this, &EventController::cancelSaving);
 
     connect(_eventView, &EventView::uploadBtnClicked, this, &EventController::openFileDialog);
     connect(_eventView, &EventView::removeBtnClicked, this, &EventController::removeImage);
@@ -38,28 +38,22 @@ EventController::EventController(EventView* eventView,
     connect(_eventView, &EventView::previousBtnClicked, this, &EventController::previousImage);
     connect(_eventView, &EventView::currentImageClicked, this, &EventController::openCurrentImage);
 
-    _widgetMapper.setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
-    _widgetMapper.setModel(_eventsModel);
-
-    QStringList themesList = {""}, placesList = {""}, sourcesList = {""};
+    QSet<QString> themes = {""}, places = {""}, sources = {""};
     for(int i = 0; i != _eventsModel->rowCount(); i++)
     {
-        themesList.push_back(_eventsModel->theme(i));
-        placesList.push_back(_eventsModel->place(i));
-        sourcesList.push_back(_eventsModel->source(i));
+        themes.insert(_eventsModel->theme(i));
+        places.insert(_eventsModel->place(i));
+        sources.insert(_eventsModel->source(i));
     }
-    themesList.removeDuplicates();
-    placesList.removeDuplicates();
-    sourcesList.removeDuplicates();
-    _eventView->addThemes(themesList);
-    _eventView->addPlaces(placesList);
-    _eventView->addSources(sourcesList);
+    _eventView->addThemes(themes.toList());
+    _eventView->addPlaces(places.toList());
+    _eventView->addSources(sources.toList());
 
-    if(currentRow != INVALID_INDEX)
+    if(_currentRow != INVALID_INDEX)
     {
-        _eventView->setDay(_eventsModel->day(currentRow));
-        _eventView->setMonth(_eventsModel->month(currentRow));
-        _eventView->setYear(QString::number(_eventsModel->year(currentRow)));
+        _eventView->setDay(_eventsModel->day(_currentRow));
+        _eventView->setMonth(_eventsModel->month(_currentRow));
+        _eventView->setYear(QString::number(_eventsModel->year(_currentRow)));
 
         _eventView->setCurrentTheme(_eventsModel->theme(_currentRow));
         _eventView->setCurrentPlace(_eventsModel->place(_currentRow));
@@ -73,22 +67,16 @@ EventController::EventController(EventView* eventView,
         _currentRow = _eventsModel->rowCount() - 1;
     }
 
-    _widgetMapper.addMapping(_eventView->shortEdit(), _eventsModel->column(ShortDescription));
-    _widgetMapper.addMapping(_eventView->fullEdit(), _eventsModel->column(LongDescription));
-    _widgetMapper.addMapping(_eventView->extraEdit(), _eventsModel->column(ExtraDescription));
-    _widgetMapper.addMapping(_eventView->themeBox(), _eventsModel->column(Theme));
-    _widgetMapper.addMapping(_eventView->placeBox(), _eventsModel->column(Place));
-    _widgetMapper.addMapping(_eventView->sourceBox(), _eventsModel->column(Source));
-    _widgetMapper.setCurrentIndex(_currentRow);
+    _eventView->setMapperModel(_eventsModel);
+    _eventView->setMapperIndex(_currentRow);
 }
 
 //====================================================================================
 
 EventController::~EventController()
 {
-    _widgetMapper.revert();
     _eventsModel->revertAll();
-    qDebug() << "controller destroyed";
+    qDebug() << "event controller deleted";
 }
 
 //====================================================================================
@@ -102,7 +90,6 @@ void EventController::saveEvent()
     removeTemporaryImages();
     saveImages();
     _eventsModel->setImagesList(_currentRow, getImagesNames());
-    _widgetMapper.submit();
     _eventsModel->submitAll();
     delete _eventView;
 }
@@ -111,7 +98,6 @@ void EventController::saveEvent()
 
 void EventController::cancelSaving()
 {
-    _widgetMapper.revert();
     _eventsModel->revertAll();
     delete _eventView;
 }
@@ -155,16 +141,14 @@ void EventController::loadImages()
    for(int i = 0; i != imagesList.size(); i++)
    {
        QString imageName = imagesList[i];
-       // qDebug() << imageName;
        QString imagePath = QApplication::applicationDirPath() + "/images/" + imageName;
-       qDebug() << imagePath;
        QFile file(imagePath);
        if(file.exists()) // if file exists in folder
        {
            QPixmap loadedPixmap;
            loadedPixmap.load(imagePath);
-           QIcon icon(loadedPixmap.scaled(MIN_WIDTH, MIN_HEIGHT, Qt::KeepAspectRatio));
-           _eventView->currentImage()->setIcon(icon);
+           QPixmap scaledPixmap = loadedPixmap.scaled(MIN_WIDTH, MIN_HEIGHT, Qt::KeepAspectRatio);
+           _eventView->setCurrentImage(scaledPixmap);
            _images.push_back(Image{loadedPixmap, imageName, QString()});
        }
        else
@@ -189,8 +173,8 @@ void EventController::uploadImage(const QString& filePath)
        {
            QPixmap loadedPixmap;
            loadedPixmap.load(filePath);
-           QIcon icon(loadedPixmap.scaled(MIN_WIDTH, MIN_HEIGHT, Qt::KeepAspectRatio));
-           _eventView->currentImage()->setIcon(icon);
+           QPixmap scaledPixmap = loadedPixmap.scaled(MIN_WIDTH, MIN_HEIGHT, Qt::KeepAspectRatio);
+           _eventView->setCurrentImage(scaledPixmap);
            _images.push_back(Image{loadedPixmap, imageName, filePath});
            _currentImageIndex = _images.size() - 1;
        }
@@ -215,13 +199,13 @@ void EventController::removeImage()
            _currentImageIndex = INVALID_INDEX;
            QPixmap blankPixmap(MIN_WIDTH, MIN_HEIGHT);
            blankPixmap.fill(Qt::transparent);
-           _eventView->currentImage()->setIcon(QIcon(blankPixmap));
+           _eventView->setCurrentImage(blankPixmap);
        }
        else
        {
            if(_currentImageIndex == _images.size())
                --_currentImageIndex;
-           _eventView->currentImage()->setIcon(QIcon(_images[_currentImageIndex]._pixmap));
+           _eventView->setCurrentImage(_images[_currentImageIndex]._pixmap);
        }
    }
 }
@@ -233,7 +217,7 @@ void EventController::nextImage()
    if((_currentImageIndex + 1) < _images.size())
    {
        ++_currentImageIndex;
-       _eventView->currentImage()->setIcon(QIcon(_images[_currentImageIndex]._pixmap));
+       _eventView->setCurrentImage(_images[_currentImageIndex]._pixmap);
    }
 }
 
@@ -244,7 +228,7 @@ void EventController::previousImage()
    if((_currentImageIndex - 1) >= 0)
    {
        --_currentImageIndex;
-       _eventView->currentImage()->setIcon(QIcon(_images[_currentImageIndex]._pixmap));
+       _eventView->setCurrentImage(_images[_currentImageIndex]._pixmap);
    }
 }
 

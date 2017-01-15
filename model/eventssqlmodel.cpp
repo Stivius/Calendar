@@ -45,6 +45,13 @@ EventsSqlModel::EventsSqlModel(QSqlDatabase database, QObject* parent) :
 
 //====================================================================================
 
+EventsSqlModel::~EventsSqlModel()
+{
+    qDebug() << "eventssql model deleted";
+}
+
+//====================================================================================
+
 QVariant EventsSqlModel::data(const QModelIndex& index, int role) const
 {
     if(role == Qt::DisplayRole || role == Qt::EditRole)

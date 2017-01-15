@@ -15,6 +15,7 @@ class SettingsSqlModel : public QSqlTableModel
     Q_OBJECT
 public:
     explicit SettingsSqlModel(QSqlDatabase database, QObject *parent = 0);
+    ~SettingsSqlModel();
     QHash<int, QByteArray> roleNames() const;
     int column(int role);
     void setFont(int fontSize);

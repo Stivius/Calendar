@@ -17,6 +17,13 @@ SettingsSqlModel::SettingsSqlModel(QSqlDatabase database, QObject* parent) :
 
 //====================================================================================
 
+SettingsSqlModel::~SettingsSqlModel()
+{
+    qDebug() << "settingssql model deleted";
+}
+
+//====================================================================================
+
 QHash<int, QByteArray> SettingsSqlModel::roleNames() const
 {
     QHash<int, QByteArray> roles;

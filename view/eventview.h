@@ -2,21 +2,20 @@
 #define EVENTVIEW_H
 
 #include <QWidget>
-#include <QLineEdit>
-#include <QComboBox>
-#include <QPlainTextEdit>
-#include <QPushButton>
+#include <QDataWidgetMapper>
 
 namespace Ui {
 class EventView;
 }
 
+class EventsSqlModel;
+
 class EventView : public QWidget
 {
     Q_OBJECT
 signals:
-    void saved();
-    void canceled();
+    void saveBtnClicked();
+    void cancelBtnClicked();
     void uploadBtnClicked();
     void removeBtnClicked();
     void nextBtnClicked();
@@ -39,19 +38,13 @@ public:
     void setCurrentTheme(const QString &theme);
     void setCurrentPlace(const QString &place);
     void setCurrentSource(const QString &source);
-    QComboBox *dayBox();
-    QComboBox *monthBox();
-    QLineEdit *yearEdit();
-    QLineEdit *shortEdit();
-    QPlainTextEdit *fullEdit();
-    QLineEdit *extraEdit();
-    QComboBox *themeBox();
-    QComboBox *placeBox();
-    QComboBox *sourceBox();
-    QPushButton *currentImage();
+    void setMapperModel(EventsSqlModel* eventsModel);
+    void setMapperIndex(int index);
+    void setCurrentImage(const QPixmap& image);
 
 private:
     Ui::EventView *ui;
+    QDataWidgetMapper _widgetMapper;
 
 };
 

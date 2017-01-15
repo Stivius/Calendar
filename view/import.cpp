@@ -1,5 +1,6 @@
 #include "import.h"
 #include "ui_import.h"
+
 #include <QMessageBox>
 
 Import::Import(EventsProxyModel* eventsModel, QWidget *parent) :

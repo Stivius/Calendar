@@ -20,6 +20,13 @@ EventsProxyModel::EventsProxyModel(EventsSqlModel* model, QObject *parent) :
 
 //====================================================================================
 
+EventsProxyModel::~EventsProxyModel()
+{
+    qDebug() << "eventsproxy model deleted";
+}
+
+//====================================================================================
+
 QVariant EventsProxyModel::data(const QModelIndex &index, int role) const
 {
     return QSortFilterProxyModel::data(index, role);

@@ -1,6 +1,8 @@
 #include "eventview.h"
 #include "ui_eventview.h"
 
+#include "model/eventssqlmodel.h"
+
 //====================================================================================
 
 EventView::EventView(QWidget *parent) :
@@ -9,8 +11,14 @@ EventView::EventView(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    connect(ui->cancelButton, &QPushButton::clicked, this, &EventView::canceled);
-    connect(ui->saveButton, &QPushButton::clicked, this, &EventView::saved);
+    connect(ui->cancelButton, &QPushButton::clicked, this, [=](){
+        _widgetMapper.revert();
+        emit cancelBtnClicked();
+    });
+    connect(ui->saveButton, &QPushButton::clicked, this, [=](){
+        _widgetMapper.submit();
+        emit saveBtnClicked();
+    });
 
     connect(ui->uploadImage, &QPushButton::clicked, this, &EventView::uploadBtnClicked);
     connect(ui->removeImage, &QPushButton::clicked, this, &EventView::removeBtnClicked);
@@ -23,6 +31,7 @@ EventView::EventView(QWidget *parent) :
 
 EventView::~EventView()
 {
+    _widgetMapper.revert();
     delete ui;
 }
 
@@ -115,72 +124,30 @@ void EventView::setCurrentSource(const QString& source)
 
 //====================================================================================
 
-QComboBox* EventView::dayBox()
+void EventView::setMapperIndex(int index)
 {
-    return ui->dayBox;
+    _widgetMapper.setCurrentIndex(index);
 }
 
 //====================================================================================
 
-QComboBox* EventView::monthBox()
+void EventView::setCurrentImage(const QPixmap &image)
 {
-    return ui->monthBox;
+    ui->currentImage->setIcon(QIcon(image));
 }
 
 //====================================================================================
 
-QLineEdit* EventView::yearEdit()
+void EventView::setMapperModel(EventsSqlModel* eventsModel)
 {
-    return ui->yearEdit;
-}
-
-//====================================================================================
-
-QLineEdit* EventView::shortEdit()
-{
-    return ui->shortEdit;
-}
-
-//====================================================================================
-
-QPlainTextEdit* EventView::fullEdit()
-{
-    return ui->fullEdit;
-}
-
-//====================================================================================
-
-QLineEdit* EventView::extraEdit()
-{
-    return ui->extraEdit;
-}
-
-//====================================================================================
-
-QComboBox* EventView::themeBox()
-{
-    return ui->themeBox;
-}
-
-//====================================================================================
-
-QComboBox* EventView::placeBox()
-{
-    return ui->placeBox;
-}
-
-//====================================================================================
-
-QComboBox* EventView::sourceBox()
-{
-    return ui->sourceBox;
-}
-
-//====================================================================================
-
-QPushButton* EventView::currentImage()
-{
-    return ui->currentImage;
+    _widgetMapper.setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
+    _widgetMapper.setModel(eventsModel);
+    _widgetMapper.addMapping(ui->shortEdit, eventsModel->column(ShortDescription));
+    _widgetMapper.addMapping(ui->fullEdit, eventsModel->column(LongDescription));
+    _widgetMapper.addMapping(ui->extraEdit, eventsModel->column(ExtraDescription));
+    _widgetMapper.addMapping(ui->themeBox, eventsModel->column(Theme));
+    _widgetMapper.addMapping(ui->placeBox, eventsModel->column(Place));
+    _widgetMapper.addMapping(ui->sourceBox, eventsModel->column(Source));
 }
 
 //====================================================================================

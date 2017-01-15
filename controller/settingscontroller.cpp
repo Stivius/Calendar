@@ -36,7 +36,7 @@ SettingsController::SettingsController(SettingsView* settingsView,
 
 SettingsController::~SettingsController()
 {
-    qDebug() << "controller destroyed";
+    qDebug() << "settings controller deleted";
 }
 
 //====================================================================================

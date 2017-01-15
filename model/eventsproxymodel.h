@@ -25,6 +25,7 @@ signals:
 
 public:
     explicit EventsProxyModel(EventsSqlModel* model, QObject *parent = 0);
+    ~EventsProxyModel();
     QVariant data(const QModelIndex &index, int role) const;
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
     void setFilter(FilterType filterType, QVariant value);

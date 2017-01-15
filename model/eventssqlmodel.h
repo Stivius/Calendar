@@ -21,6 +21,7 @@ class EventsSqlModel: public QSqlTableModel
     QString getFormat(int day, int month, int year, const QString &format) const;
 public:
     EventsSqlModel(QSqlDatabase database, QObject* parent = nullptr);
+    ~EventsSqlModel();
     QVariant data(const QModelIndex& index, int role) const;
     QHash<int, QByteArray> roleNames() const;
     int column(int role) const;

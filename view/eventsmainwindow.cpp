@@ -64,6 +64,9 @@ EventsMainWindow::EventsMainWindow(QWidget *parent) :
 
 EventsMainWindow::~EventsMainWindow()
 {
+    delete _settingsSqlModel;
+    delete _eventsProxyModel;
+    delete _eventsSqlModel;
     delete ui;
 }
 

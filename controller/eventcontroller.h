@@ -2,7 +2,6 @@
 #define EVENT_H
 
 #include <QObject>
-#include <QDataWidgetMapper>
 #include <QPixmap>
 
 class EventsSqlModel;
@@ -47,7 +46,6 @@ private:
 private:
     EventView* _eventView = nullptr;
     EventsSqlModel* _eventsModel = nullptr;
-    QDataWidgetMapper _widgetMapper;
     int _currentRow;
 
     QVector<Image> _images;
