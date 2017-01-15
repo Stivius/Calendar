@@ -2,7 +2,6 @@
 #define SETTINGSCONTROLLER_H
 
 #include <QObject>
-#include <QDataWidgetMapper>
 
 class SettingsView;
 class SettingsSqlModel;
@@ -27,7 +26,6 @@ private slots:
 private:
     SettingsView* _settingsView = nullptr;
     SettingsSqlModel* _settingsSqlModel = nullptr;
-    QDataWidgetMapper _widgetMapper;
 
 };
 

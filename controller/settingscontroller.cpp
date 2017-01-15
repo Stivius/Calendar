@@ -21,13 +21,15 @@ SettingsController::SettingsController(SettingsView* settingsView,
     connect(_settingsView, &SettingsView::choosePathBtnClicked, this, &SettingsController::choosePath);
     connect(_settingsView, &SettingsView::submitBtnClicked, this, &SettingsController::submit);
     connect(_settingsView, &SettingsView::cancelBtnClicked, this, &SettingsController::cancel);
+
+    _settingsView->setMapperModel(_settingsSqlModel);
 }
 
 //====================================================================================
 
 SettingsController::~SettingsController()
 {
-    //qDebug() << "settings controller deleted";
+    qDebug() << "settings controller deleted";
 }
 
 //====================================================================================
@@ -35,11 +37,6 @@ SettingsController::~SettingsController()
 void SettingsController::choosePath()
 {
     QFileDialog* import = new QFileDialog(_settingsView);
-    /*
-     * This line is commented below because there is some issue on Linux desktop
-     * fileSelected signal is emitted twice
-     * So this line possible will resolve this strange issue
-     */
     //import->setOption(QFileDialog::DontUseNativeDialog, true);
     connect(import, &QFileDialog::fileSelected, _settingsView, &SettingsView::setPath);
     import->setWindowModality(Qt::ApplicationModal);
@@ -52,17 +49,15 @@ void SettingsController::choosePath()
 
 void SettingsController::submit()
 {
-    _widgetMapper.submit();
     _settingsSqlModel->submitAll();
-    delete _settingsView;
+    _settingsView->close();
 }
 
 //====================================================================================
 
 void SettingsController::cancel()
 {
-    _widgetMapper.revert();
-    delete _settingsView;
+    _settingsView->close();
 }
 
 //====================================================================================

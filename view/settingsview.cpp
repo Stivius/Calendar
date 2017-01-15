@@ -12,14 +12,21 @@ SettingsView::SettingsView(QWidget *parent):
     ui->setupUi(this);
 
     connect(ui->choosePathBtn, &QPushButton::clicked, this, &SettingsView::choosePathBtnClicked);
-    connect(ui->submitBtn, &QPushButton::clicked, this, &SettingsView::submitBtnClicked);
-    connect(ui->cancelBtn, &QPushButton::clicked, this, &SettingsView::cancelBtnClicked);
+    connect(ui->submitBtn, &QPushButton::clicked, this, [=](){
+        _widgetMapper.submit();
+        emit submitBtnClicked();
+    });
+    connect(ui->cancelBtn, &QPushButton::clicked, this, [=](){
+        _widgetMapper.revert();
+        emit cancelBtnClicked();
+    });
 }
 
 //====================================================================================
 
 SettingsView::~SettingsView()
 {
+    _widgetMapper.revert();
     delete ui;
 }
 
