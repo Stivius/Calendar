@@ -15,6 +15,7 @@
 #include "controller/eventcontroller.h"
 #include "controller/exportcontroller.h"
 #include "controller/settingscontroller.h"
+#include "controller/importcontroller.h"
 
 //====================================================================================
 
@@ -32,9 +33,7 @@ EventsMainWindow::EventsMainWindow(QWidget *parent) :
     ui->detailBox->hide();
     ui->listWidget->hide();
 
-    _database = QSqlDatabase::addDatabase("QSQLITE");
-    _database.setDatabaseName("db");
-    _database.open();
+    connectToDatabase();
 
     _eventsSqlModel = new EventsSqlModel(_database);
     _eventsProxyModel = new EventsProxyModel(_eventsSqlModel);
@@ -81,6 +80,15 @@ EventsMainWindow::~EventsMainWindow()
     delete _eventsProxyModel;
     delete _eventsSqlModel;
     delete ui;
+}
+
+//====================================================================================
+
+void EventsMainWindow::connectToDatabase()
+{
+    _database = QSqlDatabase::addDatabase("QSQLITE");
+    _database.setDatabaseName("db");
+    _database.open();
 }
 
 //====================================================================================
@@ -169,10 +177,18 @@ void EventsMainWindow::on_exportAction_triggered()
 
 void EventsMainWindow::on_importAction_triggered()
 {
-    Import* window = new Import(_eventsProxyModel, this);
-    window->setWindowModality(Qt::ApplicationModal);
-    window->setAttribute(Qt::WA_DeleteOnClose);
-    window->show();
+    ImportView* importView = new ImportView(this);
+    importView->setWindowModality(Qt::ApplicationModal);
+    importView->setAttribute(Qt::WA_DeleteOnClose);
+
+    ImportController* importController = new ImportController(importView,
+                                                              _eventsSqlModel,
+                                                              this);
+    connect(importController, &ImportController::finished, [=](){
+        delete importController;
+    });
+
+    importView->show();
 }
 
 //====================================================================================

@@ -25,6 +25,7 @@ public:
     ~EventsMainWindow();
     void hideColumns();
 
+    void connectToDatabase();
 private slots:
     void on_detailAction_triggered();
     void on_newEventAction_triggered();

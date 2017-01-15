@@ -2,6 +2,8 @@
 
 #include <QDebug>
 #include <QDate>
+#include <QSqlError>
+#include <QSqlQuery>
 
 //====================================================================================
 
@@ -25,12 +27,26 @@ const int DEFAULT_DAY = 1;
 const int DEFAULT_MONTH = 1;
 const int DEFAULT_YEAR = 1;
 
+const QString CREATE_EVENTS_TABLE = "CREATE TABLE IF NOT EXISTS `events` ("
+                                    "`id`	INTEGER,"
+                                    "`date`	TEXT,"
+                                    "`theme`	TEXT,"
+                                    "`shortDescription`	TEXT,"
+                                    "`fullDescription`	TEXT,"
+                                    "`place`	TEXT,"
+                                    "`source`	TEXT,"
+                                    "`extraDescription`	TEXT,"
+                                    "`images`	TEXT,"
+                                    "PRIMARY KEY(id)"
+                                    ");";
 
 //====================================================================================
 
 EventsSqlModel::EventsSqlModel(QSqlDatabase database, QObject* parent) :
     QSqlTableModel(parent, database)
 {
+    database.exec(CREATE_EVENTS_TABLE);
+
     setTable("events");
     setSort(column(Date), Qt::AscendingOrder);
     setEditStrategy(QSqlTableModel::OnManualSubmit);
@@ -87,6 +103,16 @@ QHash<int, QByteArray> EventsSqlModel::roleNames() const
     roles[LongDescription] = "longDescription";
     roles[ExtraDescription] = "extraDescription";
     return roles;
+}
+
+//====================================================================================
+
+void EventsSqlModel::insertEvent(const QString &date, const QString &eventDescription)
+{
+    insertRow(rowCount());
+    setData(index(rowCount()-1, column(Date)), date);
+    setData(index(rowCount()-1, column(ShortDescription)), eventDescription);
+    submitAll();
 }
 
 //====================================================================================

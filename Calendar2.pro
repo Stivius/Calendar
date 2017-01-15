@@ -12,7 +12,7 @@ TARGET = Calendar2
 TEMPLATE = app
 
 QMAKE_LFLAGS_RELEASE += -static -static-libgcc
-include(qtxlsx/src/xlsx/qtxlsx.pri)
+include(C:\Users\maxim\Desktop\Calendar-master\qtxlsx\src\xlsx\qtxlsx.pri)
 
 
 SOURCES += main.cpp\
@@ -26,7 +26,8 @@ SOURCES += main.cpp\
     controller/exportcontroller.cpp \
     view/exportview.cpp \
     controller/settingscontroller.cpp \
-    view/settingsview.cpp
+    view/settingsview.cpp \
+    controller/importcontroller.cpp
 
 HEADERS  += \
     model/eventsproxymodel.h \
@@ -39,11 +40,12 @@ HEADERS  += \
     controller/exportcontroller.h \
     view/exportview.h \
     controller/settingscontroller.h \
-    view/settingsview.h
+    view/settingsview.h \
+    controller/importcontroller.h
 
 FORMS    += \
     ui/eventsmainwindow.ui \
-    ui/import.ui \
     ui/eventview.ui \
     ui/exportview.ui \
-    ui/settingsview.ui
+    ui/settingsview.ui \
+    ui/importview.ui

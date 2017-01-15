@@ -24,6 +24,7 @@ public:
     bool anniversaryDates();
     void setFont(int fontSize);
     int font();
+
 };
 
 #endif // SETTINGSSQLMODEL_H
