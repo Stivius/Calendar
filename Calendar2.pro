@@ -20,13 +20,13 @@ SOURCES += main.cpp\
     model/eventssqlmodel.cpp \
     model/settingssqlmodel.cpp \
     view/eventsmainwindow.cpp \
-    view/import.cpp \
     view/eventview.cpp \
     controller/eventcontroller.cpp \
     controller/exportcontroller.cpp \
     view/exportview.cpp \
     controller/settingscontroller.cpp \
     view/settingsview.cpp \
+    view/importview.cpp \
     controller/importcontroller.cpp
 
 HEADERS  += \
@@ -34,13 +34,13 @@ HEADERS  += \
     model/eventssqlmodel.h \
     model/settingssqlmodel.h \
     view/eventsmainwindow.h \
-    view/import.h \
     view/eventview.h \
     controller/eventcontroller.h \
     controller/exportcontroller.h \
     view/exportview.h \
     controller/settingscontroller.h \
     view/settingsview.h \
+    view/importview.h \
     controller/importcontroller.h
 
 FORMS    += \

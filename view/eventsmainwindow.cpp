@@ -9,7 +9,7 @@
 #include "model/eventssqlmodel.h"
 #include "model/settingssqlmodel.h"
 #include "view/exportview.h"
-#include "view/import.h"
+#include "view/importview.h"
 #include "view/settingsview.h"
 #include "view/eventview.h"
 #include "controller/eventcontroller.h"
