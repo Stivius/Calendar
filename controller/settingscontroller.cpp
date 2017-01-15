@@ -21,15 +21,6 @@ SettingsController::SettingsController(SettingsView* settingsView,
     connect(_settingsView, &SettingsView::choosePathBtnClicked, this, &SettingsController::choosePath);
     connect(_settingsView, &SettingsView::submitBtnClicked, this, &SettingsController::submit);
     connect(_settingsView, &SettingsView::cancelBtnClicked, this, &SettingsController::cancel);
-
-    _widgetMapper.setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
-    _widgetMapper.setModel(_settingsSqlModel);
-
-    _widgetMapper.addMapping(_settingsView->pathEdit(), _settingsSqlModel->column(Path));
-    _widgetMapper.addMapping(_settingsView->qualitySlider(), _settingsSqlModel->column(Quality));
-    _widgetMapper.addMapping(_settingsView->anniversaryBtn(), _settingsSqlModel->column(Anniversary));
-    _widgetMapper.setCurrentIndex(0);
-
 }
 
 //====================================================================================

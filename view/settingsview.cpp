@@ -14,7 +14,6 @@ SettingsView::SettingsView(QWidget *parent):
     connect(ui->choosePathBtn, &QPushButton::clicked, this, &SettingsView::choosePathBtnClicked);
     connect(ui->submitBtn, &QPushButton::clicked, this, &SettingsView::submitBtnClicked);
     connect(ui->cancelBtn, &QPushButton::clicked, this, &SettingsView::cancelBtnClicked);
-
 }
 
 //====================================================================================
@@ -26,23 +25,15 @@ SettingsView::~SettingsView()
 
 //====================================================================================
 
-QLineEdit *SettingsView::pathEdit()
+void SettingsView::setMapperModel(SettingsSqlModel* settingsSqlModel)
 {
-    return ui->pathEdit;
-}
+    _widgetMapper.setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
+    _widgetMapper.setModel(settingsSqlModel);
 
-//====================================================================================
-
-QSlider *SettingsView::qualitySlider()
-{
-    return ui->qualitySlider;
-}
-
-//====================================================================================
-
-QRadioButton *SettingsView::anniversaryBtn()
-{
-    return ui->anniversaryBtn;
+    _widgetMapper.addMapping(ui->pathEdit, settingsSqlModel->column(Path));
+    _widgetMapper.addMapping(ui->qualitySlider, settingsSqlModel->column(Quality));
+    _widgetMapper.addMapping(ui->anniversaryBtn, settingsSqlModel->column(Anniversary));
+    _widgetMapper.setCurrentIndex(0);
 }
 
 //====================================================================================

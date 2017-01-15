@@ -2,13 +2,13 @@
 #define SETTINGS_H
 
 #include <QDialog>
-#include <QLineEdit>
-#include <QSlider>
-#include <QRadioButton>
+#include <QDataWidgetMapper>
 
 namespace Ui {
 class SettingsView;
 }
+
+class SettingsSqlModel;
 
 class SettingsView : public QDialog
 {
@@ -21,16 +21,14 @@ signals:
 public:
     explicit SettingsView(QWidget *parent = 0);
     ~SettingsView();
-
-    QLineEdit* pathEdit();
-    QSlider* qualitySlider();
-    QRadioButton* anniversaryBtn();
+    void setMapperModel(SettingsSqlModel *settingsSqlModel);
 
 public slots:
     void setPath(const QString& path);
 
 private:
     Ui::SettingsView *ui;
+    QDataWidgetMapper _widgetMapper;
 
 };
 
