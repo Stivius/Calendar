@@ -9,11 +9,6 @@
 
 //====================================================================================
 
-const int INVALID_INDEX = -1;
-const QString EXTENSION_PATTERN = "(.png)|(.jpg)|(.jpeg)";
-
-//====================================================================================
-
 SettingsController::SettingsController(SettingsView* settingsView,
                                        SettingsSqlModel* settingsSqlModel,
                                        QObject* parent) :
@@ -76,15 +71,11 @@ void SettingsController::checkFilesForMoving()
     if(_path != currentPath)
     {
         QDir currentDirectory(_path);
-        QFileInfoList files = currentDirectory.entryInfoList(QDir::Files);
+        QFileInfoList files = currentDirectory.entryInfoList({"*.png", "*.jpg", "*.jpeg"}, QDir::Files);
         for(QFileInfo fileInfo: files)
         {
-            QString filePath = fileInfo.absoluteFilePath();
-            if(filePath.indexOf(QRegExp(EXTENSION_PATTERN, Qt::CaseInsensitive)) != INVALID_INDEX) // только .PNG или .JPG/.JPEG
-            {
-                QFile file(filePath);
-                file.rename(currentPath + fileInfo.fileName());
-            }
+            QFile file(fileInfo.absoluteFilePath());
+            file.rename(currentPath + fileInfo.fileName());
         }
     }
 }
