@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QSqlDatabase>
 #include <QDataWidgetMapper>
+#include <memory>
 
 class Events;
 class EventsSqlModel;
@@ -59,9 +60,9 @@ private:
 private:
     Ui::EventsMainWindow *ui;
     QSqlDatabase _database;
-    EventsSqlModel* _eventsSqlModel = nullptr;
-    EventsProxyModel* _eventsProxyModel = nullptr;
-    SettingsSqlModel* _settingsSqlModel = nullptr;
+    std::unique_ptr<EventsSqlModel> _eventsSqlModel;
+    std::unique_ptr<EventsProxyModel> _eventsProxyModel;
+    std::unique_ptr<SettingsSqlModel> _settingsSqlModel;
     QDataWidgetMapper _widgetMapper;
 
 };

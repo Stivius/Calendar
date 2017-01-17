@@ -35,7 +35,7 @@ SettingsSqlModel::SettingsSqlModel(QSqlDatabase database, QObject* parent) :
 
 SettingsSqlModel::~SettingsSqlModel()
 {
-    //qDebug() << "settingssql model deleted";
+    qDebug() << "settingssql model deleted";
 }
 
 //====================================================================================

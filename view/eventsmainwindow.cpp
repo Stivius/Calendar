@@ -35,11 +35,13 @@ EventsMainWindow::EventsMainWindow(QWidget *parent) :
 
     connectToDatabase();
 
-    _eventsSqlModel = new EventsSqlModel(_database);
-    _eventsProxyModel = new EventsProxyModel(_eventsSqlModel);
-    _settingsSqlModel = new SettingsSqlModel(_database);
+    _eventsSqlModel = std::unique_ptr<EventsSqlModel>(new EventsSqlModel(_database));
+    _eventsProxyModel = std::unique_ptr<EventsProxyModel>(new EventsProxyModel(_eventsSqlModel.get()));
+    _settingsSqlModel = std::unique_ptr<SettingsSqlModel>(new SettingsSqlModel(_database));
 
-    ui->tableView->setModel(_eventsProxyModel);
+
+
+    ui->tableView->setModel(_eventsProxyModel.get());
     QFont fnt;
     fnt.setPointSize(_settingsSqlModel->font());
     ui->tableView->setFont(fnt);
@@ -49,7 +51,7 @@ EventsMainWindow::EventsMainWindow(QWidget *parent) :
         ui->tableView->horizontalHeader()->resizeSection(i, sizes[i-1].toInt());
 
     hideColumns();
-    connect(_eventsProxyModel, &EventsProxyModel::filterUpdated, this, [=](){
+    connect(_eventsProxyModel.get(), &EventsProxyModel::filterUpdated, this, [=](){
         hideColumns();
     });
 
@@ -59,7 +61,7 @@ EventsMainWindow::EventsMainWindow(QWidget *parent) :
         _eventsProxyModel->setFilter(AnniversaryFilter, QDate::currentDate().year());
     }
 
-    _widgetMapper.setModel(_eventsProxyModel);
+    _widgetMapper.setModel(_eventsProxyModel.get());
 
     _widgetMapper.addMapping(ui->extraEdit, _eventsSqlModel->column(ExtraDescription));
     _widgetMapper.addMapping(ui->fullEdit, _eventsSqlModel->column(LongDescription));
@@ -76,9 +78,6 @@ EventsMainWindow::~EventsMainWindow()
 {
     calculateColumnsSize();
 
-    delete _settingsSqlModel;
-    delete _eventsProxyModel;
-    delete _eventsSqlModel;
     delete ui;
 }
 
@@ -87,7 +86,7 @@ EventsMainWindow::~EventsMainWindow()
 void EventsMainWindow::connectToDatabase()
 {
     _database = QSqlDatabase::addDatabase("QSQLITE");
-    _database.setDatabaseName("db");
+    _database.setDatabaseName("userdata.sqlite");
     _database.open();
 }
 
@@ -136,8 +135,8 @@ void EventsMainWindow::openEventView(int row)
     eventView->setAttribute(Qt::WA_DeleteOnClose);
 
     EventController* eventController = new EventController(eventView,
-                                                           _eventsSqlModel,
-                                                           _settingsSqlModel,
+                                                           _eventsSqlModel.get(),
+                                                           _settingsSqlModel.get(),
                                                            row,
                                                            this);
     connect(eventController, &EventController::finished, [=](){
@@ -156,7 +155,7 @@ void EventsMainWindow::on_settingsAction_triggered()
     settingsView->setAttribute(Qt::WA_DeleteOnClose);
 
     SettingsController* settingsController = new SettingsController(settingsView,
-                                                                    _settingsSqlModel,
+                                                                    _settingsSqlModel.get(),
                                                                     this);
     connect(settingsController, &SettingsController::finished, [=](){
         delete settingsController;
@@ -174,8 +173,8 @@ void EventsMainWindow::on_exportAction_triggered()
     exportView->setAttribute(Qt::WA_DeleteOnClose);
 
     ExportController* exportController = new ExportController(exportView,
-                                                              _eventsProxyModel,
-                                                              _settingsSqlModel,
+                                                              _eventsProxyModel.get(),
+                                                              _settingsSqlModel.get(),
                                                               this);
     connect(exportController, &ExportController::finished, [=](){
         delete exportController;
@@ -193,7 +192,7 @@ void EventsMainWindow::on_importAction_triggered()
     importView->setAttribute(Qt::WA_DeleteOnClose);
 
     ImportController* importController = new ImportController(importView,
-                                                              _eventsSqlModel,
+                                                              _eventsSqlModel.get(),
                                                               this);
     connect(importController, &ImportController::finished, [=](){
         delete importController;
