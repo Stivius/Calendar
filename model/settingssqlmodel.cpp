@@ -24,7 +24,7 @@ SettingsSqlModel::SettingsSqlModel(QSqlDatabase database, QObject* parent) :
 {
     database.exec(CREATE_TABLE);
     if(!database.exec(FETCH_DATA).first())
-        database.exec(INSERT_DATA.arg(QApplication::applicationDirPath()));
+        database.exec(INSERT_DATA.arg(QApplication::applicationDirPath() + "/images/"));
 
     setEditStrategy(QSqlTableModel::OnManualSubmit);
     setTable("settings");
@@ -43,12 +43,19 @@ SettingsSqlModel::~SettingsSqlModel()
 QHash<int, QByteArray> SettingsSqlModel::roleNames() const
 {
     QHash<int, QByteArray> roles;
-    roles[Path] = "path";
+    roles[ImagesFolder] = "path";
     roles[Quality] = "quality";
     roles[Font] = "font";
-    roles[Anniversary] = "anniversary";
+    roles[AnniversaryDates] = "anniversary";
     roles[HeadersSizes] = "headersSize";
     return roles;
+}
+
+//====================================================================================
+
+int SettingsSqlModel::column(int role)
+{
+    return role - Qt::UserRole;
 }
 
 //====================================================================================
@@ -68,21 +75,7 @@ int SettingsSqlModel::font()
 
 //====================================================================================
 
-int SettingsSqlModel::column(int role)
-{
-    return role - Qt::UserRole;
-}
-
-//====================================================================================
-
-QStringList SettingsSqlModel::sectionSizes()
-{
-    return data(index(0, column(HeadersSizes))).toString().split(SECTIONS_SLITTER);
-}
-
-//====================================================================================
-
-void SettingsSqlModel::setSectionsSizes(QStringList sizes)
+void SettingsSqlModel::setHeadersSizes(QStringList sizes)
 {
     setData(index(0, column(HeadersSizes)), sizes.join(SECTIONS_SLITTER));
     submitAll();
@@ -90,9 +83,23 @@ void SettingsSqlModel::setSectionsSizes(QStringList sizes)
 
 //====================================================================================
 
+QStringList SettingsSqlModel::headersSizes()
+{
+    return data(index(0, column(HeadersSizes))).toString().split(SECTIONS_SLITTER);
+}
+
+//====================================================================================
+
 bool SettingsSqlModel::anniversaryDates()
 {
-    return QSqlTableModel::data(index(0, column(Anniversary))).toBool();
+    return QSqlTableModel::data(index(0, column(AnniversaryDates))).toBool();
+}
+
+//====================================================================================
+
+QString SettingsSqlModel::imagesFolder()
+{
+    return QSqlTableModel::data(index(0, column(ImagesFolder))).toString();
 }
 
 //====================================================================================

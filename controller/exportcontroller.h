@@ -5,6 +5,7 @@
 
 class ExportView;
 class EventsProxyModel;
+class SettingsSqlModel;
 
 enum class ExportType {
     Browser,
@@ -20,6 +21,7 @@ signals:
 public:
     explicit ExportController(ExportView *exportView,
                               EventsProxyModel *eventsModel,
+                              SettingsSqlModel* settingsSqlModel,
                               QObject *parent);
     ~ExportController();
 
@@ -34,6 +36,7 @@ private:
 private:
     ExportView* _exportView = nullptr;
     EventsProxyModel* _eventsProxyModel = nullptr;
+    SettingsSqlModel* _settingsSqlModel = nullptr;
 
     QString _path;
     ExportType _exportType = ExportType::Pdf;

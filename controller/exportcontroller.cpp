@@ -11,16 +11,19 @@
 
 #include "model/eventssqlmodel.h"
 #include "model/eventsproxymodel.h"
+#include "model/settingssqlmodel.h"
 #include "view/exportview.h"
 
 //====================================================================================
 
 ExportController::ExportController(ExportView* exportView,
                                    EventsProxyModel* eventsProxyModel,
+                                   SettingsSqlModel* settingsSqlModel,
                                    QObject* parent) :
     QObject(parent),
     _exportView(exportView),
-    _eventsProxyModel(eventsProxyModel)
+    _eventsProxyModel(eventsProxyModel),
+    _settingsSqlModel(settingsSqlModel)
 {
     setPath(QApplication::applicationDirPath());
 
@@ -87,7 +90,7 @@ void ExportController::submitExport()
         QStringList images = eventsSqlModel->imagesList(row);
         QString imagePath = QString();
         if(!images.empty())
-            imagePath = QApplication::applicationDirPath() + "/images/" + images.at(0);
+            imagePath = _settingsSqlModel->imagesFolder() + images.at(0);
         html += htmlRowTable.arg("100").arg("100").arg(imagePath).arg(eventsSqlModel->date(row)).arg(eventsSqlModel->shortDescription(row));
     }
     html += "</table>"
@@ -95,24 +98,24 @@ void ExportController::submitExport()
     QDesktopServices process;
     if(_exportType == ExportType::Browser)
     {
-        QFile file(_path + "/export.html");
+        QFile file(_path + "export.html");
         if(file.exists())
             file.remove();
         file.open(QIODevice::WriteOnly);
         QTextStream stream(&file);
         stream << html;
-        process.openUrl(QUrl::fromLocalFile(_path + "/export.html"));
+        process.openUrl(QUrl::fromLocalFile(_path + "export.html"));
     }
     else // PDF
     {
         QPrinter printer(QPrinter::PrinterResolution);
         printer.setPageSize(QPrinter::A4);
         printer.setOutputFormat(QPrinter::PdfFormat);
-        printer.setOutputFileName(_path + "/export.pdf");
+        printer.setOutputFileName(_path + "export.pdf");
         QTextDocument *doc = new QTextDocument;
         doc->setHtml(html);
         doc->print(&printer);
-        process.openUrl(QUrl::fromLocalFile(_path + "/export.pdf"));
+        process.openUrl(QUrl::fromLocalFile(_path + "export.pdf"));
     }
     delete _exportView;
 }
@@ -122,7 +125,7 @@ void ExportController::submitExport()
 void ExportController::setPath(const QString &path)
 {
     _path = path;
-    _exportView->setPath(path);
+    _exportView->setPath(path + "/");
 }
 
 //====================================================================================

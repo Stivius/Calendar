@@ -1,12 +1,12 @@
 #include "eventcontroller.h"
 
-#include <QApplication>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QDebug>
 #include <QDesktopServices>
 
 #include "model/eventssqlmodel.h"
+#include "model/settingssqlmodel.h"
 #include "view/eventview.h"
 
 //====================================================================================
@@ -20,11 +20,13 @@ const QString EXTENSION_PATTERN = "(.png)|(.jpg)|(.jpeg)";
 
 EventController::EventController(EventView* eventView,
                                  EventsSqlModel* eventsModel,
+                                 SettingsSqlModel* settingsModel,
                                  int currentRow,
                                  QObject* parent) :
     QObject(parent),
     _eventView(eventView),
     _eventsModel(eventsModel),
+    _settingsModel(settingsModel),
     _currentRow(currentRow)
 {   
     connect(_eventView, &EventView::destroyed, this, &EventController::finished);
@@ -110,7 +112,7 @@ void EventController::openCurrentImage()
    {
        QDesktopServices process;
        if(_images[_currentImageIndex]._tempPath == QString()) // images was previously saved
-           process.openUrl(QUrl::fromLocalFile(QApplication::applicationDirPath() + "/images/" + _images[_currentImageIndex]._imageName));
+           process.openUrl(QUrl::fromLocalFile(_settingsModel->imagesFolder() + _images[_currentImageIndex]._imageName));
        else
            process.openUrl(QUrl::fromLocalFile(_images[_currentImageIndex]._tempPath));
    }
@@ -141,7 +143,7 @@ void EventController::loadImages()
    for(int i = 0; i != imagesList.size(); i++)
    {
        QString imageName = imagesList[i];
-       QString imagePath = QApplication::applicationDirPath() + "/images/" + imageName;
+       QString imagePath = _settingsModel->imagesFolder() + imageName;
        QFile file(imagePath);
        if(file.exists()) // if file exists in folder
        {
@@ -168,7 +170,7 @@ void EventController::uploadImage(const QString& filePath)
    {
        QFileInfo fullPath(filePath);
        QString imageName = fullPath.fileName();
-       QFile file(QApplication::applicationDirPath() + "/images/" + imageName);
+       QFile file(_settingsModel->imagesFolder() + imageName);
        if(!file.exists()) // check if loaded file exists
        {
            QPixmap loadedPixmap;
@@ -238,9 +240,9 @@ void EventController::saveImages()
 {
    for(Image curentImage: _images)
    {
-       QFile file(QApplication::applicationDirPath() + "/images/" + curentImage._imageName);
+       QFile file(_settingsModel->imagesFolder() + curentImage._imageName);
        if(!file.exists())
-           curentImage._pixmap.save(QApplication::applicationDirPath() + "/images/" + curentImage._imageName);
+           curentImage._pixmap.save(_settingsModel->imagesFolder() + curentImage._imageName);
    }
 }
 
@@ -262,7 +264,7 @@ void EventController::removeTemporaryImages()
 {
    for(QString imagePath: _imagesToRemove)
    {
-       QFile file(QApplication::applicationDirPath() + "/images/" + imagePath);
+       QFile file(_settingsModel->imagesFolder() + imagePath);
        if(file.exists())
            file.remove();
    }

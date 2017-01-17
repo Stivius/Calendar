@@ -4,10 +4,10 @@
 #include <QSqlTableModel>
 
 enum SettingsModelRoles {
-    Path = Qt::UserRole,
+    ImagesFolder = Qt::UserRole,
     Quality,
     Font,
-    Anniversary,
+    AnniversaryDates,
     HeadersSizes
 };
 
@@ -19,11 +19,12 @@ public:
     ~SettingsSqlModel();
     QHash<int, QByteArray> roleNames() const;
     int column(int role);
-    QStringList sectionSizes();
-    void setSectionsSizes(QStringList sizes);
-    bool anniversaryDates();
     void setFont(int fontSize);
     int font();
+    void setHeadersSizes(QStringList sizes);
+    QStringList headersSizes();
+    bool anniversaryDates();
+    QString imagesFolder();
 
 };
 

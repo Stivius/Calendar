@@ -44,7 +44,7 @@ EventsMainWindow::EventsMainWindow(QWidget *parent) :
     fnt.setPointSize(_settingsSqlModel->font());
     ui->tableView->setFont(fnt);
 
-    QStringList sizes = _settingsSqlModel->sectionSizes();
+    QStringList sizes = _settingsSqlModel->headersSizes();
     for(int i = 1; i <= COLUMNS_COUNT; i++)
         ui->tableView->horizontalHeader()->resizeSection(i, sizes[i-1].toInt());
 
@@ -98,29 +98,38 @@ void EventsMainWindow::calculateColumnsSize()
     QStringList sizes;
     for(int i = 1; i <= COLUMNS_COUNT; i++)
         sizes.push_back(QString::number(ui->tableView->horizontalHeader()->sectionSize(i)));
-    _settingsSqlModel->setSectionsSizes(sizes);
+    _settingsSqlModel->setHeadersSizes(sizes);
 }
 
 //====================================================================================
 
-void EventsMainWindow::on_detailAction_triggered()
+void EventsMainWindow::on_tableView_doubleClicked(const QModelIndex &index)
 {
-    if(ui->detailBox->isHidden())
-    {
-        ui->detailBox->show();
-        ui->detailAction->setChecked(true);
-    }
-    else
-    {
-        ui->detailBox->hide();
-        ui->detailAction->setChecked(false);
-    }
-    _widgetMapper.setCurrentIndex(ui->tableView->currentIndex().row());
+    openEventView(_eventsProxyModel->mapToSource(index).row());
 }
 
 //====================================================================================
 
 void EventsMainWindow::on_newEventAction_triggered()
+{
+    openEventView(INVALID_INDEX);
+}
+
+//====================================================================================
+
+void EventsMainWindow::on_cardAction_triggered()
+{
+    QModelIndexList selection = ui->tableView->selectionModel()->selectedRows();
+    if(selection.empty())
+        return;
+
+    QModelIndex sourceIndex = _eventsProxyModel->mapToSource(ui->tableView->currentIndex());
+    openEventView(sourceIndex.row());
+}
+
+//====================================================================================
+
+void EventsMainWindow::openEventView(int row)
 {
     EventView* eventView = new EventView;
     eventView->setWindowModality(Qt::ApplicationModal);
@@ -128,7 +137,8 @@ void EventsMainWindow::on_newEventAction_triggered()
 
     EventController* eventController = new EventController(eventView,
                                                            _eventsSqlModel,
-                                                           INVALID_INDEX,
+                                                           _settingsSqlModel,
+                                                           row,
                                                            this);
     connect(eventController, &EventController::finished, [=](){
         delete eventController;
@@ -165,6 +175,7 @@ void EventsMainWindow::on_exportAction_triggered()
 
     ExportController* exportController = new ExportController(exportView,
                                                               _eventsProxyModel,
+                                                              _settingsSqlModel,
                                                               this);
     connect(exportController, &ExportController::finished, [=](){
         delete exportController;
@@ -189,6 +200,42 @@ void EventsMainWindow::on_importAction_triggered()
     });
 
     importView->show();
+}
+
+//====================================================================================
+
+void EventsMainWindow::on_removeEvent_triggered()
+{
+    QModelIndexList selection = ui->tableView->selectionModel()->selectedRows();
+    if(selection.empty())
+        return;
+    QModelIndex sourceIndex = _eventsProxyModel->mapToSource(ui->tableView->currentIndex());
+    _eventsSqlModel->removeRow(sourceIndex.row());
+    _eventsSqlModel->submitAll();
+}
+
+//====================================================================================
+
+void EventsMainWindow::on_detailAction_triggered()
+{
+    if(ui->detailBox->isHidden())
+    {
+        ui->detailBox->show();
+        ui->detailAction->setChecked(true);
+    }
+    else
+    {
+        ui->detailBox->hide();
+        ui->detailAction->setChecked(false);
+    }
+    _widgetMapper.setCurrentIndex(ui->tableView->currentIndex().row());
+}
+
+//====================================================================================
+
+void EventsMainWindow::on_tableView_clicked(const QModelIndex &index)
+{
+    _widgetMapper.setCurrentIndex(index.row());
 }
 
 //====================================================================================
@@ -273,44 +320,9 @@ void EventsMainWindow::on_placeAction_triggered()
 
 //====================================================================================
 
-void EventsMainWindow::on_removeEvent_triggered()
-{
-    QModelIndexList selection = ui->tableView->selectionModel()->selectedRows();
-    if(selection.empty())
-        return;
-    QModelIndex sourceIndex = _eventsProxyModel->mapToSource(ui->tableView->currentIndex());
-    _eventsSqlModel->removeRow(sourceIndex.row());
-    _eventsSqlModel->submitAll();
-}
-
-//====================================================================================
-
 void EventsMainWindow::on_fullList_triggered()
 {
     qDebug() << "FullList";
-}
-
-//====================================================================================
-
-void EventsMainWindow::on_cardAction_triggered()
-{
-    QModelIndexList selection = ui->tableView->selectionModel()->selectedRows();
-    if(selection.empty())
-        return;
-
-    EventView* eventView = new EventView;
-    eventView->setWindowModality(Qt::ApplicationModal);
-
-    QModelIndex sourceIndex = _eventsProxyModel->mapToSource(ui->tableView->currentIndex());
-    EventController* eventController = new EventController(eventView,
-                                                           _eventsSqlModel,
-                                                           sourceIndex.row(),
-                                                           this);
-    connect(eventController, &EventController::finished, [=](){
-        delete eventController;
-    });
-
-    eventView->show();
 }
 
 //====================================================================================
@@ -325,33 +337,6 @@ void EventsMainWindow::showMenu(const QPoint& pos)
     contextmenu->addAction(ui->fullList);
     contextmenu->addAction(ui->removeEvent);
     contextmenu->exec(globalPos);
-}
-
-//====================================================================================
-
-void EventsMainWindow::on_tableView_doubleClicked(const QModelIndex &index)
-{
-    EventView* eventView = new EventView;
-    eventView->setWindowModality(Qt::ApplicationModal);
-    eventView->setAttribute(Qt::WA_DeleteOnClose);
-
-    QModelIndex sourceIndex = _eventsProxyModel->mapToSource(index);
-    EventController* eventController = new EventController(eventView,
-                                                           _eventsSqlModel,
-                                                           sourceIndex.row(),
-                                                           this);
-    connect(eventController, &EventController::finished, [=](){
-        delete eventController;
-    });
-
-    eventView->show();
-}
-
-//====================================================================================
-
-void EventsMainWindow::on_tableView_clicked(const QModelIndex &index)
-{
-    _widgetMapper.setCurrentIndex(index.row());
 }
 
 //====================================================================================

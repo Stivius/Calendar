@@ -37,9 +37,9 @@ void SettingsView::setMapperModel(SettingsSqlModel* settingsSqlModel)
     _widgetMapper.setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     _widgetMapper.setModel(settingsSqlModel);
 
-    _widgetMapper.addMapping(ui->pathEdit, settingsSqlModel->column(Path));
+    _widgetMapper.addMapping(ui->pathEdit, settingsSqlModel->column(ImagesFolder));
     _widgetMapper.addMapping(ui->qualitySlider, settingsSqlModel->column(Quality));
-    _widgetMapper.addMapping(ui->anniversaryBtn, settingsSqlModel->column(Anniversary));
+    _widgetMapper.addMapping(ui->anniversaryBtn, settingsSqlModel->column(AnniversaryDates));
     _widgetMapper.setCurrentIndex(0);
 }
 
@@ -47,7 +47,14 @@ void SettingsView::setMapperModel(SettingsSqlModel* settingsSqlModel)
 
 void SettingsView::setPath(const QString &path)
 {
-    ui->pathEdit->setText(path);
+    ui->pathEdit->setText(path + "/");
+}
+
+//====================================================================================
+
+QString SettingsView::path()
+{
+    return ui->pathEdit->text();
 }
 
 //====================================================================================

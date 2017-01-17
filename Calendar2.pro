@@ -12,7 +12,7 @@ TARGET = Calendar2
 TEMPLATE = app
 
 QMAKE_LFLAGS_RELEASE += -static -static-libgcc
-include(C:\Users\maxim\Desktop\Calendar-master\qtxlsx\src\xlsx\qtxlsx.pri)
+include(qtxlsx/src/xlsx/qtxlsx.pri)
 
 
 SOURCES += main.cpp\

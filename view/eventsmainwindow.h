@@ -54,6 +54,7 @@ private slots:
 
 private:
     void calculateColumnsSize();
+    void openEventView(int row);
 
 private:
     Ui::EventsMainWindow *ui;

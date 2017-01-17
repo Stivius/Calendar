@@ -24,8 +24,12 @@ private slots:
     void cancel();
 
 private:
+    void checkFilesForMoving();
+
+private:
     SettingsView* _settingsView = nullptr;
     SettingsSqlModel* _settingsSqlModel = nullptr;
+    QString _path;
 
 };
 

@@ -22,6 +22,7 @@ public:
     explicit SettingsView(QWidget *parent = 0);
     ~SettingsView();
     void setMapperModel(SettingsSqlModel *settingsSqlModel);
+    QString path();
 
 public slots:
     void setPath(const QString& path);

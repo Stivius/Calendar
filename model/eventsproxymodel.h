@@ -32,7 +32,7 @@ public:
     void removeFilter(FilterType filterType);
 
 private:
-    EventsSqlModel* _model;
+    EventsSqlModel* _model = nullptr;
     QVector<QVariant> _filters;
 
 };

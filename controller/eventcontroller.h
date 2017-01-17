@@ -5,6 +5,7 @@
 #include <QPixmap>
 
 class EventsSqlModel;
+class SettingsSqlModel;
 class EventView;
 
 struct Image {
@@ -22,6 +23,7 @@ signals:
 public:
     EventController(EventView* evenView,
                     EventsSqlModel* eventsModel,
+                    SettingsSqlModel* settingsModel,
                     int currentRow,
                     QObject* parent);
     ~EventController();
@@ -46,6 +48,7 @@ private:
 private:
     EventView* _eventView = nullptr;
     EventsSqlModel* _eventsModel = nullptr;
+    SettingsSqlModel* _settingsModel = nullptr;
     int _currentRow;
 
     QVector<Image> _images;

@@ -23,8 +23,8 @@ private slots:
     void openExcelTemplate();
 
 private:
-    ImportView* _importView;
-    EventsSqlModel* _eventsSqlModel;
+    ImportView* _importView = nullptr;
+    EventsSqlModel* _eventsSqlModel = nullptr;
 
 };
 

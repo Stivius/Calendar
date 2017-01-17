@@ -9,6 +9,11 @@
 
 //====================================================================================
 
+const int INVALID_INDEX = -1;
+const QString EXTENSION_PATTERN = "(.png)|(.jpg)|(.jpeg)";
+
+//====================================================================================
+
 SettingsController::SettingsController(SettingsView* settingsView,
                                        SettingsSqlModel* settingsSqlModel,
                                        QObject* parent) :
@@ -23,6 +28,7 @@ SettingsController::SettingsController(SettingsView* settingsView,
     connect(_settingsView, &SettingsView::cancelBtnClicked, this, &SettingsController::cancel);
 
     _settingsView->setMapperModel(_settingsSqlModel);
+    _path = _settingsView->path();
 }
 
 //====================================================================================
@@ -49,6 +55,8 @@ void SettingsController::choosePath()
 
 void SettingsController::submit()
 {
+    checkFilesForMoving();
+
     _settingsSqlModel->submitAll();
     _settingsView->close();
 }
@@ -61,3 +69,25 @@ void SettingsController::cancel()
 }
 
 //====================================================================================
+
+void SettingsController::checkFilesForMoving()
+{
+    QString currentPath = _settingsView->path();
+    if(_path != currentPath)
+    {
+        QDir currentDirectory(_path);
+        QFileInfoList files = currentDirectory.entryInfoList(QDir::Files);
+        for(QFileInfo fileInfo: files)
+        {
+            QString filePath = fileInfo.absoluteFilePath();
+            if(filePath.indexOf(QRegExp(EXTENSION_PATTERN, Qt::CaseInsensitive)) != INVALID_INDEX) // только .PNG или .JPG/.JPEG
+            {
+                QFile file(filePath);
+                file.rename(currentPath + fileInfo.fileName());
+            }
+        }
+    }
+}
+
+//====================================================================================
+
