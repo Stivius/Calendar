@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Calendar</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout_9">
@@ -515,7 +515,7 @@
      <x>0</x>
      <y>0</y>
      <width>685</width>
-     <height>19</height>
+     <height>21</height>
     </rect>
    </property>
    <property name="sizePolicy">

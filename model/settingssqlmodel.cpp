@@ -24,7 +24,7 @@ SettingsSqlModel::SettingsSqlModel(QSqlDatabase database, QObject* parent) :
 {
     database.exec(CREATE_TABLE);
     if(!database.exec(FETCH_DATA).first())
-        database.exec(INSERT_DATA.arg(QApplication::applicationDirPath() + "/images/"));
+        database.exec(INSERT_DATA.arg(QApplication::applicationDirPath()+ "/"));
 
     setEditStrategy(QSqlTableModel::OnManualSubmit);
     setTable("settings");

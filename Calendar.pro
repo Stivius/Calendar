@@ -14,6 +14,7 @@ TEMPLATE = app
 QMAKE_LFLAGS_RELEASE += -static -static-libgcc
 include(qtxlsx/src/xlsx/qtxlsx.pri)
 
+RC_ICONS = favicon.ico
 
 SOURCES += main.cpp\
     model/eventsproxymodel.cpp \
