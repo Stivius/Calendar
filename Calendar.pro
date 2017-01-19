@@ -16,8 +16,8 @@ include(qtxlsx/src/xlsx/qtxlsx.pri)
 
 RC_ICONS = favicon.ico
 
-TRANSLATIONS += Calendar_en.ts \
-    Calendar_ua.ts
+TRANSLATIONS += translations/Calendar_en.ts \
+    translations/Calendar_ua.ts
 
 SOURCES += main.cpp\
     model/eventsproxymodel.cpp \
@@ -31,7 +31,8 @@ SOURCES += main.cpp\
     controller/settingscontroller.cpp \
     view/settingsview.cpp \
     view/importview.cpp \
-    controller/importcontroller.cpp
+    controller/importcontroller.cpp \
+    model/translationmodel.cpp
 
 HEADERS  += \
     model/eventsproxymodel.h \
@@ -45,7 +46,8 @@ HEADERS  += \
     controller/settingscontroller.h \
     view/settingsview.h \
     view/importview.h \
-    controller/importcontroller.h
+    controller/importcontroller.h \
+    model/translationmodel.h
 
 FORMS    += \
     ui/eventsmainwindow.ui \

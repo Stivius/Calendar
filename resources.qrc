@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>Calendar_en.qm</file>
-        <file>Calendar_ua.qm</file>
+        <file>translations/Calendar_ua.qm</file>
+        <file>translations/Calendar_en.qm</file>
     </qresource>
 </RCC>

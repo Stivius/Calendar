@@ -8,6 +8,7 @@
 #include "model/eventsproxymodel.h"
 #include "model/eventssqlmodel.h"
 #include "model/settingssqlmodel.h"
+#include "model/translationmodel.h"
 #include "view/exportview.h"
 #include "view/importview.h"
 #include "view/settingsview.h"
@@ -35,9 +36,25 @@ EventsMainWindow::EventsMainWindow(QWidget *parent) :
 
     connectToDatabase();
 
+    _languagGroup = std::unique_ptr<QActionGroup>(new QActionGroup(this));
+    _languagGroup->addAction(ui->russianAction);
+    _languagGroup->addAction(ui->ukrainianAction);
+    _languagGroup->addAction(ui->englishAction);
+    _languagGroup->setExclusive(true);
+
     _eventsSqlModel = std::unique_ptr<EventsSqlModel>(new EventsSqlModel(_database));
     _eventsProxyModel = std::unique_ptr<EventsProxyModel>(new EventsProxyModel(_eventsSqlModel.get()));
     _settingsSqlModel = std::unique_ptr<SettingsSqlModel>(new SettingsSqlModel(_database));
+    _translationModel = std::unique_ptr<TranslationModel>(new TranslationModel);
+
+    connect(_translationModel.get(), &TranslationModel::languageChanged, this, [=](Language language){
+        _settingsSqlModel->setLanguage(language);
+        _eventsSqlModel->updateHeadersData();
+        _languagGroup->actions().at(static_cast<int>(language))->setChecked(true);
+        ui->retranslateUi(this);
+    });
+
+    _translationModel->setLanguage(_settingsSqlModel->language());
 
     ui->tableView->setModel(_eventsProxyModel.get());
     QFont fnt;
@@ -67,24 +84,6 @@ EventsMainWindow::EventsMainWindow(QWidget *parent) :
     _widgetMapper.addMapping(ui->dateEdit, _eventsSqlModel->column(Date));
     _widgetMapper.addMapping(ui->themeEdit, _eventsSqlModel->column(Theme));
     _widgetMapper.addMapping(ui->placeEdit, _eventsSqlModel->column(Place));
-
-    switch(_settingsSqlModel->language())
-    {
-    case Russian:
-        ui->russianAction->setChecked(true);
-        break;
-    case Ukrainian:
-        ui->ukrainianAction->setChecked(true);
-        _translator.load(":/Calendar_ua.qm");
-        break;
-    case English:
-        ui->englishAction->setChecked(true);
-        _translator.load(":/Calendar_en.qm");
-        break;
-    }
-    qApp->installTranslator(&_translator);
-    _eventsSqlModel->updateHeadersData();
-    ui->retranslateUi(this);
 
     connect(ui->tableView, &QTableView::customContextMenuRequested, this, &EventsMainWindow::showMenu);
 }
@@ -273,30 +272,20 @@ void EventsMainWindow::on_themeAction_triggered()
 {
     ui->listWidget->clear();
     ui->listWidget->addItem(tr("тематика"));
-    QStringList themes;
+    QSet<QString> themes;
     for(int i = 0; i != _eventsSqlModel->rowCount(); i++)
-        themes.push_back(_eventsSqlModel->theme(i));
-    themes.removeDuplicates();
-    ui->listWidget->addItems(themes);
+        themes.insert(_eventsSqlModel->theme(i));
+    ui->listWidget->addItems(themes.toList());
     ui->listWidget->setCurrentRow(0);
 
-    if(ui->listWidget->isHidden())
+    if(ui->themeAction->isChecked())
     {
         ui->listWidget->show();
-        ui->themeAction->setChecked(true);
+        ui->placeAction->setChecked(false);
     }
     else
     {
-        if(ui->placeAction->isChecked())
-        {
-            ui->placeAction->setChecked(false);
-            ui->themeAction->setChecked(true);
-        }
-        else
-        {
-            ui->listWidget->hide();
-            ui->themeAction->setChecked(false);
-        }
+        ui->listWidget->hide();
     }
 }
 
@@ -306,30 +295,20 @@ void EventsMainWindow::on_placeAction_triggered()
 {
     ui->listWidget->clear();
     ui->listWidget->addItem(tr("место"));
-    QStringList places;
+    QSet<QString> places;
     for(int i = 0; i != _eventsSqlModel->rowCount(); i++)
-        places.push_back(_eventsSqlModel->place(i));
-    places.removeDuplicates();
-    ui->listWidget->addItems(places);
+        places.insert(_eventsSqlModel->place(i));
+    ui->listWidget->addItems(places.toList());
     ui->listWidget->setCurrentRow(0);
 
-    if(ui->listWidget->isHidden())
+    if(ui->placeAction->isChecked())
     {
         ui->listWidget->show();
-        ui->placeAction->setChecked(true);
+        ui->themeAction->setChecked(false);
     }
     else
     {
-        if(ui->themeAction->isChecked())
-        {
-            ui->placeAction->setChecked(true);
-            ui->themeAction->setChecked(false);
-        }
-        else
-        {
-            ui->listWidget->hide();
-            ui->placeAction->setChecked(false);
-        }
+        ui->listWidget->hide();
     }
 }
 
@@ -476,44 +455,21 @@ void EventsMainWindow::hideColumns()
 
 void EventsMainWindow::on_russianAction_triggered()
 {
-    qApp->removeTranslator(&_translator);
-    ui->retranslateUi(this);
-    _eventsSqlModel->updateHeadersData();
-    _settingsSqlModel->setLanguage(Russian);
-
-    ui->russianAction->setChecked(true);
-    ui->ukrainianAction->setChecked(false);
-    ui->englishAction->setChecked(false);
+    _translationModel->setLanguage(Russian);
 }
 
 //====================================================================================
 
 void EventsMainWindow::on_ukrainianAction_triggered()
 {
-    _translator.load(":/Calendar_ua.qm");
-    qApp->installTranslator(&_translator);
-    ui->retranslateUi(this);
-    _eventsSqlModel->updateHeadersData();
-    _settingsSqlModel->setLanguage(Ukrainian);
-
-    ui->russianAction->setChecked(false);
-    ui->ukrainianAction->setChecked(true);
-    ui->englishAction->setChecked(false);
+    _translationModel->setLanguage(Ukrainian);
 }
 
 //====================================================================================
 
 void EventsMainWindow::on_englishAction_triggered()
 {
-    _translator.load(":/Calendar_en.qm");
-    qApp->installTranslator(&_translator);
-    ui->retranslateUi(this);
-    _eventsSqlModel->updateHeadersData();
-    _settingsSqlModel->setLanguage(English);
-
-    ui->russianAction->setChecked(false);
-    ui->ukrainianAction->setChecked(false);
-    ui->englishAction->setChecked(true);
+    _translationModel->setLanguage(English);
 }
 
 //====================================================================================

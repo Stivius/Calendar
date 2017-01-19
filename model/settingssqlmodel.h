@@ -3,6 +3,8 @@
 
 #include <QSqlTableModel>
 
+#include "model/translationmodel.h"
+
 enum SettingsModelRoles {
     ImagesFolder = Qt::UserRole,
     Quality,
@@ -10,12 +12,6 @@ enum SettingsModelRoles {
     AnniversaryDates,
     CurrentLanguage,
     HeadersSizes
-};
-
-enum Language {
-    Russian,
-    Ukrainian,
-    English
 };
 
 class SettingsSqlModel : public QSqlTableModel
