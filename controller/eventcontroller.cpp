@@ -85,15 +85,20 @@ EventController::~EventController()
 
 void EventController::saveEvent()
 {
-    _eventsModel->setDate(_currentRow,
-                          _eventView->selectedDay(),
-                          _eventView->selectedMonth(),
-                          _eventView->selectedYear());
-    removeTemporaryImages();
-    saveImages();
-    _eventsModel->setImagesList(_currentRow, getImagesNames());
-    _eventsModel->submitAll();
-    delete _eventView;
+    bool result = _eventsModel->setDate(_currentRow,
+                                        _eventView->selectedDay(),
+                                        _eventView->selectedMonth(),
+                                        _eventView->selectedYear());
+    if(result)
+    {
+        removeTemporaryImages();
+        saveImages();
+        _eventsModel->setImagesList(_currentRow, getImagesNames());
+        _eventsModel->submitAll();
+        _eventView->close();
+    }
+    else
+        QMessageBox::critical(_eventView, "Error", tr("Дата неверна!"), QMessageBox::Ok);
 }
 
 //====================================================================================
@@ -101,7 +106,7 @@ void EventController::saveEvent()
 void EventController::cancelSaving()
 {
     _eventsModel->revertAll();
-    delete _eventView;
+    _eventView->close();
 }
 
 //====================================================================================
@@ -123,11 +128,6 @@ void EventController::openCurrentImage()
 void EventController::openFileDialog()
 {
    QFileDialog* import = new QFileDialog(_eventView);
-   /*
-    * This line is commented below because there is some issue on Linux desktop
-    * fileSelected signal is emitted twice
-    * So this line possible will resolve this strange issue
-    */
    // import->setOption(QFileDialog::DontUseNativeDialog, true);
    connect(import, &QFileDialog::fileSelected, this, &EventController::uploadImage);
    import->setWindowModality(Qt::ApplicationModal);
@@ -155,8 +155,8 @@ void EventController::loadImages()
        }
        else
        {
-           QString messageText = "Файла " + imageName + " не существует";
-           QMessageBox::critical(_eventView, "Error", messageText, QMessageBox::Ok);
+           QString messageText = tr("Файла %1 не существует!");
+           QMessageBox::critical(_eventView, "Error", messageText.arg(imageName), QMessageBox::Ok);
        }
    }
    _currentImageIndex = _images.size() - 1;
@@ -181,10 +181,10 @@ void EventController::uploadImage(const QString& filePath)
            _currentImageIndex = _images.size() - 1;
        }
        else
-           QMessageBox::critical(_eventView, "Error", "Файл с таким именем уже есть!");
+           QMessageBox::critical(_eventView, "Error", tr("Файл с таким именем уже есть!"));
    }
    else
-       QMessageBox::critical(_eventView, "Error", "Неверное изображение!", QMessageBox::Ok);
+       QMessageBox::critical(_eventView, "Error", tr("Неверное изображение!"), QMessageBox::Ok);
 }
 
 //====================================================================================

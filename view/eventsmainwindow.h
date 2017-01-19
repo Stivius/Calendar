@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QSqlDatabase>
 #include <QDataWidgetMapper>
+#include <QTranslator>
+
 #include <memory>
 
 class Events;
@@ -52,6 +54,9 @@ private slots:
     void on_importAction_triggered();
     void on_tableView_doubleClicked(const QModelIndex &index);
     void on_tableView_clicked(const QModelIndex &index);
+    void on_russianAction_triggered();
+    void on_ukrainianAction_triggered();
+    void on_englishAction_triggered();
 
 private:
     void calculateColumnsSize();
@@ -64,6 +69,7 @@ private:
     std::unique_ptr<EventsProxyModel> _eventsProxyModel;
     std::unique_ptr<SettingsSqlModel> _settingsSqlModel;
     QDataWidgetMapper _widgetMapper;
+    QTranslator _translator;
 
 };
 

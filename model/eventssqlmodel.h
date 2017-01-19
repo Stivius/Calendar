@@ -35,7 +35,10 @@ public:
     int month(int row) const;
     int year(int row) const;
     QString date(int row) const;
-    void setDate(int row, int day, int month, int year);
+    bool setDate(int row, int day, int month, int year);
+
+public slots:
+    void updateHeadersData();
 
 private:
     QString getFormat(int day, int month, int year, const QString &format) const;

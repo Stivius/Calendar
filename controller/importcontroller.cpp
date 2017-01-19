@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QDate>
 #include <QUrl>
+#include <QFileDialog>
 
 #include "xlsxdocument.h"
 #include "model/eventssqlmodel.h"
@@ -25,8 +26,11 @@ ImportController::ImportController(ImportView* importView,
     _importView(importView),
     _eventsSqlModel(eventsSqlModel)
 {
+    setPath(QApplication::applicationDirPath());
+
     connect(_importView, &ImportView::destroyed, this, &ImportController::finished);
 
+    connect(_importView, &ImportView::choosePathBtnClicked, this, &ImportController::choosePath);
     connect(_importView, &ImportView::importBtnClicked, this, &ImportController::importEvents);
     connect(_importView, &ImportView::excelTemplateBtnClicked, this, &ImportController::openExcelTemplate);
 }
@@ -42,7 +46,7 @@ ImportController::~ImportController()
 
 void ImportController::importEvents()
 {
-    QXlsx::Document xlsx(QApplication::applicationDirPath()+ "/import.xlsx");
+    QXlsx::Document xlsx(_path + "/import.xlsx");
     int cellNumber = INITIAL_CELL_NUMBER;
     _eventsSqlModel->database().transaction();
 
@@ -71,15 +75,36 @@ void ImportController::importEvents()
 
 void ImportController::openExcelTemplate()
 {
-    QFile file(QApplication::applicationDirPath()+ "/import.xlsx");
+    QFile file(_path + "/import.xlsx");
     if(file.exists())
         file.remove();
-    QXlsx::Document xlsx(QApplication::applicationDirPath()+ "/import.xlsx");
+    QXlsx::Document xlsx(_path + "/import.xlsx");
     xlsx.write("A1","Дата");
     xlsx.write("B1","Событие");
     xlsx.save();
     QDesktopServices process;
-    process.openUrl(QUrl::fromLocalFile(QApplication::applicationDirPath()+ "/import.xlsx"));
+    process.openUrl(QUrl::fromLocalFile(_path + "/import.xlsx"));
+}
+
+//====================================================================================
+
+void ImportController::choosePath()
+{
+    QFileDialog* importDialog = new QFileDialog(_importView);
+    //importDialog->setOption(QFileDialog::DontUseNativeDialog, true);
+    connect(importDialog, &QFileDialog::fileSelected, this, &ImportController::setPath);
+    importDialog->setFileMode(QFileDialog::Directory);
+    importDialog->setWindowModality(Qt::ApplicationModal);
+    importDialog->setAttribute(Qt::WA_DeleteOnClose);
+    importDialog->show();
+}
+
+//====================================================================================
+
+void ImportController::setPath(const QString &path)
+{
+    _path = path;
+    _importView->setPath(path + "/");
 }
 
 //====================================================================================

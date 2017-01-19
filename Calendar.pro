@@ -8,13 +8,16 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets sql printsupport
 
-TARGET = Calendar2
+TARGET = Calendar
 TEMPLATE = app
 
 QMAKE_LFLAGS_RELEASE += -static -static-libgcc
 include(qtxlsx/src/xlsx/qtxlsx.pri)
 
 RC_ICONS = favicon.ico
+
+TRANSLATIONS += Calendar_en.ts \
+    Calendar_ua.ts
 
 SOURCES += main.cpp\
     model/eventsproxymodel.cpp \
@@ -50,3 +53,8 @@ FORMS    += \
     ui/exportview.ui \
     ui/settingsview.ui \
     ui/importview.ui
+
+DISTFILES +=
+
+RESOURCES += \
+    resources.qrc

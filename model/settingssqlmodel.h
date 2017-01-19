@@ -8,7 +8,14 @@ enum SettingsModelRoles {
     Quality,
     Font,
     AnniversaryDates,
+    CurrentLanguage,
     HeadersSizes
+};
+
+enum Language {
+    Russian,
+    Ukrainian,
+    English
 };
 
 class SettingsSqlModel : public QSqlTableModel
@@ -25,6 +32,8 @@ public:
     QStringList headersSizes();
     bool anniversaryDates();
     QString imagesFolder();
+    void setLanguage(Language language);
+    Language language();
 
 };
 

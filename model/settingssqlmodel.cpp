@@ -12,6 +12,7 @@ const QString CREATE_TABLE = "CREATE TABLE IF NOT EXISTS `settings` ("
                              "`quality`	INTEGER DEFAULT 100,"
                              "`font`	INTEGER DEFAULT 14,"
                              "`anniversaryDates`	INTEGER DEFAULT 0,"
+                             "`language`	INTEGER DEFAULT 0,"
                              "`headersSizes`	TEXT DEFAULT '270-270-270-270-270'"
                              ");";
 const QString FETCH_DATA = "SELECT * FROM settings;";
@@ -35,7 +36,7 @@ SettingsSqlModel::SettingsSqlModel(QSqlDatabase database, QObject* parent) :
 
 SettingsSqlModel::~SettingsSqlModel()
 {
-    qDebug() << "settingssql model deleted";
+    //qDebug() << "settingssql model deleted";
 }
 
 //====================================================================================
@@ -47,6 +48,7 @@ QHash<int, QByteArray> SettingsSqlModel::roleNames() const
     roles[Quality] = "quality";
     roles[Font] = "font";
     roles[AnniversaryDates] = "anniversary";
+    roles[CurrentLanguage] = "currentLanguage";
     roles[HeadersSizes] = "headersSize";
     return roles;
 }
@@ -70,7 +72,7 @@ void SettingsSqlModel::setFont(int fontSize)
 
 int SettingsSqlModel::font()
 {
-    return QSqlTableModel::data(index(0, column(Font))).toInt();
+    return data(index(0, column(Font))).toInt();
 }
 
 //====================================================================================
@@ -92,14 +94,29 @@ QStringList SettingsSqlModel::headersSizes()
 
 bool SettingsSqlModel::anniversaryDates()
 {
-    return QSqlTableModel::data(index(0, column(AnniversaryDates))).toBool();
+    return data(index(0, column(AnniversaryDates))).toBool();
 }
 
 //====================================================================================
 
 QString SettingsSqlModel::imagesFolder()
 {
-    return QSqlTableModel::data(index(0, column(ImagesFolder))).toString();
+    return data(index(0, column(ImagesFolder))).toString();
+}
+
+//====================================================================================
+
+void SettingsSqlModel::setLanguage(Language language)
+{
+    setData(index(0, column(CurrentLanguage)), language);
+    submitAll();
+}
+
+//====================================================================================
+
+Language SettingsSqlModel::language()
+{
+    return static_cast<Language>(data(index(0, column(CurrentLanguage))).toInt());
 }
 
 //====================================================================================

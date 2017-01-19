@@ -515,7 +515,7 @@
      <x>0</x>
      <y>0</y>
      <width>685</width>
-     <height>21</height>
+     <height>19</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -551,9 +551,18 @@
     <addaction name="helpAction"/>
     <addaction name="exitAction"/>
    </widget>
+   <widget class="QMenu" name="menu_3">
+    <property name="title">
+     <string>Язык</string>
+    </property>
+    <addaction name="russianAction"/>
+    <addaction name="ukrainianAction"/>
+    <addaction name="englishAction"/>
+   </widget>
    <addaction name="menu_5"/>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
+   <addaction name="menu_3"/>
   </widget>
   <action name="newEventAction">
    <property name="text">
@@ -640,6 +649,33 @@
   <action name="removeEvent">
    <property name="text">
     <string>Удалить</string>
+   </property>
+  </action>
+  <action name="russianAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Русский</string>
+   </property>
+  </action>
+  <action name="ukrainianAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Украинский</string>
+   </property>
+  </action>
+  <action name="englishAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Английский</string>
    </property>
   </action>
  </widget>

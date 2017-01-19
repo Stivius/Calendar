@@ -39,12 +39,11 @@ EventsMainWindow::EventsMainWindow(QWidget *parent) :
     _eventsProxyModel = std::unique_ptr<EventsProxyModel>(new EventsProxyModel(_eventsSqlModel.get()));
     _settingsSqlModel = std::unique_ptr<SettingsSqlModel>(new SettingsSqlModel(_database));
 
-
-
     ui->tableView->setModel(_eventsProxyModel.get());
     QFont fnt;
     fnt.setPointSize(_settingsSqlModel->font());
     ui->tableView->setFont(fnt);
+    ui->tableView->horizontalHeader()->setFont(fnt);
 
     QStringList sizes = _settingsSqlModel->headersSizes();
     for(int i = 1; i <= COLUMNS_COUNT; i++)
@@ -69,6 +68,24 @@ EventsMainWindow::EventsMainWindow(QWidget *parent) :
     _widgetMapper.addMapping(ui->themeEdit, _eventsSqlModel->column(Theme));
     _widgetMapper.addMapping(ui->placeEdit, _eventsSqlModel->column(Place));
 
+    switch(_settingsSqlModel->language())
+    {
+    case Russian:
+        ui->russianAction->setChecked(true);
+        break;
+    case Ukrainian:
+        ui->ukrainianAction->setChecked(true);
+        _translator.load(":/Calendar_ua.qm");
+        break;
+    case English:
+        ui->englishAction->setChecked(true);
+        _translator.load(":/Calendar_en.qm");
+        break;
+    }
+    qApp->installTranslator(&_translator);
+    _eventsSqlModel->updateHeadersData();
+    ui->retranslateUi(this);
+
     connect(ui->tableView, &QTableView::customContextMenuRequested, this, &EventsMainWindow::showMenu);
 }
 
@@ -77,7 +94,6 @@ EventsMainWindow::EventsMainWindow(QWidget *parent) :
 EventsMainWindow::~EventsMainWindow()
 {
     calculateColumnsSize();
-
     delete ui;
 }
 
@@ -248,7 +264,7 @@ void EventsMainWindow::on_exitAction_triggered()
 
 void EventsMainWindow::on_helpAction_triggered()
 {
-    QMessageBox::information(this, "Справка", "Справка будет добавлена позже", QMessageBox::Ok);
+    QMessageBox::information(this, tr("Справка"), tr("Справка будет добавлена позже"), QMessageBox::Ok);
 }
 
 //====================================================================================
@@ -256,7 +272,7 @@ void EventsMainWindow::on_helpAction_triggered()
 void EventsMainWindow::on_themeAction_triggered()
 {
     ui->listWidget->clear();
-    ui->listWidget->addItem("тематика");
+    ui->listWidget->addItem(tr("тематика"));
     QStringList themes;
     for(int i = 0; i != _eventsSqlModel->rowCount(); i++)
         themes.push_back(_eventsSqlModel->theme(i));
@@ -289,7 +305,7 @@ void EventsMainWindow::on_themeAction_triggered()
 void EventsMainWindow::on_placeAction_triggered()
 {
     ui->listWidget->clear();
-    ui->listWidget->addItem("место");
+    ui->listWidget->addItem(tr("место"));
     QStringList places;
     for(int i = 0; i != _eventsSqlModel->rowCount(); i++)
         places.push_back(_eventsSqlModel->place(i));
@@ -346,6 +362,7 @@ void EventsMainWindow::on_increaseFont_triggered()
     fnt.setPointSize(_settingsSqlModel->font() + 1);
     _settingsSqlModel->setFont(fnt.pointSize());
     ui->tableView->setFont(fnt);
+    ui->tableView->horizontalHeader()->setFont(fnt);
 }
 
 //====================================================================================
@@ -358,6 +375,7 @@ void EventsMainWindow::on_decreaseFont_triggered()
         fnt.setPointSize(_settingsSqlModel->font() - 1);
         _settingsSqlModel->setFont(fnt.pointSize());
         ui->tableView->setFont(fnt);
+        ui->tableView->horizontalHeader()->setFont(fnt);
     }
 }
 
@@ -452,6 +470,50 @@ void EventsMainWindow::hideColumns()
     ui->tableView->setColumnHidden(_eventsSqlModel->column(Theme), true);
     ui->tableView->setColumnHidden(_eventsSqlModel->column(LongDescription), true);
     ui->tableView->setColumnHidden(_eventsSqlModel->column(ExtraDescription), true);
+}
+
+//====================================================================================
+
+void EventsMainWindow::on_russianAction_triggered()
+{
+    qApp->removeTranslator(&_translator);
+    ui->retranslateUi(this);
+    _eventsSqlModel->updateHeadersData();
+    _settingsSqlModel->setLanguage(Russian);
+
+    ui->russianAction->setChecked(true);
+    ui->ukrainianAction->setChecked(false);
+    ui->englishAction->setChecked(false);
+}
+
+//====================================================================================
+
+void EventsMainWindow::on_ukrainianAction_triggered()
+{
+    _translator.load(":/Calendar_ua.qm");
+    qApp->installTranslator(&_translator);
+    ui->retranslateUi(this);
+    _eventsSqlModel->updateHeadersData();
+    _settingsSqlModel->setLanguage(Ukrainian);
+
+    ui->russianAction->setChecked(false);
+    ui->ukrainianAction->setChecked(true);
+    ui->englishAction->setChecked(false);
+}
+
+//====================================================================================
+
+void EventsMainWindow::on_englishAction_triggered()
+{
+    _translator.load(":/Calendar_en.qm");
+    qApp->installTranslator(&_translator);
+    ui->retranslateUi(this);
+    _eventsSqlModel->updateHeadersData();
+    _settingsSqlModel->setLanguage(English);
+
+    ui->russianAction->setChecked(false);
+    ui->ukrainianAction->setChecked(false);
+    ui->englishAction->setChecked(true);
 }
 
 //====================================================================================

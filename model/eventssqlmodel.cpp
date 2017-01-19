@@ -52,18 +52,14 @@ EventsSqlModel::EventsSqlModel(QSqlDatabase database, QObject* parent) :
     setEditStrategy(QSqlTableModel::OnManualSubmit);
     select();
 
-    setHeaderData(column(Date), Qt::Horizontal, QString("Дата"));
-    setHeaderData(column(ShortDescription), Qt::Horizontal, QString("Событие"));
-    setHeaderData(column(Images), Qt::Horizontal, QString("Фото"));
-    setHeaderData(column(Place), Qt::Horizontal, QString("Место"));
-    setHeaderData(column(Source), Qt::Horizontal, QString("Источник"));
+    updateHeadersData();
 }
 
 //====================================================================================
 
 EventsSqlModel::~EventsSqlModel()
 {
-    qDebug() << "eventssql model deleted";
+    //qDebug() << "eventssql model deleted";
 }
 
 //====================================================================================
@@ -75,9 +71,9 @@ QVariant EventsSqlModel::data(const QModelIndex& index, int role) const
         if(index.column() == column(Images))
         {
             if(imagesList(index.row()).size() > 0)
-                return QString("Есть");
+                return QString(tr("Есть"));
             else
-                return QString("Нет");
+                return QString(tr("Нет"));
         }
         else if(index.column() == column(Date))
         {
@@ -227,13 +223,16 @@ QString EventsSqlModel::date(int row) const
 
 //====================================================================================
 
-void EventsSqlModel::setDate(int row, int day, int month, int year)
+bool EventsSqlModel::setDate(int row, int day, int month, int year)
 {
     QString finalFormat = getFormat(day, month, year, UNFORMATTED_DATE);
     day = (day == 0) ? DEFAULT_DAY : day;
     month = (month == 0) ? DEFAULT_MONTH : month;
     year = (year == 0) ? DEFAULT_YEAR : year;
+    if(!QDate(year, month, day).isValid())
+        return false;
     setData(index(row, column(Date)), QDate(year, month, day).toString(finalFormat));
+    return true;
 }
 
 //====================================================================================
@@ -248,3 +247,15 @@ QString EventsSqlModel::getFormat(int day, int month, int year, const QString& f
 }
 
 //====================================================================================
+
+void EventsSqlModel::updateHeadersData()
+{
+    setHeaderData(column(Date), Qt::Horizontal, QString(tr("Дата")));
+    setHeaderData(column(ShortDescription), Qt::Horizontal, QString(tr("Событие")));
+    setHeaderData(column(Images), Qt::Horizontal, QString(tr("Фото")));
+    setHeaderData(column(Place), Qt::Horizontal, QString(tr("Место")));
+    setHeaderData(column(Source), Qt::Horizontal, QString(tr("Источник")));
+}
+
+//====================================================================================
+

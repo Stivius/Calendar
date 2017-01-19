@@ -9,6 +9,7 @@ ImportView::ImportView(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    connect(ui->choosePathBtn, &QPushButton::clicked, this, &ImportView::choosePathBtnClicked);
     connect(ui->importBtn, &QPushButton::clicked, this, &ImportView::importBtnClicked);
     connect(ui->excelTemplateBtn, &QPushButton::clicked, this, &ImportView::excelTemplateBtnClicked);
 }
@@ -18,6 +19,13 @@ ImportView::ImportView(QWidget *parent) :
 ImportView::~ImportView()
 {
     delete ui;
+}
+
+//====================================================================================
+
+void ImportView::setPath(const QString &path)
+{
+    ui->pathEdit->setText(path);
 }
 
 //====================================================================================

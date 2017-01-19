@@ -21,10 +21,13 @@ public:
 private slots:
     void importEvents();
     void openExcelTemplate();
+    void choosePath();
+    void setPath(const QString& path);
 
 private:
     ImportView* _importView = nullptr;
     EventsSqlModel* _eventsSqlModel = nullptr;
+    QString _path;
 
 };
 

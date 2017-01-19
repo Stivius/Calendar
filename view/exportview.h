@@ -19,7 +19,6 @@ signals:
 public:
     ExportView(QWidget *parent = 0);
     ~ExportView();
-
     void setPath(const QString& path);
 
 private:

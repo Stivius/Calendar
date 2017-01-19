@@ -52,13 +52,13 @@ ExportController::~ExportController()
 
 void ExportController::choosePath()
 {
-    QFileDialog* import = new QFileDialog(_exportView);
-    //import->setOption(QFileDialog::DontUseNativeDialog, true);
-    connect(import, &QFileDialog::fileSelected, this, &ExportController::setPath);
-    import->setFileMode(QFileDialog::Directory);
-    import->setWindowModality(Qt::ApplicationModal);
-    import->setAttribute(Qt::WA_DeleteOnClose);
-    import->show();
+    QFileDialog* exportDialog = new QFileDialog(_exportView);
+    //exportDialog->setOption(QFileDialog::DontUseNativeDialog, true);
+    connect(exportDialog, &QFileDialog::fileSelected, this, &ExportController::setPath);
+    exportDialog->setFileMode(QFileDialog::Directory);
+    exportDialog->setWindowModality(Qt::ApplicationModal);
+    exportDialog->setAttribute(Qt::WA_DeleteOnClose);
+    exportDialog->show();
 }
 
 //====================================================================================
