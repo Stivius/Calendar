@@ -96,7 +96,7 @@ QHash<int, QByteArray> EventsSqlModel::roleNames() const
     roles[Place] = "place";
     roles[Source] = "source";
     roles[Theme] = "theme";
-    roles[LongDescription] = "longDescription";
+    roles[FullDescription] = "fullDescription";
     roles[ExtraDescription] = "extraDescription";
     return roles;
 }
@@ -144,6 +144,13 @@ QString EventsSqlModel::source(int row) const
 QString EventsSqlModel::shortDescription(int row) const
 {
     return data(index(row, column(ShortDescription)), Qt::DisplayRole).toString();
+}
+
+//====================================================================================
+
+QString EventsSqlModel::fullDescription(int row) const
+{
+    return data(index(row, column(FullDescription)), Qt::DisplayRole).toString();
 }
 
 //====================================================================================

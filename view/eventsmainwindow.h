@@ -6,14 +6,14 @@
 #include <QDataWidgetMapper>
 #include <QTranslator>
 #include <QActionGroup>
-
 #include <memory>
+
+#include "model/translationmodel.h"
 
 class Events;
 class EventsSqlModel;
 class EventsProxyModel;
 class SettingsSqlModel;
-class TranslationModel;
 
 namespace Ui {
 class EventsMainWindow;
@@ -70,8 +70,8 @@ private:
     std::unique_ptr<EventsSqlModel> _eventsSqlModel;
     std::unique_ptr<EventsProxyModel> _eventsProxyModel;
     std::unique_ptr<SettingsSqlModel> _settingsSqlModel;
-    std::unique_ptr<TranslationModel> _translationModel;
     std::unique_ptr<QActionGroup> _languagGroup;
+    TranslationModel _translationModel;
     QDataWidgetMapper _widgetMapper;
 
 };

@@ -11,7 +11,7 @@
 
 //====================================================================================
 
-const int INVALID_INDEX = -1;
+const int INVALID_MONTH = -1;
 const int MIN_WIDTH = 150;
 const int MIN_HEIGHT = 150;
 const QString EXTENSION_PATTERN = "(.png)|(.jpg)|(.jpeg)";
@@ -51,7 +51,7 @@ EventController::EventController(EventView* eventView,
     _eventView->addPlaces(places.toList());
     _eventView->addSources(sources.toList());
 
-    if(_currentRow != INVALID_INDEX)
+    if(_currentRow != INVALID_MONTH)
     {
         _eventView->setDay(_eventsModel->day(_currentRow));
         _eventView->setMonth(_eventsModel->month(_currentRow));
@@ -113,7 +113,7 @@ void EventController::cancelSaving()
 
 void EventController::openCurrentImage()
 {
-   if(_currentImageIndex != INVALID_INDEX)
+   if(_currentImageIndex != INVALID_MONTH)
    {
        QDesktopServices process;
        if(_images[_currentImageIndex]._tempPath == QString()) // images was previously saved
@@ -166,7 +166,7 @@ void EventController::loadImages()
 
 void EventController::uploadImage(const QString& filePath)
 {
-   if(filePath.indexOf(QRegExp(EXTENSION_PATTERN, Qt::CaseInsensitive)) != INVALID_INDEX) // только .PNG или .JPG/.JPEG
+   if(filePath.indexOf(QRegExp(EXTENSION_PATTERN, Qt::CaseInsensitive)) != INVALID_MONTH) // только .PNG или .JPG/.JPEG
    {
        QFileInfo fullPath(filePath);
        QString imageName = fullPath.fileName();
@@ -198,7 +198,7 @@ void EventController::removeImage()
        _images.erase(_images.begin() + _currentImageIndex);
        if(_images.empty())
        {
-           _currentImageIndex = INVALID_INDEX;
+           _currentImageIndex = INVALID_MONTH;
            QPixmap blankPixmap(MIN_WIDTH, MIN_HEIGHT);
            blankPixmap.fill(Qt::transparent);
            _eventView->setCurrentImage(blankPixmap);

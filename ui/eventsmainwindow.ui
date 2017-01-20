@@ -641,11 +641,6 @@
     <string>Карточка</string>
    </property>
   </action>
-  <action name="fullList">
-   <property name="text">
-    <string>Показать полный список</string>
-   </property>
-  </action>
   <action name="removeEvent">
    <property name="text">
     <string>Удалить</string>

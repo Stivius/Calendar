@@ -8,11 +8,17 @@
 #include <QTextDocument>
 #include <QTextStream>
 #include <QDebug>
+#include <QDate>
+#include <functional>
 
 #include "model/eventssqlmodel.h"
 #include "model/eventsproxymodel.h"
 #include "model/settingssqlmodel.h"
 #include "view/exportview.h"
+
+//====================================================================================
+
+const int INVALID_MONTH = -1;
 
 //====================================================================================
 
@@ -39,6 +45,8 @@ ExportController::ExportController(ExportView* exportView,
     connect(_exportView, &ExportView::pdfBtnClicked, this, [=](){
         setExportType(ExportType::Pdf);
     });
+
+    sortData();
 }
 
 //====================================================================================
@@ -65,36 +73,9 @@ void ExportController::choosePath()
 
 void ExportController::submitExport()
 {
-    EventsSqlModel* eventsSqlModel = static_cast<EventsSqlModel*>(_eventsProxyModel->sourceModel());
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
-    QString html;
-    html += "<html>"
-           "<meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />"
-           "<table border='1' align='center'>"
-           "<caption>Таблица из календаря (by stivius)</caption>"
-           "<tr>"
-           "<th>Изображение</th>"
-           "<th>Дата</th>"
-           "<th>Событие</th>"
-           "</tr>";
-    for(int i = 0; i != _eventsProxyModel->rowCount(); i++)
-    {
-        QString htmlRowTable =
-               "<tr align='center'>"
-               "<td width='%1' height='%2'><img src='%3' width='%1'></td>"
-               "<td width='%1' height='%2'>%4</td>"
-               "<td width='%1' height='%2'>%5</td>"
-               "</tr>";
-        QModelIndex sourceIndex = _eventsProxyModel->mapToSource(_eventsProxyModel->index(i, 0));
-        int row = sourceIndex.row();
-        QStringList images = eventsSqlModel->imagesList(row);
-        QString imagePath = QString();
-        if(!images.empty())
-            imagePath = _settingsSqlModel->imagesFolder() + images.at(0);
-        html += htmlRowTable.arg("100").arg("100").arg(imagePath).arg(eventsSqlModel->date(row)).arg(eventsSqlModel->shortDescription(row));
-    }
-    html += "</table>"
-           "</html>";
+    QString html = formatHtml();
+
     QDesktopServices process;
     if(_exportType == ExportType::Browser)
     {
@@ -117,15 +98,15 @@ void ExportController::submitExport()
         doc->print(&printer);
         process.openUrl(QUrl::fromLocalFile(_path + "export.pdf"));
     }
-    delete _exportView;
+    _exportView->close();
 }
 
 //====================================================================================
 
 void ExportController::setPath(const QString &path)
 {
-    _path = path;
-    _exportView->setPath(path + "/");
+    _path = path + "/";
+    _exportView->setPath(path);
 }
 
 //====================================================================================
@@ -136,3 +117,108 @@ void ExportController::setExportType(ExportType exportType)
 }
 
 //====================================================================================
+
+void ExportController::sortData()
+{
+    EventsSqlModel* _eventsSqlModel = static_cast<EventsSqlModel*>(_eventsProxyModel->sourceModel());
+
+    for(int i = 0; i != _eventsProxyModel->rowCount(); i++)
+    {
+        QModelIndex sourceIndex = _eventsProxyModel->mapToSource(_eventsProxyModel->index(i, 0));
+        int row = sourceIndex.row();
+        int day = _eventsSqlModel->day(row);
+        int month = _eventsSqlModel->month(row);
+        int year = _eventsSqlModel->year(row);
+        QString fullDescription = _eventsSqlModel->fullDescription(row);
+        _exportedEvents.push_back({day, month, year, fullDescription});
+    }
+
+    auto comparator = std::bind(&ExportController::lessThanMonth, this, std::placeholders::_1,  std::placeholders::_2);
+    std::sort(_exportedEvents.begin(), _exportedEvents.end(), comparator);
+}
+
+//====================================================================================
+
+bool ExportController::lessThanMonth(const Event& left, const Event& right)
+{
+    if(left._month == right._month)
+        return left._day < right._day;
+    return left._month < right._month;
+}
+
+//====================================================================================
+
+QString ExportController::formatHtml()
+{
+    QString html = "<html>"
+                   "<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>"
+                   "<table width=600 border='1' align='center'>"
+                   "<caption>Таблица из календаря</caption>";
+
+    int currentMonth = INVALID_MONTH, previousMonth = INVALID_MONTH;
+    QLocale locale(QLocale::Russian);
+    for(Event event: _exportedEvents)
+    {
+        currentMonth = event._month;
+        if(currentMonth != previousMonth)
+        {
+            QString htmlHeader = "<tr>"
+                                 "<th colspan=2>%1</th>" // месяц
+                                 "</tr>";
+            QString monthName;
+            if(event._month)
+                monthName = locale.standaloneMonthName(event._month);
+            else
+                monthName = "Месяц неизвестен";
+            monthName[0] = monthName[0].toUpper();
+            html += htmlHeader.arg(monthName);
+        }
+
+        QString htmlRow = "<tr>"
+                          "<td align=center>%1</td>"
+                          "<td><b>%2</b><br>%3</td>"
+                          "</tr>";
+        QString formattedYears = countYears(event._year);
+        html += htmlRow.arg(event._day).arg(formattedYears).arg(event._fullDescription);
+        previousMonth = currentMonth;
+    }
+    html += "</table>"
+            "</html>";
+
+    return html;
+}
+
+//====================================================================================
+
+QString ExportController::countYears(int year)
+{
+    QString result;
+
+    if(year == 0)
+        return QString("Год неизвестен");
+
+    int currentYear = QDate::currentDate().year();
+    QString yearsDifference = QString::number(abs(currentYear - year));
+    char lastDigit = yearsDifference.at(yearsDifference.size()-1).toLatin1();
+    switch(lastDigit)
+    {
+    case '1':
+        result += yearsDifference + " год";
+        break;
+    case '2':
+    case '3':
+    case '4':
+        result += yearsDifference + " года";
+        break;
+    default:
+        result += yearsDifference + " лет";
+        break;
+    }
+
+    if(currentYear - year >= 0)
+        result += " прошло";
+    else
+        result += " осталось";
+
+    return result;
+}

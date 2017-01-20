@@ -143,7 +143,7 @@ void EventView::setMapperModel(EventsSqlModel* eventsModel)
     _widgetMapper.setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     _widgetMapper.setModel(eventsModel);
     _widgetMapper.addMapping(ui->shortEdit, eventsModel->column(ShortDescription));
-    _widgetMapper.addMapping(ui->fullEdit, eventsModel->column(LongDescription));
+    _widgetMapper.addMapping(ui->fullEdit, eventsModel->column(FullDescription));
     _widgetMapper.addMapping(ui->extraEdit, eventsModel->column(ExtraDescription));
     _widgetMapper.addMapping(ui->themeBox, eventsModel->column(Theme));
     _widgetMapper.addMapping(ui->placeBox, eventsModel->column(Place));

@@ -12,6 +12,13 @@ enum class ExportType {
     Pdf
 };
 
+struct Event {
+    int _day;
+    int _month;
+    int _year;
+    QString _fullDescription;
+};
+
 class ExportController : public QObject
 {
     Q_OBJECT
@@ -32,6 +39,10 @@ private slots:
 
 private:
     void setExportType(ExportType exportType);
+    bool lessThanMonth(const Event &left, const Event &right);
+    void sortData();
+    QString formatHtml();
+    QString countYears(int year);
 
 private:
     ExportView* _exportView = nullptr;
@@ -40,6 +51,7 @@ private:
 
     QString _path;
     ExportType _exportType = ExportType::Pdf;
+    std::vector<Event> _exportedEvents;
 
 };
 

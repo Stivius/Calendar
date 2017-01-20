@@ -11,7 +11,7 @@ enum EventsModelRoles {
     Place,
     Source,
     Theme,
-    LongDescription,
+    FullDescription,
     ExtraDescription
 };
 
@@ -29,6 +29,7 @@ public:
     QString place(int row) const;
     QString source(int row) const;
     QString shortDescription(int row) const;
+    QString fullDescription(int row) const;
     QStringList imagesList(int row) const;
     void setImagesList(int row, QStringList imagesList);
     int day(int row) const;

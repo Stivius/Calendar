@@ -8,7 +8,6 @@
 #include "model/eventsproxymodel.h"
 #include "model/eventssqlmodel.h"
 #include "model/settingssqlmodel.h"
-#include "model/translationmodel.h"
 #include "view/exportview.h"
 #include "view/importview.h"
 #include "view/settingsview.h"
@@ -20,7 +19,7 @@
 
 //====================================================================================
 
-const int INVALID_INDEX = -1;
+const int INVALID_MONTH = -1;
 const int MIN_FONT_SIZE = 7;
 const int COLUMNS_COUNT = 5;
 
@@ -45,16 +44,15 @@ EventsMainWindow::EventsMainWindow(QWidget *parent) :
     _eventsSqlModel = std::unique_ptr<EventsSqlModel>(new EventsSqlModel(_database));
     _eventsProxyModel = std::unique_ptr<EventsProxyModel>(new EventsProxyModel(_eventsSqlModel.get()));
     _settingsSqlModel = std::unique_ptr<SettingsSqlModel>(new SettingsSqlModel(_database));
-    _translationModel = std::unique_ptr<TranslationModel>(new TranslationModel);
 
-    connect(_translationModel.get(), &TranslationModel::languageChanged, this, [=](Language language){
+    connect(&_translationModel, &TranslationModel::languageChanged, this, [=](Language language){
         _settingsSqlModel->setLanguage(language);
         _eventsSqlModel->updateHeadersData();
         _languagGroup->actions().at(static_cast<int>(language))->setChecked(true);
         ui->retranslateUi(this);
     });
 
-    _translationModel->setLanguage(_settingsSqlModel->language());
+    _translationModel.setLanguage(_settingsSqlModel->language());
 
     ui->tableView->setModel(_eventsProxyModel.get());
     QFont fnt;
@@ -80,7 +78,7 @@ EventsMainWindow::EventsMainWindow(QWidget *parent) :
     _widgetMapper.setModel(_eventsProxyModel.get());
 
     _widgetMapper.addMapping(ui->extraEdit, _eventsSqlModel->column(ExtraDescription));
-    _widgetMapper.addMapping(ui->fullEdit, _eventsSqlModel->column(LongDescription));
+    _widgetMapper.addMapping(ui->fullEdit, _eventsSqlModel->column(FullDescription));
     _widgetMapper.addMapping(ui->dateEdit, _eventsSqlModel->column(Date));
     _widgetMapper.addMapping(ui->themeEdit, _eventsSqlModel->column(Theme));
     _widgetMapper.addMapping(ui->placeEdit, _eventsSqlModel->column(Place));
@@ -126,7 +124,7 @@ void EventsMainWindow::on_tableView_doubleClicked(const QModelIndex &index)
 
 void EventsMainWindow::on_newEventAction_triggered()
 {
-    openEventView(INVALID_INDEX);
+    openEventView(INVALID_MONTH);
 }
 
 //====================================================================================
@@ -328,7 +326,6 @@ void EventsMainWindow::showMenu(const QPoint& pos)
     contextmenu->installEventFilter(this);
     contextmenu->setAttribute(Qt::WA_DeleteOnClose);
     contextmenu->addAction(ui->cardAction);
-    contextmenu->addAction(ui->fullList);
     contextmenu->addAction(ui->removeEvent);
     contextmenu->exec(globalPos);
 }
@@ -392,7 +389,7 @@ void EventsMainWindow::on_yearEdit_textChanged(const QString &year)
 
 void EventsMainWindow::on_listWidget_currentRowChanged(int currentRow)
 {
-    if(currentRow != INVALID_INDEX)
+    if(currentRow != INVALID_MONTH)
     {
         if(ui->themeAction->isChecked())
         {
@@ -447,7 +444,7 @@ void EventsMainWindow::hideColumns()
 {
     ui->tableView->setColumnHidden(_eventsSqlModel->column(Id), true);
     ui->tableView->setColumnHidden(_eventsSqlModel->column(Theme), true);
-    ui->tableView->setColumnHidden(_eventsSqlModel->column(LongDescription), true);
+    ui->tableView->setColumnHidden(_eventsSqlModel->column(FullDescription), true);
     ui->tableView->setColumnHidden(_eventsSqlModel->column(ExtraDescription), true);
 }
 
@@ -455,21 +452,21 @@ void EventsMainWindow::hideColumns()
 
 void EventsMainWindow::on_russianAction_triggered()
 {
-    _translationModel->setLanguage(Russian);
+    _translationModel.setLanguage(Russian);
 }
 
 //====================================================================================
 
 void EventsMainWindow::on_ukrainianAction_triggered()
 {
-    _translationModel->setLanguage(Ukrainian);
+    _translationModel.setLanguage(Ukrainian);
 }
 
 //====================================================================================
 
 void EventsMainWindow::on_englishAction_triggered()
 {
-    _translationModel->setLanguage(English);
+    _translationModel.setLanguage(English);
 }
 
 //====================================================================================
