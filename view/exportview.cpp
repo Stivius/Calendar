@@ -13,6 +13,8 @@ ExportView::ExportView(QWidget *parent) :
     connect(ui->submitExportBtn, &QPushButton::clicked, this, &ExportView::submitBtnClicked);
     connect(ui->browserBtn, &QPushButton::clicked, this, &ExportView::browserBtnClicked);
     connect(ui->pdfBtn, &QPushButton::clicked, this, &ExportView::pdfBtnClicked);
+    connect(ui->memoryDatesBtn, &QPushButton::clicked, this, &ExportView::memoryDatesBtnClicked);
+    connect(ui->usualEventsBtn, &QPushButton::clicked, this, &ExportView::usualEventsBtnClicked);
 }
 
 //====================================================================================

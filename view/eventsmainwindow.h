@@ -41,7 +41,6 @@ private slots:
     void on_placeAction_triggered();
     void showMenu(const QPoint&);
     void on_removeEvent_triggered();
-    void on_fullList_triggered();
     void on_cardAction_triggered();
     void on_increaseFont_triggered();
     void on_decreaseFont_triggered();

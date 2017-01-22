@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="en_US">
+<TS version="2.0" language="en_US">
 <context>
     <name>EventController</name>
     <message>
@@ -9,18 +9,17 @@
         <translation>Date is wrong!</translation>
     </message>
     <message>
-        <location filename="../controller/eventcontroller.cpp" line="158"/>
+        <location filename="../controller/eventcontroller.cpp" line="159"/>
         <source>Файла %1 не существует!</source>
         <oldsource>Файла </oldsource>
         <translation>File %1 does not exist!</translation>
     </message>
     <message>
-        <location filename="../controller/eventcontroller.cpp" line="184"/>
+        <location filename="../controller/eventcontroller.cpp" line="183"/>
         <source>Файл с таким именем уже есть!</source>
         <translation>File with this name already exists!</translation>
     </message>
     <message>
-        <location filename="../controller/eventcontroller.cpp" line="187"/>
         <source>Неверное изображение!</source>
         <translation>Wrong image!</translation>
     </message>
@@ -682,7 +681,7 @@
     </message>
     <message>
         <location filename="../ui/eventsmainwindow.ui" line="636"/>
-        <location filename="../view/eventsmainwindow.cpp" line="266"/>
+        <location filename="../view/eventsmainwindow.cpp" line="264"/>
         <source>Справка</source>
         <translation>Help</translation>
     </message>
@@ -692,42 +691,41 @@
         <translation>Card</translation>
     </message>
     <message>
-        <location filename="../ui/eventsmainwindow.ui" line="646"/>
         <source>Показать полный список</source>
         <translation>Show full list</translation>
     </message>
     <message>
-        <location filename="../ui/eventsmainwindow.ui" line="651"/>
+        <location filename="../ui/eventsmainwindow.ui" line="646"/>
         <source>Удалить</source>
         <translation>Delete</translation>
     </message>
     <message>
-        <location filename="../ui/eventsmainwindow.ui" line="662"/>
+        <location filename="../ui/eventsmainwindow.ui" line="657"/>
         <source>Русский</source>
         <translation>Russian</translation>
     </message>
     <message>
-        <location filename="../ui/eventsmainwindow.ui" line="670"/>
+        <location filename="../ui/eventsmainwindow.ui" line="665"/>
         <source>Украинский</source>
         <translation>Ukrainian</translation>
     </message>
     <message>
-        <location filename="../ui/eventsmainwindow.ui" line="678"/>
+        <location filename="../ui/eventsmainwindow.ui" line="673"/>
         <source>Английский</source>
         <translation>English</translation>
     </message>
     <message>
-        <location filename="../view/eventsmainwindow.cpp" line="266"/>
+        <location filename="../view/eventsmainwindow.cpp" line="264"/>
         <source>Справка будет добавлена позже</source>
         <translation>Help will be added later</translation>
     </message>
     <message>
-        <location filename="../view/eventsmainwindow.cpp" line="274"/>
+        <location filename="../view/eventsmainwindow.cpp" line="272"/>
         <source>тематика</source>
         <translation>subject</translation>
     </message>
     <message>
-        <location filename="../view/eventsmainwindow.cpp" line="297"/>
+        <location filename="../view/eventsmainwindow.cpp" line="295"/>
         <source>место</source>
         <translation>place</translation>
     </message>
@@ -735,27 +733,27 @@
 <context>
     <name>EventsSqlModel</name>
     <message>
-        <location filename="../model/eventssqlmodel.cpp" line="253"/>
+        <location filename="../model/eventssqlmodel.cpp" line="260"/>
         <source>Дата</source>
         <translation>Date</translation>
     </message>
     <message>
-        <location filename="../model/eventssqlmodel.cpp" line="254"/>
+        <location filename="../model/eventssqlmodel.cpp" line="261"/>
         <source>Событие</source>
         <translation>Event</translation>
     </message>
     <message>
-        <location filename="../model/eventssqlmodel.cpp" line="255"/>
+        <location filename="../model/eventssqlmodel.cpp" line="262"/>
         <source>Фото</source>
         <translation>Images</translation>
     </message>
     <message>
-        <location filename="../model/eventssqlmodel.cpp" line="256"/>
+        <location filename="../model/eventssqlmodel.cpp" line="263"/>
         <source>Место</source>
         <translation>Place</translation>
     </message>
     <message>
-        <location filename="../model/eventssqlmodel.cpp" line="257"/>
+        <location filename="../model/eventssqlmodel.cpp" line="264"/>
         <source>Источник</source>
         <translation>Source</translation>
     </message>
@@ -774,12 +772,12 @@
     <name>ExportView</name>
     <message>
         <location filename="../ui/exportview.ui" line="14"/>
-        <location filename="../ui/exportview.ui" line="62"/>
+        <location filename="../ui/exportview.ui" line="90"/>
         <source>Экспорт</source>
         <translation>Export</translation>
     </message>
     <message>
-        <location filename="../ui/exportview.ui" line="27"/>
+        <location filename="../ui/exportview.ui" line="25"/>
         <source>Выбрать</source>
         <translation>Choose</translation>
     </message>
@@ -798,6 +796,21 @@
         <source>Формат веб-браузера</source>
         <oldsource>Формат веб-бразуера</oldsource>
         <translation>Web-browser format</translation>
+    </message>
+    <message>
+        <location filename="../ui/exportview.ui" line="62"/>
+        <source>Формат экспорта</source>
+        <translation>Export format</translation>
+    </message>
+    <message>
+        <location filename="../ui/exportview.ui" line="68"/>
+        <source>Памятные даты</source>
+        <translation>Memory Dates</translation>
+    </message>
+    <message>
+        <location filename="../ui/exportview.ui" line="78"/>
+        <source>Обычные события</source>
+        <translation>Usual events</translation>
     </message>
 </context>
 <context>

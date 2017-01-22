@@ -19,7 +19,7 @@
 
 //====================================================================================
 
-const int INVALID_MONTH = -1;
+const int INVALID_INDEX = -1;
 const int MIN_FONT_SIZE = 7;
 const int COLUMNS_COUNT = 5;
 
@@ -124,7 +124,7 @@ void EventsMainWindow::on_tableView_doubleClicked(const QModelIndex &index)
 
 void EventsMainWindow::on_newEventAction_triggered()
 {
-    openEventView(INVALID_MONTH);
+    openEventView(INVALID_INDEX);
 }
 
 //====================================================================================
@@ -312,13 +312,6 @@ void EventsMainWindow::on_placeAction_triggered()
 
 //====================================================================================
 
-void EventsMainWindow::on_fullList_triggered()
-{
-    qDebug() << "FullList";
-}
-
-//====================================================================================
-
 void EventsMainWindow::showMenu(const QPoint& pos)
 {
     QPoint globalPos = ui->tableView->mapToGlobal(pos);
@@ -389,7 +382,7 @@ void EventsMainWindow::on_yearEdit_textChanged(const QString &year)
 
 void EventsMainWindow::on_listWidget_currentRowChanged(int currentRow)
 {
-    if(currentRow != INVALID_MONTH)
+    if(currentRow != INVALID_INDEX)
     {
         if(ui->themeAction->isChecked())
         {

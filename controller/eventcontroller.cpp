@@ -11,7 +11,7 @@
 
 //====================================================================================
 
-const int INVALID_MONTH = -1;
+const int INVALID_INDEX = -1;
 const int MIN_WIDTH = 150;
 const int MIN_HEIGHT = 150;
 const QString EXTENSION_PATTERN = "(.png)|(.jpg)|(.jpeg)";
@@ -51,7 +51,7 @@ EventController::EventController(EventView* eventView,
     _eventView->addPlaces(places.toList());
     _eventView->addSources(sources.toList());
 
-    if(_currentRow != INVALID_MONTH)
+    if(_currentRow != INVALID_INDEX)
     {
         _eventView->setDay(_eventsModel->day(_currentRow));
         _eventView->setMonth(_eventsModel->month(_currentRow));
@@ -113,7 +113,7 @@ void EventController::cancelSaving()
 
 void EventController::openCurrentImage()
 {
-   if(_currentImageIndex != INVALID_MONTH)
+   if(_currentImageIndex != INVALID_INDEX)
    {
        QDesktopServices process;
        if(_images[_currentImageIndex]._tempPath == QString()) // images was previously saved
@@ -131,6 +131,7 @@ void EventController::openFileDialog()
    // import->setOption(QFileDialog::DontUseNativeDialog, true);
    connect(import, &QFileDialog::fileSelected, this, &EventController::uploadImage);
    import->setWindowModality(Qt::ApplicationModal);
+   import->setNameFilter("*.png *.jpg *.jpeg");
    import->setAttribute(Qt::WA_DeleteOnClose);
    import->show();
 }
@@ -166,25 +167,20 @@ void EventController::loadImages()
 
 void EventController::uploadImage(const QString& filePath)
 {
-   if(filePath.indexOf(QRegExp(EXTENSION_PATTERN, Qt::CaseInsensitive)) != INVALID_MONTH) // только .PNG или .JPG/.JPEG
-   {
-       QFileInfo fullPath(filePath);
-       QString imageName = fullPath.fileName();
-       QFile file(_settingsModel->imagesFolder() + imageName);
-       if(!file.exists()) // check if loaded file exists
-       {
-           QPixmap loadedPixmap;
-           loadedPixmap.load(filePath);
-           QPixmap scaledPixmap = loadedPixmap.scaled(MIN_WIDTH, MIN_HEIGHT, Qt::KeepAspectRatio);
-           _eventView->setCurrentImage(scaledPixmap);
-           _images.push_back(Image{loadedPixmap, imageName, filePath});
-           _currentImageIndex = _images.size() - 1;
-       }
-       else
-           QMessageBox::critical(_eventView, "Error", tr("Файл с таким именем уже есть!"));
-   }
-   else
-       QMessageBox::critical(_eventView, "Error", tr("Неверное изображение!"), QMessageBox::Ok);
+    QFileInfo fullPath(filePath);
+    QString imageName = fullPath.fileName();
+    QFile file(_settingsModel->imagesFolder() + imageName);
+    if(!file.exists()) // check if loaded file exists
+    {
+       QPixmap loadedPixmap;
+       loadedPixmap.load(filePath);
+       QPixmap scaledPixmap = loadedPixmap.scaled(MIN_WIDTH, MIN_HEIGHT, Qt::KeepAspectRatio);
+       _eventView->setCurrentImage(scaledPixmap);
+       _images.push_back(Image{loadedPixmap, imageName, filePath});
+       _currentImageIndex = _images.size() - 1;
+    }
+    else
+       QMessageBox::critical(_eventView, "Error", tr("Файл с таким именем уже есть!"));
 }
 
 //====================================================================================
@@ -198,7 +194,7 @@ void EventController::removeImage()
        _images.erase(_images.begin() + _currentImageIndex);
        if(_images.empty())
        {
-           _currentImageIndex = INVALID_MONTH;
+           _currentImageIndex = INVALID_INDEX;
            QPixmap blankPixmap(MIN_WIDTH, MIN_HEIGHT);
            blankPixmap.fill(Qt::transparent);
            _eventView->setCurrentImage(blankPixmap);

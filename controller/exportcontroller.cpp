@@ -18,7 +18,7 @@
 
 //====================================================================================
 
-const int INVALID_MONTH = -1;
+const int INVALID_INDEX = -1;
 
 //====================================================================================
 
@@ -31,6 +31,7 @@ ExportController::ExportController(ExportView* exportView,
     _eventsProxyModel(eventsProxyModel),
     _settingsSqlModel(settingsSqlModel)
 {
+    QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
     setPath(QApplication::applicationDirPath());
 
     connect(_exportView, &ExportView::destroyed, this, &ExportController::finished);
@@ -39,14 +40,22 @@ ExportController::ExportController(ExportView* exportView,
     connect(_exportView, &ExportView::submitBtnClicked, this, &ExportController::submitExport);
 
     connect(_exportView, &ExportView::browserBtnClicked, this, [=](){
-        setExportType(ExportType::Browser);
+        _exportType = ExportType::Browser;
     });
 
     connect(_exportView, &ExportView::pdfBtnClicked, this, [=](){
-        setExportType(ExportType::Pdf);
+        _exportType = ExportType::Pdf;
     });
 
-    sortData();
+    connect(_exportView, &ExportView::memoryDatesBtnClicked, this, [=](){
+        _exportFormat = ExportFormat::MemoryDates;
+    });
+
+    connect(_exportView, &ExportView::usualEventsBtnClicked, this, [=](){
+        _exportFormat = ExportFormat::UsualEvents;
+    });
+
+    initializeData();
 }
 
 //====================================================================================
@@ -73,10 +82,24 @@ void ExportController::choosePath()
 
 void ExportController::submitExport()
 {
-    QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
-    QString html = formatHtml();
-
+    LessThanComparator comp;
+    QString html;
     QDesktopServices process;
+
+    if(_exportFormat == ExportFormat::MemoryDates)
+    {
+        comp = std::bind(&ExportController::lessThanMonth, this, std::placeholders::_1, std::placeholders::_2);
+        std::sort(_exportedEvents.begin(), _exportedEvents.end(), comp);
+        html = formatMemoryDates();
+
+    }
+    else
+    {
+        comp = std::bind(&ExportController::lessThanYear, this, std::placeholders::_1, std::placeholders::_2);
+        std::sort(_exportedEvents.begin(), _exportedEvents.end(), comp);
+        html = formatUsualEvents();
+    }
+
     if(_exportType == ExportType::Browser)
     {
         QFile file(_path + "export.html");
@@ -111,14 +134,7 @@ void ExportController::setPath(const QString &path)
 
 //====================================================================================
 
-void ExportController::setExportType(ExportType exportType)
-{
-    _exportType = exportType;
-}
-
-//====================================================================================
-
-void ExportController::sortData()
+void ExportController::initializeData()
 {
     EventsSqlModel* _eventsSqlModel = static_cast<EventsSqlModel*>(_eventsProxyModel->sourceModel());
 
@@ -132,9 +148,6 @@ void ExportController::sortData()
         QString fullDescription = _eventsSqlModel->fullDescription(row);
         _exportedEvents.push_back({day, month, year, fullDescription});
     }
-
-    auto comparator = std::bind(&ExportController::lessThanMonth, this, std::placeholders::_1,  std::placeholders::_2);
-    std::sort(_exportedEvents.begin(), _exportedEvents.end(), comparator);
 }
 
 //====================================================================================
@@ -143,45 +156,96 @@ bool ExportController::lessThanMonth(const Event& left, const Event& right)
 {
     if(left._month == right._month)
         return left._day < right._day;
+
     return left._month < right._month;
 }
 
 //====================================================================================
 
-QString ExportController::formatHtml()
+bool ExportController::lessThanYear(const Event& left, const Event& right)
 {
-    QString html = "<html>"
-                   "<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>"
-                   "<table width=600 border='1' align='center'>"
-                   "<caption>Таблица из календаря</caption>";
+    if(left._year == right._year)
+        return lessThanMonth(left, right);
 
-    int currentMonth = INVALID_MONTH, previousMonth = INVALID_MONTH;
-    QLocale locale(QLocale::Russian);
+    return left._year < right._year;
+}
+
+//====================================================================================
+
+QString ExportController::formatMonths(int year)
+{
+    int currentMonth = INVALID_INDEX, previousMonth = INVALID_INDEX;
+    QString formattedMonths;
+
     for(Event event: _exportedEvents)
     {
-        currentMonth = event._month;
-        if(currentMonth != previousMonth)
+        if(event._year == year || year == INVALID_INDEX)
         {
-            QString htmlHeader = "<tr>"
-                                 "<th colspan=2>%1</th>" // месяц
-                                 "</tr>";
-            QString monthName;
-            if(event._month)
-                monthName = locale.standaloneMonthName(event._month);
-            else
-                monthName = "Месяц неизвестен";
-            monthName[0] = monthName[0].toUpper();
-            html += htmlHeader.arg(monthName);
+            currentMonth = event._month;
+            if(currentMonth != previousMonth)
+            {
+                QString formattedMonthName = "<tr>"
+                                             "<th colspan=2>%1</th>"
+                                             "</tr>";
+                formattedMonths += formattedMonthName.arg(formatMonthName(event._month));
+            }
+            formattedMonths += formatEvent(event);
+            previousMonth = currentMonth;
         }
-
-        QString htmlRow = "<tr>"
-                          "<td align=center>%1</td>"
-                          "<td><b>%2</b><br>%3</td>"
-                          "</tr>";
-        QString formattedYears = countYears(event._year);
-        html += htmlRow.arg(event._day).arg(formattedYears).arg(event._fullDescription);
-        previousMonth = currentMonth;
     }
+    return formattedMonths;
+}
+
+//====================================================================================
+
+QString ExportController::formatUsualEvents()
+{
+    QString formattedYears;
+    int currentYear = INVALID_INDEX, previousYear = INVALID_INDEX;
+
+    for(Event event: _exportedEvents)
+    {
+        currentYear = event._year;
+
+        if(currentYear != previousYear)
+        {
+            QString html;
+            html += "<html>"
+                    "<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>"
+                    "<table width=600 border='1' align='center'>"
+                    "<caption>%1</caption>";
+
+            html += formatMonths(event._year);
+            html += "</table>"
+                    "</html>";
+            html += "<br><br>";
+
+            QString sYear;
+            if(event._year == 0)
+                sYear = "Год неизвестен";
+            else
+                sYear = QString::number(event._year);
+
+            formattedYears += html.arg(sYear);
+        }
+        previousYear = currentYear;
+    }
+    return formattedYears;
+}
+
+//====================================================================================
+
+QString ExportController::formatMemoryDates()
+{
+    QString html;
+
+    html += "<html>"
+            "<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>"
+            "<table width=600 border='1' align='center'>"
+            "<caption>Памятные даты</caption>";
+
+    html += formatMonths();
+
     html += "</table>"
             "</html>";
 
@@ -200,6 +264,7 @@ QString ExportController::countYears(int year)
     int currentYear = QDate::currentDate().year();
     QString yearsDifference = QString::number(abs(currentYear - year));
     char lastDigit = yearsDifference.at(yearsDifference.size()-1).toLatin1();
+
     switch(lastDigit)
     {
     case '1':
@@ -215,10 +280,39 @@ QString ExportController::countYears(int year)
         break;
     }
 
-    if(currentYear - year >= 0)
-        result += " прошло";
-    else
-        result += " осталось";
-
-    return result;
+    return result + " назад";
 }
+
+//====================================================================================
+
+QString ExportController::formatMonthName(int month)
+{
+    QLocale locale(QLocale::Russian);
+
+    QString monthName;
+    if(month)
+        monthName = locale.standaloneMonthName(month);
+    else
+        monthName = "Месяц неизвестен";
+    monthName[0] = monthName[0].toUpper();
+
+    return monthName;
+}
+
+//====================================================================================
+
+QString ExportController::formatEvent(const Event& event)
+{
+    QString formattedEvent = "<tr>"
+                             "<td width=30 align=center>%1</td>"
+                             "<td><b>%2</b>%3</td>"
+                             "</tr>";
+
+    QString formattedYears;
+    if(_exportFormat == ExportFormat::MemoryDates)
+        formattedYears = countYears(event._year) + "<br>";
+
+    return formattedEvent.arg(event._day).arg(formattedYears).arg(event._fullDescription);
+}
+
+//====================================================================================

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1">
+<TS version="2.0">
 <context>
     <name>EventController</name>
     <message>
@@ -9,18 +9,17 @@
         <translation>Дата невірна!</translation>
     </message>
     <message>
-        <location filename="../controller/eventcontroller.cpp" line="158"/>
+        <location filename="../controller/eventcontroller.cpp" line="159"/>
         <source>Файла %1 не существует!</source>
         <oldsource>Файла </oldsource>
         <translation>Файл %1 не існує!</translation>
     </message>
     <message>
-        <location filename="../controller/eventcontroller.cpp" line="184"/>
+        <location filename="../controller/eventcontroller.cpp" line="183"/>
         <source>Файл с таким именем уже есть!</source>
         <translation>Файл з такою назвою вже є!</translation>
     </message>
     <message>
-        <location filename="../controller/eventcontroller.cpp" line="187"/>
         <source>Неверное изображение!</source>
         <translation>Невірне зображення!</translation>
     </message>
@@ -682,7 +681,7 @@
     </message>
     <message>
         <location filename="../ui/eventsmainwindow.ui" line="636"/>
-        <location filename="../view/eventsmainwindow.cpp" line="266"/>
+        <location filename="../view/eventsmainwindow.cpp" line="264"/>
         <source>Справка</source>
         <translation>Довідка</translation>
     </message>
@@ -692,42 +691,41 @@
         <translation>Картка</translation>
     </message>
     <message>
-        <location filename="../ui/eventsmainwindow.ui" line="646"/>
         <source>Показать полный список</source>
         <translation>Показати повний список</translation>
     </message>
     <message>
-        <location filename="../ui/eventsmainwindow.ui" line="651"/>
+        <location filename="../ui/eventsmainwindow.ui" line="646"/>
         <source>Удалить</source>
         <translation>Видалити</translation>
     </message>
     <message>
-        <location filename="../ui/eventsmainwindow.ui" line="662"/>
+        <location filename="../ui/eventsmainwindow.ui" line="657"/>
         <source>Русский</source>
         <translation>Російська</translation>
     </message>
     <message>
-        <location filename="../ui/eventsmainwindow.ui" line="670"/>
+        <location filename="../ui/eventsmainwindow.ui" line="665"/>
         <source>Украинский</source>
         <translation>Українська</translation>
     </message>
     <message>
-        <location filename="../ui/eventsmainwindow.ui" line="678"/>
+        <location filename="../ui/eventsmainwindow.ui" line="673"/>
         <source>Английский</source>
         <translation>Англійська</translation>
     </message>
     <message>
-        <location filename="../view/eventsmainwindow.cpp" line="266"/>
+        <location filename="../view/eventsmainwindow.cpp" line="264"/>
         <source>Справка будет добавлена позже</source>
         <translation>Довідка буде додана пізніше</translation>
     </message>
     <message>
-        <location filename="../view/eventsmainwindow.cpp" line="274"/>
+        <location filename="../view/eventsmainwindow.cpp" line="272"/>
         <source>тематика</source>
         <translation>тематика</translation>
     </message>
     <message>
-        <location filename="../view/eventsmainwindow.cpp" line="297"/>
+        <location filename="../view/eventsmainwindow.cpp" line="295"/>
         <source>место</source>
         <translation>місце</translation>
     </message>
@@ -735,27 +733,27 @@
 <context>
     <name>EventsSqlModel</name>
     <message>
-        <location filename="../model/eventssqlmodel.cpp" line="253"/>
+        <location filename="../model/eventssqlmodel.cpp" line="260"/>
         <source>Дата</source>
         <translation>Дата</translation>
     </message>
     <message>
-        <location filename="../model/eventssqlmodel.cpp" line="254"/>
+        <location filename="../model/eventssqlmodel.cpp" line="261"/>
         <source>Событие</source>
         <translation>Подія</translation>
     </message>
     <message>
-        <location filename="../model/eventssqlmodel.cpp" line="255"/>
+        <location filename="../model/eventssqlmodel.cpp" line="262"/>
         <source>Фото</source>
         <translation>Фото</translation>
     </message>
     <message>
-        <location filename="../model/eventssqlmodel.cpp" line="256"/>
+        <location filename="../model/eventssqlmodel.cpp" line="263"/>
         <source>Место</source>
         <translation>Місце</translation>
     </message>
     <message>
-        <location filename="../model/eventssqlmodel.cpp" line="257"/>
+        <location filename="../model/eventssqlmodel.cpp" line="264"/>
         <source>Источник</source>
         <translation>Джерело</translation>
     </message>
@@ -774,12 +772,12 @@
     <name>ExportView</name>
     <message>
         <location filename="../ui/exportview.ui" line="14"/>
-        <location filename="../ui/exportview.ui" line="62"/>
+        <location filename="../ui/exportview.ui" line="90"/>
         <source>Экспорт</source>
         <translation>Експорт</translation>
     </message>
     <message>
-        <location filename="../ui/exportview.ui" line="27"/>
+        <location filename="../ui/exportview.ui" line="25"/>
         <source>Выбрать</source>
         <translation>Вибрати</translation>
     </message>
@@ -798,6 +796,21 @@
         <source>Формат веб-браузера</source>
         <oldsource>Формат веб-бразуера</oldsource>
         <translation>Формат веб-браузера</translation>
+    </message>
+    <message>
+        <location filename="../ui/exportview.ui" line="62"/>
+        <source>Формат экспорта</source>
+        <translation>Формат експорту</translation>
+    </message>
+    <message>
+        <location filename="../ui/exportview.ui" line="68"/>
+        <source>Памятные даты</source>
+        <translation>Пам&apos;ятні дати</translation>
+    </message>
+    <message>
+        <location filename="../ui/exportview.ui" line="78"/>
+        <source>Обычные события</source>
+        <translation>Звичайні події</translation>
     </message>
 </context>
 <context>

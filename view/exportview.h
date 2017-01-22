@@ -15,6 +15,8 @@ signals:
     void submitBtnClicked();
     void browserBtnClicked();
     void pdfBtnClicked();
+    void memoryDatesBtnClicked();
+    void usualEventsBtnClicked();
 
 public:
     ExportView(QWidget *parent = 0);
