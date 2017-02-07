@@ -11,7 +11,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets sql printsupport
 TARGET = Calendar
 TEMPLATE = app
 
-QMAKE_LFLAGS_RELEASE += -static -static-libgcc
+#QMAKE_LFLAGS_RELEASE += -static -static-libgcc
 include(qtxlsx/src/xlsx/qtxlsx.pri)
 
 RC_ICONS = favicon.ico
