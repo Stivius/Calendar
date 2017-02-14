@@ -6,15 +6,39 @@
 
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets sql printsupport
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets sql printsupport xlsx
 
 TARGET = Calendar
 TEMPLATE = app
 
-QMAKE_LFLAGS_RELEASE += -static -static-libgcc
-include(qtxlsx/src/xlsx/qtxlsx.pri)
+#include(qtxlsx/qtxlsx.pri)
 
 RC_ICONS = favicon.ico
+
+DESTDIR = $${OUT_PWD}/build/bin
+
+#QMAKE_LFLAGS_RELEASE += -static -static-libgcc
+QMAKE_LFLAGS += "-Wl,-rpath,'\$$ORIGIN/../lib'"
+
+QT_LIBS.path = $${OUT_PWD}/build/lib
+
+linux-g++ {
+    QT_LIBS.files += $$PWD/libqt/*.so.*
+}
+
+QT_PLUGINS.path = $${OUT_PWD}/build
+
+linux-g++ {
+    QT_PLUGINS.files += $$PWD/libqt/plugins
+}
+
+QT_CONF.path = $${OUT_PWD}/build/bin
+QT_CONF.files += $$PWD/libqt/qt.conf
+
+INSTALLS += QT_LIBS \
+            QT_PLUGINS \
+            QT_CONF
+
 
 TRANSLATIONS += translations/Calendar_en.ts \
     translations/Calendar_ua.ts

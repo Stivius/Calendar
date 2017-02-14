@@ -1,4 +1,6 @@
 # Calendar
+[![Build Status](https://travis-ci.org/Stivius/Calendar.svg?branch=master)](https://travis-ci.org/Stivius/Calendar)
+
 The first release for Windows/Linux.
 List of main features:
 - Create and store past/future events

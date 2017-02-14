@@ -1,0 +1,32 @@
+language: cpp
+os: linux
+dist: trusty
+sudo: required
+compiler: gcc
+before_install:
+- sudo add-apt-repository ppa:beineri/opt-qt571-trusty -y
+- sudo apt-get update -qq
+install:
+- sudo apt-get install -qq qt57base
+- source /opt/qt57/bin/qt57-env.sh
+- git clone https://github.com/qtxlsx/QtXlsxWriter
+- cd QtXlsxWriter
+- qmake
+- make
+- sudo make install
+script:
+- cd ..
+- qmake -v
+- qmake
+- make
+- sudo make install
+- zip -r binaries.zip build
+deploy:
+  provider: releases
+  skip_cleanup: true
+  api_key:
+    secure: j6M/U7x8oAw1syQjWB6a/gMGiuCCpOlgkxa8x6I4KkA2tx3n8rTwTy6YxxQY+vVzV/mUJbhSEm0vhTZj2DAxdajX4TLMoTPrr0o431JrdpuFD8q9KV9ppg5PtoeIofTnXxu5DDb6iumY/wdgqY20wKwOApgx9FHu9CzjxGVNlZC50+mOJj51OENwiTKa0nZD4tCcEIgaUbYuq/dvYHQJJvx1XXCKtDWS3H1oRQ9GyY0/qZEmzFtiTzaeBGonvBxCKt/EVd/vKyinm/7fKjJph1rZeDtyl5V0rgi3bxPOHvZmh8Gh0VoZfn9ND6icCds/Xh61qDyyVpMf2j0nHGxSZCSBdtQu5PORDhY+H0C0uix3dMOlw/iPlAbULPhFW0p5a8YxWBSFxbNbdasZuubokkH9rnm24rmyZhxdN54XylXtLrvy+ed8CZSWpjcFsAcUDU2mtGiKpPKHHUNgkPtD7AzPoFIJXR5ds0BQKp8FnfFIt0aimWT5C3Va2DcJIb6jn5cWhtPvayGDo4vAlgLdNywTu7YCJ3VGwJxyXKuGsIw3uUJ7j09B2O+HSfk8BoBcrGSPs1JtpX3ZFI1khKMf9N59eS3F18+WVaAtS2GauA1lM9bn7sVJ10ndoojoKJNgDqecqQVDYFVVYSqfu2RJqpSWjiAjhF8dKBGzf2XXsVs=
+  file: binaries.zip
+  on:
+    repo: Stivius/Calendar
+    tags: true
