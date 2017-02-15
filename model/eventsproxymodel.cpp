@@ -10,19 +10,19 @@ const int NUMBER_OF_FILTERS = 8;
 
 //====================================================================================
 
-EventsProxyModel::EventsProxyModel(EventsSqlModel* model, QObject *parent) :
+EventsProxyModel::EventsProxyModel(std::shared_ptr<EventsSqlModel>& model, QObject *parent) :
     QSortFilterProxyModel(parent),
     _model(model),
     _filters(NUMBER_OF_FILTERS, QVariant())
 {
-    setSourceModel(_model);
+    setSourceModel(_model.get());
 }
 
 //====================================================================================
 
 EventsProxyModel::~EventsProxyModel()
 {
-    //qDebug() << "eventsproxy model deleted";
+    qDebug() << "eventsproxy model deleted";
 }
 
 //====================================================================================

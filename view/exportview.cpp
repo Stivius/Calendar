@@ -1,6 +1,8 @@
 #include "exportview.h"
 #include "ui_exportview.h"
 
+#include "controller/exportcontroller.h"
+
 //====================================================================================
 
 ExportView::ExportView(QWidget *parent) :
@@ -22,6 +24,13 @@ ExportView::ExportView(QWidget *parent) :
 ExportView::~ExportView()
 {
     delete ui;
+}
+
+//====================================================================================
+
+void ExportView::setController(std::shared_ptr<ExportController>& exportController)
+{
+    _exportController = exportController;
 }
 
 //====================================================================================

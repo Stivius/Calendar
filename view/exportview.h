@@ -2,6 +2,9 @@
 #define EXPORT_H
 
 #include <QDialog>
+#include <memory>
+
+class ExportController;
 
 namespace Ui {
 class ExportView;
@@ -22,9 +25,11 @@ public:
     ExportView(QWidget *parent = 0);
     ~ExportView();
     void setPath(const QString& path);
+    void setController(std::shared_ptr<ExportController> &exportController);
 
 private:
     Ui::ExportView *ui;
+    std::shared_ptr<ExportController> _exportController;
 
 };
 

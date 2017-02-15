@@ -2,6 +2,9 @@
 #define IMPORT_H
 
 #include <QDialog>
+#include <memory>
+
+class ImportController;
 
 namespace Ui {
 class ImportView;
@@ -19,9 +22,11 @@ public:
     explicit ImportView(QWidget *parent = 0);
     ~ImportView();
     void setPath(const QString &path);
+    void setController(std::shared_ptr<ImportController> &importController);
 
 private:
     Ui::ImportView *ui;
+    std::shared_ptr<ImportController> _importController;
 
 };
 

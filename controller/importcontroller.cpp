@@ -20,15 +20,13 @@ const QString EXCEL_DATE_FORMAT = "yyyy-MM-dd";
 //====================================================================================
 
 ImportController::ImportController(ImportView* importView,
-                                   EventsSqlModel* eventsSqlModel,
+                                   std::shared_ptr<EventsSqlModel> &eventsSqlModel,
                                    QObject *parent) :
     QObject(parent),
     _importView(importView),
     _eventsSqlModel(eventsSqlModel)
 {
     setPath(QApplication::applicationDirPath());
-
-    connect(_importView, &ImportView::destroyed, this, &ImportController::finished);
 
     connect(_importView, &ImportView::choosePathBtnClicked, this, &ImportController::choosePath);
     connect(_importView, &ImportView::importBtnClicked, this, &ImportController::importEvents);
@@ -39,7 +37,7 @@ ImportController::ImportController(ImportView* importView,
 
 ImportController::~ImportController()
 {
-
+    qDebug() << "importcontroller deleted";
 }
 
 //====================================================================================

@@ -2,6 +2,7 @@
 #include "ui_settingsview.h"
 
 #include "model/settingssqlmodel.h"
+#include "controller/settingscontroller.h"
 
 //====================================================================================
 
@@ -41,6 +42,13 @@ void SettingsView::setMapperModel(SettingsSqlModel* settingsSqlModel)
     _widgetMapper.addMapping(ui->qualitySlider, settingsSqlModel->column(Quality));
     _widgetMapper.addMapping(ui->anniversaryBtn, settingsSqlModel->column(AnniversaryDates));
     _widgetMapper.setCurrentIndex(0);
+}
+
+//====================================================================================
+
+void SettingsView::setController(std::shared_ptr<SettingsController> &settingsController)
+{
+    _settingsController = settingsController;
 }
 
 //====================================================================================

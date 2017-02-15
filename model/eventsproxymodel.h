@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QSortFilterProxyModel>
+#include <memory>
 
 class EventsSqlModel;
 
@@ -24,7 +25,7 @@ signals:
     void filterUpdated();
 
 public:
-    explicit EventsProxyModel(EventsSqlModel* model, QObject *parent = 0);
+    explicit EventsProxyModel(std::shared_ptr<EventsSqlModel>& model, QObject *parent = 0);
     ~EventsProxyModel();
     QVariant data(const QModelIndex &index, int role) const;
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
@@ -32,7 +33,7 @@ public:
     void removeFilter(FilterType filterType);
 
 private:
-    EventsSqlModel* _model = nullptr;
+    std::shared_ptr<EventsSqlModel> _model;
     QVector<QVariant> _filters;
 
 };

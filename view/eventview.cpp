@@ -1,7 +1,10 @@
 #include "eventview.h"
 #include "ui_eventview.h"
 
+#include <QDebug>
+
 #include "model/eventssqlmodel.h"
+#include "controller/eventcontroller.h"
 
 //====================================================================================
 
@@ -31,6 +34,7 @@ EventView::EventView(QWidget *parent) :
 
 EventView::~EventView()
 {
+    qDebug() << "eventview deleted";
     _widgetMapper.revert();
     delete ui;
 }
@@ -134,6 +138,13 @@ void EventView::setMapperIndex(int index)
 void EventView::setCurrentImage(const QPixmap &image)
 {
     ui->currentImage->setIcon(QIcon(image));
+}
+
+//====================================================================================
+
+void EventView::setController(std::shared_ptr<EventController>& eventController)
+{
+    _eventController = eventController;
 }
 
 //====================================================================================

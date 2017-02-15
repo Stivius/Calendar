@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <functional>
+#include <memory>
 
 class ExportView;
 class EventsProxyModel;
@@ -30,13 +31,10 @@ using LessThanComparator = std::function<bool(const Event&, const Event&)>;
 class ExportController : public QObject
 {
     Q_OBJECT
-signals:
-    void finished();
-
 public:
     explicit ExportController(ExportView *exportView,
-                              EventsProxyModel *eventsModel,
-                              SettingsSqlModel* settingsSqlModel,
+                              std::shared_ptr<EventsProxyModel>& eventsProxyModel,
+                              std::shared_ptr<SettingsSqlModel>& settingsSqlModel,
                               QObject *parent);
     ~ExportController();
 
@@ -61,8 +59,8 @@ private:
 
 private:
     ExportView* _exportView = nullptr;
-    EventsProxyModel* _eventsProxyModel = nullptr;
-    SettingsSqlModel* _settingsSqlModel = nullptr;
+    std::shared_ptr<EventsProxyModel> _eventsProxyModel;
+    std::shared_ptr<SettingsSqlModel> _settingsSqlModel;
 
     QString _path;
     ExportType _exportType = ExportType::Pdf;

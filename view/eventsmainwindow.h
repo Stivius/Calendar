@@ -10,10 +10,13 @@
 
 #include "model/translationmodel.h"
 
-class Events;
 class EventsSqlModel;
 class EventsProxyModel;
 class SettingsSqlModel;
+class EventController;
+class SettingsController;
+class ExportController;
+class ImportController;
 
 namespace Ui {
 class EventsMainWindow;
@@ -66,10 +69,12 @@ private:
 private:
     Ui::EventsMainWindow *ui;
     QSqlDatabase _database;
-    std::unique_ptr<EventsSqlModel> _eventsSqlModel;
-    std::unique_ptr<EventsProxyModel> _eventsProxyModel;
-    std::unique_ptr<SettingsSqlModel> _settingsSqlModel;
-    std::unique_ptr<QActionGroup> _languagGroup;
+
+    std::shared_ptr<EventsSqlModel> _eventsSqlModel;
+    std::shared_ptr<EventsProxyModel> _eventsProxyModel;
+    std::shared_ptr<SettingsSqlModel> _settingsSqlModel;
+    std::unique_ptr<QActionGroup> _languageGroup;
+
     TranslationModel _translationModel;
     QDataWidgetMapper _widgetMapper;
 

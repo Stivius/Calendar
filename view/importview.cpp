@@ -1,6 +1,8 @@
 #include "importview.h"
 #include "ui_importview.h"
 
+#include "controller/importcontroller.h"
+
 //====================================================================================
 
 ImportView::ImportView(QWidget *parent) :
@@ -19,6 +21,13 @@ ImportView::ImportView(QWidget *parent) :
 ImportView::~ImportView()
 {
     delete ui;
+}
+
+//====================================================================================
+
+void ImportView::setController(std::shared_ptr<ImportController>& importController)
+{
+    _importController = importController;
 }
 
 //====================================================================================

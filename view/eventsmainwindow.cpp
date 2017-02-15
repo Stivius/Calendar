@@ -35,20 +35,20 @@ EventsMainWindow::EventsMainWindow(QWidget *parent) :
 
     connectToDatabase();
 
-    _languagGroup = std::unique_ptr<QActionGroup>(new QActionGroup(this));
-    _languagGroup->addAction(ui->russianAction);
-    _languagGroup->addAction(ui->ukrainianAction);
-    _languagGroup->addAction(ui->englishAction);
-    _languagGroup->setExclusive(true);
+    _languageGroup = std::unique_ptr<QActionGroup>(new QActionGroup(this));
+    _languageGroup->addAction(ui->russianAction);
+    _languageGroup->addAction(ui->ukrainianAction);
+    _languageGroup->addAction(ui->englishAction);
+    _languageGroup->setExclusive(true);
 
-    _eventsSqlModel = std::unique_ptr<EventsSqlModel>(new EventsSqlModel(_database));
-    _eventsProxyModel = std::unique_ptr<EventsProxyModel>(new EventsProxyModel(_eventsSqlModel.get()));
-    _settingsSqlModel = std::unique_ptr<SettingsSqlModel>(new SettingsSqlModel(_database));
+    _eventsSqlModel = std::make_shared<EventsSqlModel>(_database);
+    _eventsProxyModel = std::make_shared<EventsProxyModel>(_eventsSqlModel);
+    _settingsSqlModel = std::make_shared<SettingsSqlModel>(_database);
 
     connect(&_translationModel, &TranslationModel::languageChanged, this, [=](Language language){
         _settingsSqlModel->setLanguage(language);
         _eventsSqlModel->updateHeadersData();
-        _languagGroup->actions().at(static_cast<int>(language))->setChecked(true);
+        _languageGroup->actions().at(static_cast<int>(language))->setChecked(true);
         ui->retranslateUi(this);
     });
 
@@ -143,18 +143,16 @@ void EventsMainWindow::on_cardAction_triggered()
 
 void EventsMainWindow::openEventView(int row)
 {
-    EventView* eventView = new EventView;
+    auto eventView = new EventView;
+    auto eventController = std::make_shared<EventController>(eventView,
+                                                             _eventsSqlModel,
+                                                             _settingsSqlModel,
+                                                             row,
+                                                             this);
+
+    eventView->setController(eventController);
     eventView->setWindowModality(Qt::ApplicationModal);
     eventView->setAttribute(Qt::WA_DeleteOnClose);
-
-    EventController* eventController = new EventController(eventView,
-                                                           _eventsSqlModel.get(),
-                                                           _settingsSqlModel.get(),
-                                                           row,
-                                                           this);
-    connect(eventController, &EventController::finished, [=](){
-        delete eventController;
-    });
 
     eventView->show();
 }
@@ -163,16 +161,12 @@ void EventsMainWindow::openEventView(int row)
 
 void EventsMainWindow::on_settingsAction_triggered()
 {
-    SettingsView* settingsView = new SettingsView(this);
+    auto settingsView = new SettingsView(this);
+    auto settingsController = std::make_shared<SettingsController>(settingsView, _settingsSqlModel, this);
+
+    settingsView->setController(settingsController);
     settingsView->setWindowModality(Qt::ApplicationModal);
     settingsView->setAttribute(Qt::WA_DeleteOnClose);
-
-    SettingsController* settingsController = new SettingsController(settingsView,
-                                                                    _settingsSqlModel.get(),
-                                                                    this);
-    connect(settingsController, &SettingsController::finished, [=](){
-        delete settingsController;
-    });
 
     settingsView->show();
 }
@@ -181,17 +175,14 @@ void EventsMainWindow::on_settingsAction_triggered()
 
 void EventsMainWindow::on_exportAction_triggered()
 {
-    ExportView* exportView = new ExportView(this);
+    auto exportView = new ExportView(this);
+    auto exportController = std::make_shared<ExportController>(exportView,
+                                                               _eventsProxyModel,
+                                                               _settingsSqlModel,
+                                                               this);
+    exportView->setController(exportController);
     exportView->setWindowModality(Qt::ApplicationModal);
     exportView->setAttribute(Qt::WA_DeleteOnClose);
-
-    ExportController* exportController = new ExportController(exportView,
-                                                              _eventsProxyModel.get(),
-                                                              _settingsSqlModel.get(),
-                                                              this);
-    connect(exportController, &ExportController::finished, [=](){
-        delete exportController;
-    });
 
     exportView->show();
 }
@@ -200,16 +191,12 @@ void EventsMainWindow::on_exportAction_triggered()
 
 void EventsMainWindow::on_importAction_triggered()
 {
-    ImportView* importView = new ImportView(this);
+    auto importView = new ImportView(this);
+    auto importController = std::make_shared<ImportController>(importView, _eventsSqlModel, this);
+
+    importView->setController(importController);
     importView->setWindowModality(Qt::ApplicationModal);
     importView->setAttribute(Qt::WA_DeleteOnClose);
-
-    ImportController* importController = new ImportController(importView,
-                                                              _eventsSqlModel.get(),
-                                                              this);
-    connect(importController, &ImportController::finished, [=](){
-        delete importController;
-    });
 
     importView->show();
 }
@@ -315,7 +302,7 @@ void EventsMainWindow::on_placeAction_triggered()
 void EventsMainWindow::showMenu(const QPoint& pos)
 {
     QPoint globalPos = ui->tableView->mapToGlobal(pos);
-    QMenu* contextmenu = new QMenu;
+    auto contextmenu = new QMenu;
     contextmenu->installEventFilter(this);
     contextmenu->setAttribute(Qt::WA_DeleteOnClose);
     contextmenu->addAction(ui->cardAction);

@@ -2,6 +2,7 @@
 #define IMPORTCONTROLLER_H
 
 #include <QObject>
+#include <memory>
 
 class ImportView;
 class EventsSqlModel;
@@ -9,12 +10,9 @@ class EventsSqlModel;
 class ImportController : public QObject
 {
     Q_OBJECT
-signals:
-    void finished();
-
 public:
     explicit ImportController(ImportView *importView,
-                              EventsSqlModel *eventsSqlModel,
+                              std::shared_ptr<EventsSqlModel>& eventsSqlModel,
                               QObject *parent);
     ~ImportController();
 
@@ -26,7 +24,7 @@ private slots:
 
 private:
     ImportView* _importView = nullptr;
-    EventsSqlModel* _eventsSqlModel = nullptr;
+    std::shared_ptr<EventsSqlModel> _eventsSqlModel;
     QString _path;
 
 };

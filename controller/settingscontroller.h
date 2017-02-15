@@ -2,6 +2,7 @@
 #define SETTINGSCONTROLLER_H
 
 #include <QObject>
+#include <memory>
 
 class SettingsView;
 class SettingsSqlModel;
@@ -9,12 +10,9 @@ class SettingsSqlModel;
 class SettingsController : public QObject
 {
     Q_OBJECT
-signals:
-    void finished();
-
 public:    
     explicit SettingsController(SettingsView *settingsView,
-                                SettingsSqlModel *settingsSqlModel,
+                                std::shared_ptr<SettingsSqlModel>& settingsSqlModel,
                                 QObject *parent);
     ~SettingsController();
 
@@ -28,7 +26,7 @@ private:
 
 private:
     SettingsView* _settingsView = nullptr;
-    SettingsSqlModel* _settingsSqlModel = nullptr;
+    std::shared_ptr<SettingsSqlModel> _settingsSqlModel;
     QString _path;
 
 };

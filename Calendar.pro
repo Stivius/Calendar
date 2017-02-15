@@ -11,6 +11,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets sql printsupport xlsx
 TARGET = Calendar
 TEMPLATE = app
 
+CONFIG += c++14
+
 #include(qtxlsx/qtxlsx.pri)
 
 RC_ICONS = favicon.ico

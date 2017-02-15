@@ -10,19 +10,17 @@
 //====================================================================================
 
 SettingsController::SettingsController(SettingsView* settingsView,
-                                       SettingsSqlModel* settingsSqlModel,
+                                       std::shared_ptr<SettingsSqlModel>& settingsSqlModel,
                                        QObject* parent) :
     QObject(parent),
     _settingsView(settingsView),
     _settingsSqlModel(settingsSqlModel)
 {
-    connect(_settingsView, &SettingsView::destroyed, this, &SettingsController::finished);
-
     connect(_settingsView, &SettingsView::choosePathBtnClicked, this, &SettingsController::choosePath);
     connect(_settingsView, &SettingsView::submitBtnClicked, this, &SettingsController::submit);
     connect(_settingsView, &SettingsView::cancelBtnClicked, this, &SettingsController::cancel);
 
-    _settingsView->setMapperModel(_settingsSqlModel);
+    _settingsView->setMapperModel(_settingsSqlModel.get());
     _path = _settingsView->path();
 }
 

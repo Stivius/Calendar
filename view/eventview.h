@@ -3,12 +3,14 @@
 
 #include <QWidget>
 #include <QDataWidgetMapper>
+#include <memory>
 
 namespace Ui {
 class EventView;
 }
 
 class EventsSqlModel;
+class EventController;
 
 class EventView : public QWidget
 {
@@ -41,10 +43,12 @@ public:
     void setMapperModel(EventsSqlModel* eventsModel);
     void setMapperIndex(int index);
     void setCurrentImage(const QPixmap& image);
+    void setController(std::shared_ptr<EventController>& eventController);
 
 private:
     Ui::EventView *ui;
     QDataWidgetMapper _widgetMapper;
+    std::shared_ptr<EventController> _eventController;
 
 };
 

@@ -23,8 +23,8 @@ const int INVALID_INDEX = -1;
 //====================================================================================
 
 ExportController::ExportController(ExportView* exportView,
-                                   EventsProxyModel* eventsProxyModel,
-                                   SettingsSqlModel* settingsSqlModel,
+                                   std::shared_ptr<EventsProxyModel> &eventsProxyModel,
+                                   std::shared_ptr<SettingsSqlModel> &settingsSqlModel,
                                    QObject* parent) :
     QObject(parent),
     _exportView(exportView),
@@ -33,8 +33,6 @@ ExportController::ExportController(ExportView* exportView,
 {
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
     setPath(QApplication::applicationDirPath());
-
-    connect(_exportView, &ExportView::destroyed, this, &ExportController::finished);
 
     connect(_exportView, &ExportView::choosePathBtnClicked, this, &ExportController::choosePath);
     connect(_exportView, &ExportView::submitBtnClicked, this, &ExportController::submitExport);
@@ -62,7 +60,7 @@ ExportController::ExportController(ExportView* exportView,
 
 ExportController::~ExportController()
 {
-    //qDebug() << "export controller deleted";
+    qDebug() << "export controller deleted";
 }
 
 //====================================================================================

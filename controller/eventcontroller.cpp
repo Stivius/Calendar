@@ -19,8 +19,8 @@ const QString EXTENSION_PATTERN = "(.png)|(.jpg)|(.jpeg)";
 //====================================================================================
 
 EventController::EventController(EventView* eventView,
-                                 EventsSqlModel* eventsModel,
-                                 SettingsSqlModel* settingsModel,
+                                 std::shared_ptr<EventsSqlModel>& eventsModel,
+                                 std::shared_ptr<SettingsSqlModel>& settingsModel,
                                  int currentRow,
                                  QObject* parent) :
     QObject(parent),
@@ -28,9 +28,7 @@ EventController::EventController(EventView* eventView,
     _eventsModel(eventsModel),
     _settingsModel(settingsModel),
     _currentRow(currentRow)
-{   
-    connect(_eventView, &EventView::destroyed, this, &EventController::finished);
-
+{
     connect(_eventView, &EventView::saveBtnClicked, this, &EventController::saveEvent);
     connect(_eventView, &EventView::cancelBtnClicked, this, &EventController::cancelSaving);
 
@@ -69,7 +67,7 @@ EventController::EventController(EventView* eventView,
         _currentRow = _eventsModel->rowCount() - 1;
     }
 
-    _eventView->setMapperModel(_eventsModel);
+    _eventView->setMapperModel(_eventsModel.get());
     _eventView->setMapperIndex(_currentRow);
 }
 
@@ -78,7 +76,7 @@ EventController::EventController(EventView* eventView,
 EventController::~EventController()
 {
     _eventsModel->revertAll();
-    //qDebug() << "event controller deleted";
+    qDebug() << "event controller deleted";
 }
 
 //====================================================================================

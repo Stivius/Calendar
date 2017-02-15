@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QPixmap>
+#include <memory>
 
 class EventsSqlModel;
 class SettingsSqlModel;
@@ -17,13 +18,10 @@ struct Image {
 class EventController : public QObject
 {
     Q_OBJECT
-signals:
-    void finished();
-
 public:
     EventController(EventView* evenView,
-                    EventsSqlModel* eventsModel,
-                    SettingsSqlModel* settingsModel,
+                    std::shared_ptr<EventsSqlModel>& eventsModel,
+                    std::shared_ptr<SettingsSqlModel>& settingsModel,
                     int currentRow,
                     QObject* parent);
     ~EventController();
@@ -47,8 +45,8 @@ private:
 
 private:
     EventView* _eventView = nullptr;
-    EventsSqlModel* _eventsModel = nullptr;
-    SettingsSqlModel* _settingsModel = nullptr;
+    std::shared_ptr<EventsSqlModel> _eventsModel;
+    std::shared_ptr<SettingsSqlModel> _settingsModel;
     int _currentRow;
 
     QVector<Image> _images;
