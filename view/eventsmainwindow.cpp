@@ -35,7 +35,7 @@ EventsMainWindow::EventsMainWindow(QWidget *parent) :
 
     connectToDatabase();
 
-    _languageGroup = std::unique_ptr<QActionGroup>(new QActionGroup(this));
+    _languageGroup = std::make_unique<QActionGroup>(this);
     _languageGroup->addAction(ui->russianAction);
     _languageGroup->addAction(ui->ukrainianAction);
     _languageGroup->addAction(ui->englishAction);
