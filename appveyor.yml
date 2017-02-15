@@ -1,0 +1,12 @@
+install:
+  - set QTDIR=C:\Qt\5.7\mingw53_32
+  - set PATH=%PATH%;%QTDIR%\bin;C:\Qt\Tools\mingw530_32\bin
+build_script:
+  - git clone https://github.com/qtxlsx/QtXlsxWriter
+  - cd QtXlsxWriter
+  - qmake
+  - mingw32-make
+  - mingw32-make install
+  - cd ..
+  - qmake
+  - mingw32-make
