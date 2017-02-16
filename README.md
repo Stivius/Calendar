@@ -1,6 +1,13 @@
 # Calendar
 [![Build Status](https://travis-ci.org/Stivius/Calendar.svg?branch=master)](https://travis-ci.org/Stivius/Calendar) [![Build status](https://ci.appveyor.com/api/projects/status/2c9eq39elrvfpo9f?svg=true)](https://ci.appveyor.com/project/Stivius/calendar)
 
+Currently supported OS: Linux, Windows 7/10
+
+Not tested yet: OS X
+
+Requirements to build this on your host machine:
+- Qt5 (QtXlsxWriter requires this to be built)
+- GCC 4.9 (The minimum version for C++14 support)
 
 The first release for Windows/Linux.
 List of main features:
