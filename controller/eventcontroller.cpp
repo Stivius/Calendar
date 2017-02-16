@@ -125,7 +125,7 @@ void EventController::openCurrentImage()
 
 void EventController::openFileDialog()
 {
-   QFileDialog* import = new QFileDialog(_eventView);
+   auto import = new QFileDialog(_eventView);
    // import->setOption(QFileDialog::DontUseNativeDialog, true);
    connect(import, &QFileDialog::fileSelected, this, &EventController::uploadImage);
    import->setWindowModality(Qt::ApplicationModal);
@@ -139,9 +139,8 @@ void EventController::openFileDialog()
 void EventController::loadImages()
 {
    QStringList imagesList = _eventsModel->imagesList(_currentRow);
-   for(int i = 0; i != imagesList.size(); i++)
+   for(const QString& imageName: imagesList)
    {
-       QString imageName = imagesList[i];
        QString imagePath = _settingsModel->imagesFolder() + imageName;
        QFile file(imagePath);
        if(file.exists()) // if file exists in folder
@@ -232,7 +231,7 @@ void EventController::previousImage()
 
 void EventController::saveImages()
 {
-   for(Image curentImage: _images)
+   for(const Image& curentImage: _images)
    {
        QFile file(_settingsModel->imagesFolder() + curentImage._imageName);
        if(!file.exists())
@@ -245,7 +244,7 @@ void EventController::saveImages()
 QStringList EventController::getImagesNames()
 {
     QStringList imagesList;
-    for(Image currentImage: _images)
+    for(const Image& currentImage: _images)
     {
         imagesList.push_back(currentImage._imageName);
     }
@@ -256,7 +255,7 @@ QStringList EventController::getImagesNames()
 
 void EventController::removeTemporaryImages()
 {
-   for(QString imagePath: _imagesToRemove)
+   for(const QString& imagePath: _imagesToRemove)
    {
        QFile file(_settingsModel->imagesFolder() + imagePath);
        if(file.exists())

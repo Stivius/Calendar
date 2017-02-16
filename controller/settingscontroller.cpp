@@ -35,13 +35,13 @@ SettingsController::~SettingsController()
 
 void SettingsController::choosePath()
 {
-    QFileDialog* import = new QFileDialog(_settingsView);
+    auto dialog = new QFileDialog(_settingsView);
     //import->setOption(QFileDialog::DontUseNativeDialog, true);
-    connect(import, &QFileDialog::fileSelected, _settingsView, &SettingsView::setPath);
-    import->setWindowModality(Qt::ApplicationModal);
-    import->setFileMode(QFileDialog::Directory);
-    import->setAttribute(Qt::WA_DeleteOnClose);
-    import->show();
+    connect(dialog, &QFileDialog::fileSelected, _settingsView, &SettingsView::setPath);
+    dialog->setWindowModality(Qt::ApplicationModal);
+    dialog->setFileMode(QFileDialog::Directory);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->show();
 }
 
 //====================================================================================

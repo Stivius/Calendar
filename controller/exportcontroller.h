@@ -56,6 +56,7 @@ private:
     QString formatUsualEvents();
 
     QString countYears(int year);
+    void exportEvents(const QString &text);
 
 private:
     ExportView* _exportView = nullptr;

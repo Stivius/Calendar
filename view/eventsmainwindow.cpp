@@ -48,7 +48,7 @@ EventsMainWindow::EventsMainWindow(QWidget *parent) :
     connect(&_translationModel, &TranslationModel::languageChanged, this, [=](Language language){
         _settingsSqlModel->setLanguage(language);
         _eventsSqlModel->updateHeadersData();
-        _languageGroup->actions().at(static_cast<int>(language))->setChecked(true);
+        _languageGroup->actions().at(language)->setChecked(true);
         ui->retranslateUi(this);
     });
 
@@ -62,12 +62,11 @@ EventsMainWindow::EventsMainWindow(QWidget *parent) :
 
     QStringList sizes = _settingsSqlModel->headersSizes();
     for(int i = 1; i <= COLUMNS_COUNT; i++)
-        ui->tableView->horizontalHeader()->resizeSection(i, sizes[i-1].toInt());
+        ui->tableView->horizontalHeader()->resizeSection(i, sizes.at(i-1).toInt());
 
     hideColumns();
-    connect(_eventsProxyModel.get(), &EventsProxyModel::filterUpdated, this, [=](){
-        hideColumns();
-    });
+    connect(_eventsProxyModel.get(), &EventsProxyModel::filterUpdated,
+            this, &EventsMainWindow::hideColumns);
 
     if(_settingsSqlModel->anniversaryDates())
     {
@@ -208,6 +207,7 @@ void EventsMainWindow::on_removeEvent_triggered()
     QModelIndexList selection = ui->tableView->selectionModel()->selectedRows();
     if(selection.empty())
         return;
+
     QModelIndex sourceIndex = _eventsProxyModel->mapToSource(ui->tableView->currentIndex());
     _eventsSqlModel->removeRow(sourceIndex.row());
     _eventsSqlModel->submitAll();

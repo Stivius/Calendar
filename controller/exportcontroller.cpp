@@ -9,7 +9,6 @@
 #include <QTextStream>
 #include <QDebug>
 #include <QDate>
-#include <functional>
 
 #include "model/eventssqlmodel.h"
 #include "model/eventsproxymodel.h"
@@ -19,6 +18,32 @@
 //====================================================================================
 
 const int INVALID_INDEX = -1;
+
+const QString HTML_MONTH_NAME = "<tr>"
+                                "<th colspan=2>%1</th>"
+                                "</tr>";
+
+const QString HTML_EVENT = "<tr>"
+                           "<td width=30 align=center>%1</td>"
+                           "<td><b>%2</b>%3</td>"
+                           "</tr>";
+
+const QString HTML_MEMORY_TABLE = "<html>"
+                                  "<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>"
+                                  "<table width=600 border='1' align='center'>"
+                                  "<caption>Памятные даты</caption>"
+                                  "%1"
+                                  "</table>"
+                                  "</html>";
+
+const QString HTML_YEAR_TABLE = "<html>"
+                                "<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>"
+                                "<table width=600 border='1' align='center'>"
+                                "<caption>%1</caption>"
+                                "%2"
+                                "</table>"
+                                "</html>"
+                                "<br><br>";
 
 //====================================================================================
 
@@ -81,45 +106,58 @@ void ExportController::choosePath()
 void ExportController::submitExport()
 {
     LessThanComparator comp;
-    QString html;
-    QDesktopServices process;
+    QString resultedText;
 
     if(_exportFormat == ExportFormat::MemoryDates)
     {
         comp = std::bind(&ExportController::lessThanMonth, this, std::placeholders::_1, std::placeholders::_2);
         std::sort(_exportedEvents.begin(), _exportedEvents.end(), comp);
-        html = formatMemoryDates();
+        resultedText = formatMemoryDates();
 
     }
     else
     {
         comp = std::bind(&ExportController::lessThanYear, this, std::placeholders::_1, std::placeholders::_2);
         std::sort(_exportedEvents.begin(), _exportedEvents.end(), comp);
-        html = formatUsualEvents();
+        resultedText = formatUsualEvents();
     }
+
+    exportEvents(resultedText);
+    _exportView->close();
+}
+
+//====================================================================================
+
+void ExportController::exportEvents(const QString& text)
+{
+    QDesktopServices process;
 
     if(_exportType == ExportType::Browser)
     {
         QFile file(_path + "export.html");
         if(file.exists())
             file.remove();
+
         file.open(QIODevice::WriteOnly);
         QTextStream stream(&file);
-        stream << html;
+        stream << text;
         process.openUrl(QUrl::fromLocalFile(_path + "export.html"));
     }
     else // PDF
     {
+        QFile file(_path + "export.pdf");
+        if(file.exists())
+            file.remove();
+
         QPrinter printer(QPrinter::PrinterResolution);
         printer.setPageSize(QPrinter::A4);
         printer.setOutputFormat(QPrinter::PdfFormat);
         printer.setOutputFileName(_path + "export.pdf");
-        QTextDocument *doc = new QTextDocument;
-        doc->setHtml(html);
-        doc->print(&printer);
+        QTextDocument* document = new QTextDocument;
+        document->setHtml(text);
+        document->print(&printer);
         process.openUrl(QUrl::fromLocalFile(_path + "export.pdf"));
     }
-    _exportView->close();
 }
 
 //====================================================================================
@@ -134,16 +172,16 @@ void ExportController::setPath(const QString &path)
 
 void ExportController::initializeData()
 {
-    EventsSqlModel* _eventsSqlModel = static_cast<EventsSqlModel*>(_eventsProxyModel->sourceModel());
+    auto eventsSqlModel = static_cast<EventsSqlModel*>(_eventsProxyModel->sourceModel());
 
     for(int i = 0; i != _eventsProxyModel->rowCount(); i++)
     {
         QModelIndex sourceIndex = _eventsProxyModel->mapToSource(_eventsProxyModel->index(i, 0));
         int row = sourceIndex.row();
-        int day = _eventsSqlModel->day(row);
-        int month = _eventsSqlModel->month(row);
-        int year = _eventsSqlModel->year(row);
-        QString fullDescription = _eventsSqlModel->fullDescription(row);
+        int day = eventsSqlModel->day(row);
+        int month = eventsSqlModel->month(row);
+        int year = eventsSqlModel->year(row);
+        QString fullDescription = eventsSqlModel->fullDescription(row);
         _exportedEvents.push_back({day, month, year, fullDescription});
     }
 }
@@ -175,17 +213,14 @@ QString ExportController::formatMonths(int year)
     int currentMonth = INVALID_INDEX, previousMonth = INVALID_INDEX;
     QString formattedMonths;
 
-    for(Event event: _exportedEvents)
+    for(const Event& event: _exportedEvents)
     {
         if(event._year == year || year == INVALID_INDEX)
         {
             currentMonth = event._month;
             if(currentMonth != previousMonth)
             {
-                QString formattedMonthName = "<tr>"
-                                             "<th colspan=2>%1</th>"
-                                             "</tr>";
-                formattedMonths += formattedMonthName.arg(formatMonthName(event._month));
+                formattedMonths += HTML_MONTH_NAME.arg(formatMonthName(event._month));
             }
             formattedMonths += formatEvent(event);
             previousMonth = currentMonth;
@@ -201,30 +236,19 @@ QString ExportController::formatUsualEvents()
     QString formattedYears;
     int currentYear = INVALID_INDEX, previousYear = INVALID_INDEX;
 
-    for(Event event: _exportedEvents)
+    for(const Event& event: _exportedEvents)
     {
         currentYear = event._year;
 
         if(currentYear != previousYear)
         {
-            QString html;
-            html += "<html>"
-                    "<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>"
-                    "<table width=600 border='1' align='center'>"
-                    "<caption>%1</caption>";
-
-            html += formatMonths(event._year);
-            html += "</table>"
-                    "</html>";
-            html += "<br><br>";
-
             QString sYear;
             if(event._year == 0)
                 sYear = "Год неизвестен";
             else
                 sYear = QString::number(event._year);
 
-            formattedYears += html.arg(sYear);
+            formattedYears += HTML_YEAR_TABLE.arg(sYear).arg(formatMonths(event._year));
         }
         previousYear = currentYear;
     }
@@ -235,19 +259,7 @@ QString ExportController::formatUsualEvents()
 
 QString ExportController::formatMemoryDates()
 {
-    QString html;
-
-    html += "<html>"
-            "<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>"
-            "<table width=600 border='1' align='center'>"
-            "<caption>Памятные даты</caption>";
-
-    html += formatMonths();
-
-    html += "</table>"
-            "</html>";
-
-    return html;
+    return HTML_MEMORY_TABLE.arg(formatMonths());
 }
 
 //====================================================================================
@@ -301,16 +313,11 @@ QString ExportController::formatMonthName(int month)
 
 QString ExportController::formatEvent(const Event& event)
 {
-    QString formattedEvent = "<tr>"
-                             "<td width=30 align=center>%1</td>"
-                             "<td><b>%2</b>%3</td>"
-                             "</tr>";
-
     QString formattedYears;
     if(_exportFormat == ExportFormat::MemoryDates)
         formattedYears = countYears(event._year) + "<br>";
 
-    return formattedEvent.arg(event._day).arg(formattedYears).arg(event._fullDescription);
+    return HTML_EVENT.arg(event._day).arg(formattedYears).arg(event._fullDescription);
 }
 
 //====================================================================================

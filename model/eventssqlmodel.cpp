@@ -249,8 +249,7 @@ QString EventsSqlModel::getFormat(int day, int month, int year, const QString& f
     QString finalDay = (day == 0) ? UNKNOWN_DAY : KNOWN_DAY;
     QString finalMonth = (month == 0) ? UNKNOWN_MONTH : KNOWN_MONTH;
     QString finalYear = (year == 0) ? UNKNOWN_YEAR : KNOWN_YEAR;
-    QString finalFormat = format.arg(finalDay).arg(finalMonth).arg(finalYear);
-    return finalFormat;
+    return format.arg(finalDay).arg(finalMonth).arg(finalYear);
 }
 
 //====================================================================================

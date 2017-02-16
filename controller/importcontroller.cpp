@@ -76,6 +76,7 @@ void ImportController::openExcelTemplate()
     QFile file(_path + "/import.xlsx");
     if(file.exists())
         file.remove();
+
     QXlsx::Document xlsx(_path + "/import.xlsx");
     xlsx.write("A1","Дата");
     xlsx.write("B1","Событие");
@@ -88,7 +89,7 @@ void ImportController::openExcelTemplate()
 
 void ImportController::choosePath()
 {
-    QFileDialog* importDialog = new QFileDialog(_importView);
+    auto importDialog = new QFileDialog(_importView);
     //importDialog->setOption(QFileDialog::DontUseNativeDialog, true);
     connect(importDialog, &QFileDialog::fileSelected, this, &ImportController::setPath);
     importDialog->setFileMode(QFileDialog::Directory);
