@@ -11,6 +11,7 @@ Requirements to build this on your host machine:
 - GCC 4.9 (The minimum version for C++14 support)
 
 The first release for Windows/Linux.
+
 List of main features:
 - Create and store past/future events
 - Attach images to events
