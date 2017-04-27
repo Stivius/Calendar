@@ -1,5 +1,7 @@
 # Calendar
 
+[![Build status](https://ci.appveyor.com/api/projects/status/ttevkyl6g98lcj2s?svg=true)](https://ci.appveyor.com/project/Stivius/calendar-478ag)
+
 Currently supported OS: Linux, Windows 7/10
 
 Not tested yet: OS X
