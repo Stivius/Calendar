@@ -1,6 +1,6 @@
 # Calendar
 
-[![Build status](https://ci.appveyor.com/api/projects/status/ttevkyl6g98lcj2s?svg=true)](https://ci.appveyor.com/project/Stivius/calendar-478ag)[![Build Status](https://semaphoreci.com/api/v1/stivius/calendar/branches/master/shields_badge.svg)](https://semaphoreci.com/stivius/calendar)
+[![Build status](https://ci.appveyor.com/api/projects/status/ttevkyl6g98lcj2s?svg=true)](https://ci.appveyor.com/project/Stivius/calendar-478ag)  [![Build Status](https://semaphoreci.com/api/v1/stivius/calendar/branches/master/shields_badge.svg)](https://semaphoreci.com/stivius/calendar)
 
 Currently supported OS: Linux, Windows 7/10
 
