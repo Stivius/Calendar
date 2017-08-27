@@ -1,6 +1,6 @@
 # Calendar
 
-[![Build status](https://ci.appveyor.com/api/projects/status/ttevkyl6g98lcj2s?svg=true)](https://ci.appveyor.com/project/Stivius/calendar-478ag)  [![Build Status](https://travis-ci.org/Stivius/Archive-Calendar.svg?branch=master)](https://travis-ci.org/Stivius/Archive-Calendar)
+[![Build status](https://ci.appveyor.com/api/projects/status/osjabxkxvcjh1ck1?svg=true)](https://ci.appveyor.com/project/Stivius/archive-calendar)  [![Build Status](https://travis-ci.org/Stivius/Archive-Calendar.svg?branch=master)](https://travis-ci.org/Stivius/Archive-Calendar)
 
 Currently supported OS: Linux, Windows 7/10
 
